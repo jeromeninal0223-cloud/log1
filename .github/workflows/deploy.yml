@@ -19,9 +19,9 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          port: ${{ secrets.FTP_PORT }}
-          local-dir: ./   # Upload from repo root
-          server-dir: /home/logistics1.jetlougetravels-ph.com
+          port: ${{ secrets.FTP_PORT }} # optional, default 21
+          local-dir: ./   # Upload everything from repo root
+          server-dir: /home/logistics1.jetlougetravels-ph.com/public_folder/
           exclude: |
             **/.git*
             **/.github/**
