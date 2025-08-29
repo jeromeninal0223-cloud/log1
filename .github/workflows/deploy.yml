@@ -1,4 +1,4 @@
-name: 🚀 SFTP Deploy
+name: 🚀 FTP Deploy
 
 on:
   push:
@@ -6,21 +6,20 @@ on:
       - main
 
 jobs:
-  sftp-deploy:
+  ftp-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: 📂 Upload files via SFTP
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+      - name: 📂 Sync files via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: 23.94.230.146          
-          port: 21
+          server: 23.94.230.146
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local_path: './'
-          remote_path: '/home/logistics1.jetlougetravels-ph.com/public_folder'
-          sftp_only: true
-          delete_remote_files: false
+          protocol: ftp
+          port: 21
+          local-dir: ./public_folder
+          server-dir: /home/logistics1.jetlougetravels-ph.com/public_folder
