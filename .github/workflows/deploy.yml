@@ -23,8 +23,4 @@ jobs:
           local_path: './'
           remote_path: '/home/logistics1.jetlougetravels-ph.com/public_folder'
           sftp_only: true
-          exclude: |
-            .git*
-            .github/*
-            node_modules/*
-            .env
+        
