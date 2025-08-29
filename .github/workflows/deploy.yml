@@ -1,29 +1,30 @@
-name: 🚀 FTP Deploy
+name: 🚀 SFTP Deploy
 
 on:
   push:
     branches:
-      - main   # runs when you push to main
+      - main
 
 jobs:
-  ftp-deploy:
+  sftp-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: 📂 Sync files via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: 📂 Upload files via SFTP
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
         with:
           server: ${{ secrets.FTP_SERVER }}
+          port: 22
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          port: ${{ secrets.FTP_PORT }} # optional, default 21
-          local-dir: ./   # Upload everything from repo root
-          server-dir: /home/logistics1.jetlougetravels-ph.com/public_folder/
+          local_path: './'
+          remote_path: '/home/logistics1.jetlougetravels-ph.com/public_folder'
+          sftp_only: true
           exclude: |
-            **/.git*
-            **/.github/**
-            **/node_modules/**
-            **/.env
+            .git*
+            .github/*
+            node_modules/*
+            .env
