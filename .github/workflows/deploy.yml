@@ -22,4 +22,4 @@ jobs:
           protocol: ftp
           port: 21
           local-dir: ./public_folder/
-          server-dir: /home/logistics1.jetlougetravels-ph.com/public_folder/
+          server-dir: /home/logistics1.jetlougetravels-ph.com/public_html/
