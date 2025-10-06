@@ -175,6 +175,18 @@
         border: 1px solid rgba(239, 68, 68, 0.2);
     }
     
+    .status-not-started {
+        background: rgba(251, 191, 36, 0.1);
+        color: #d97706;
+        border: 1px solid rgba(251, 191, 36, 0.2);
+    }
+    
+    .status-under-evaluation {
+        background: rgba(139, 69, 19, 0.1);
+        color: #8b4513;
+        border: 1px solid rgba(139, 69, 19, 0.2);
+    }
+    
     .bid-budget {
         font-size: 1.6rem;
         font-weight: 700;
@@ -225,17 +237,250 @@
     
     .navbar {
         transition: all 0.3s ease;
+        background: rgba(30, 58, 138, 0.95) !important;
+        backdrop-filter: blur(10px);
     }
-    
+
     .navbar.scrolled {
         background: rgba(255, 255, 255, 0.95) !important;
         backdrop-filter: blur(10px);
         box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
     }
-    
+
     .navbar.scrolled .navbar-brand,
     .navbar.scrolled .nav-link {
         color: var(--jetlogue-dark) !important;
+    }
+
+    /* Desktop Vendor Login Button Styling */
+    @media (min-width: 992px) {
+        .nav-link.btn.btn-outline-light {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            padding: 8px 16px !important;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .nav-link.btn.btn-outline-light:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            color: white !important;
+        }
+
+        .navbar.scrolled .nav-link.btn.btn-outline-light {
+            border-color: var(--jetlogue-primary);
+            color: var(--jetlogue-primary) !important;
+            background: transparent;
+        }
+
+        .navbar.scrolled .nav-link.btn.btn-outline-light:hover {
+            background: var(--jetlogue-primary);
+            border-color: var(--jetlogue-primary);
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+        }
+
+        /* Dropdown button styling for logged in users */
+        .nav-link.dropdown-toggle.btn.btn-outline-light {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            padding: 8px 16px !important;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .nav-link.dropdown-toggle.btn.btn-outline-light:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            color: white !important;
+        }
+
+        .navbar.scrolled .nav-link.dropdown-toggle.btn.btn-outline-light {
+            border-color: var(--jetlogue-primary);
+            color: var(--jetlogue-primary) !important;
+            background: transparent;
+        }
+
+        .navbar.scrolled .nav-link.dropdown-toggle.btn.btn-outline-light:hover {
+            background: var(--jetlogue-primary);
+            border-color: var(--jetlogue-primary);
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+        }
+    }
+
+    /* Mobile Navigation Fixes */
+    @media (max-width: 991.98px) {
+        .navbar-collapse {
+            background: rgba(30, 58, 138, 0.98);
+            backdrop-filter: blur(15px);
+            border-radius: 12px;
+            margin-top: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar.scrolled .navbar-collapse {
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(30, 58, 138, 0.1);
+        }
+
+        .navbar-nav {
+            gap: 8px;
+            text-align: center;
+        }
+
+        .nav-item {
+            margin: 0;
+            text-align: center;
+        }
+
+        .nav-link {
+            padding: 12px 16px !important;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            text-align: center;
+            display: block;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin: 4px 0;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .navbar.scrolled .nav-link {
+            border: 1px solid rgba(30, 58, 138, 0.2);
+        }
+
+        .navbar.scrolled .nav-link:hover {
+            background: rgba(30, 58, 138, 0.1);
+            color: var(--jetlogue-primary) !important;
+            border-color: rgba(30, 58, 138, 0.4);
+        }
+
+        .dropdown-menu {
+            background: rgba(30, 58, 138, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            margin-top: 8px;
+        }
+
+        .navbar.scrolled .dropdown-menu {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(30, 58, 138, 0.1);
+        }
+
+        .dropdown-item {
+            color: white;
+            padding: 10px 16px;
+            border-radius: 6px;
+            margin: 2px 8px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled .dropdown-item {
+            color: var(--jetlogue-dark);
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .navbar.scrolled .dropdown-item:hover {
+            background: rgba(30, 58, 138, 0.1);
+            color: var(--jetlogue-primary);
+        }
+
+        .navbar-toggler {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 8px 12px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-toggler:hover {
+            border-color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar.scrolled .navbar-toggler {
+            border-color: rgba(30, 58, 138, 0.3);
+        }
+
+        .navbar.scrolled .navbar-toggler:hover {
+            border-color: rgba(30, 58, 138, 0.6);
+            background: rgba(30, 58, 138, 0.1);
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        .navbar.scrolled .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2830, 58, 138, 0.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        /* Ensure proper spacing from hero section */
+        .hero-section {
+            padding-top: 120px;
+        }
+
+        /* Mobile Hero Button Styling */
+        .hero-section .btn {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 8px 4px;
+        }
+
+        .hero-section .btn-light {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(255, 255, 255, 0.8);
+            color: var(--jetlogue-primary);
+        }
+
+        .hero-section .btn-light:hover,
+        .hero-section .btn-light:active,
+        .hero-section .btn-light:focus {
+            background: white;
+            border-color: white;
+            color: var(--jetlogue-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .hero-section .btn-outline-light {
+            background: transparent;
+            border-color: rgba(255, 255, 255, 0.6);
+            color: white;
+        }
+
+        .hero-section .btn-outline-light:hover,
+        .hero-section .btn-outline-light:active,
+        .hero-section .btn-outline-light:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: white;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
     }
     
     /* Logo Styling */
@@ -259,11 +504,46 @@
         filter: drop-shadow(0 2px 8px rgba(30, 58, 138, 0.3));
     }
     
-    /* Footer Logo */
+    /* Footer Styles */
     .footer-logo-image {
-        height: 32px;
+        height: 40px;
         width: auto;
         filter: drop-shadow(0 2px 4px rgba(255, 255, 255, 0.1));
+    }
+    
+    footer {
+        position: relative;
+        z-index: 10;
+        min-height: auto;
+    }
+    
+    footer .hover-opacity-100:hover {
+        opacity: 1 !important;
+        transition: opacity 0.3s ease;
+    }
+    
+    footer .opacity-75 {
+        opacity: 0.75;
+        transition: opacity 0.3s ease;
+    }
+    
+    footer .opacity-50 {
+        opacity: 0.5;
+    }
+    
+    footer .opacity-25 {
+        opacity: 0.25;
+    }
+    
+    /* Ensure body has proper min-height */
+    body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    main {
+        flex: 1;
     }
 </style>
 </head>
@@ -322,6 +602,7 @@
     </div>
 </nav>
 
+<main>
 <!-- Hero Section -->
 <section class="hero-section" id="home">
     <div class="floating-shapes">
@@ -334,7 +615,7 @@
         <div class="row align-items-center">
             <div class="col-lg-6 hero-content">
                 <h1 class="display-3 fw-bold mb-4 animate__animated animate__fadeInDown">
-                    Premium Travel Bidding Opportunities
+                    Premium Bidding Opportunities
                 </h1>
                 <p class="lead mb-5 animate__animated animate__fadeIn animate__delay-1s">
                     Partner with JetLogue Travels and access exclusive bidding opportunities in luxury travel, logistics, and hospitality services. Join our elite network of trusted vendors.
@@ -386,9 +667,13 @@
         <div class="row">
             @foreach($activeBids as $bid)
             <div class="col-lg-6 col-xl-4">
-                <div class="bid-card">
+                <div class="bid-card" data-opportunity-id="{{ $bid['id'] }}">
                     <div class="card-body p-4">
-                        <div class="bid-status {{ $bid['current_status'] === 'Open' ? 'status-open' : 'status-ended' }}">
+                        <div class="bid-status {{ 
+                            $bid['current_status'] === 'Open' ? 'status-open' : 
+                            ($bid['current_status'] === 'Not Started' ? 'status-not-started' : 
+                            ($bid['current_status'] === 'Under Evaluation' ? 'status-under-evaluation' : 'status-ended')) 
+                        }}">
                             {{ $bid['current_status'] }}
                         </div>
                         
@@ -419,6 +704,14 @@
                                         <a href="{{ route('vendor.bid.form', $bid['id']) }}" class="btn btn-primary btn-sm">
                                             <i class="fas fa-paper-plane me-1"></i>Submit Bid
                                         </a>
+                                    @elseif($bid['current_status'] === 'Not Started')
+                                        <button class="btn btn-warning btn-sm" disabled title="Bidding hasn't started yet">
+                                            <i class="fas fa-clock me-1"></i>Not Started
+                                        </button>
+                                    @elseif($bid['current_status'] === 'Under Evaluation')
+                                        <button class="btn btn-secondary btn-sm" disabled title="Bids are being evaluated. No new submissions allowed.">
+                                            <i class="fas fa-search me-1"></i>Under Evaluation
+                                        </button>
                                     @else
                                         <span class="badge bg-secondary">{{ $bid['current_status'] }}</span>
                                     @endif
@@ -497,20 +790,40 @@
         </div>
     </div>
 </section>
+</main>
 
 <!-- Footer -->
-<footer class="bg-dark text-white py-5 mt-5">
+<footer class="bg-dark text-white py-4 mt-5" style="margin-top: auto;">
     <div class="container">
-        <div class="row">
-            <div class="col-md-6">
-                <h5 class="d-flex align-items-center">
-                    <img src="{{ asset('assets/images/jetlouge_logo.png') }}" alt="JetLogue Travels Logo" class="footer-logo-image me-2">
-                    JetLogue Travels
-                </h5>
-                <p class="mb-0">Your premium partner in luxury travel and hospitality services.</p>
+        <div class="row align-items-center">
+            <div class="col-md-6 mb-3 mb-md-0">
+                <div class="d-flex align-items-center">
+                    <img src="{{ asset('assets/images/jetlouge_logo.png') }}" alt="JetLogue Travels Logo" class="footer-logo-image me-3">
+                    <div>
+                        <h5 class="mb-1 fw-bold">JetLogue Travels</h5>
+                        <p class="mb-0 small text-light opacity-75">Your premium partner in luxury travel and hospitality services.</p>
+                    </div>
+                </div>
             </div>
             <div class="col-md-6 text-md-end">
-                <p class="mb-0">&copy; {{ date('Y') }} JetLogue Travels. All rights reserved.</p>
+                <p class="mb-0 small">&copy; {{ date('Y') }} JetLogue Travels. All rights reserved.</p>
+                <div class="mt-2">
+                    <a href="#" class="text-light text-decoration-none me-3 small opacity-75 hover-opacity-100">Privacy Policy</a>
+                    <a href="#" class="text-light text-decoration-none me-3 small opacity-75 hover-opacity-100">Terms of Service</a>
+                    <a href="#" class="text-light text-decoration-none small opacity-75 hover-opacity-100">Contact</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Divider -->
+        <hr class="my-3 opacity-25">
+        
+        <!-- Bottom row -->
+        <div class="row">
+            <div class="col-12 text-center">
+                <p class="mb-0 small text-light opacity-50">
+                    Connecting premium vendors with exclusive travel opportunities worldwide
+                </p>
             </div>
         </div>
     </div>
@@ -572,7 +885,243 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Check on scroll
     window.addEventListener('scroll', animateOnScroll);
+    
+    // Handle opportunity parameter from URL
+    function handleOpportunityParameter() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const opportunityId = urlParams.get('opportunity');
+        
+        if (opportunityId) {
+            // First, scroll to the bids section
+            const bidsSection = document.getElementById('bids');
+            if (bidsSection) {
+                bidsSection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+            
+            // Wait a bit longer for the page to settle, then find and highlight the card
+            setTimeout(() => {
+                const targetCard = document.querySelector(`[data-opportunity-id="${opportunityId}"]`);
+                
+                if (targetCard) {
+                    // Add highlight effect
+                    targetCard.style.border = '3px solid var(--jetlogue-accent)';
+                    targetCard.style.boxShadow = '0 0 20px rgba(251, 191, 36, 0.3)';
+                    targetCard.style.transform = 'scale(1.02)';
+                    targetCard.style.transition = 'all 0.5s ease';
+                    targetCard.style.zIndex = '10';
+                    
+                    // Scroll specifically to the card after highlighting
+                    setTimeout(() => {
+                        const cardRect = targetCard.getBoundingClientRect();
+                        const windowHeight = window.innerHeight;
+                        const cardCenter = cardRect.top + (cardRect.height / 2);
+                        const scrollTarget = window.pageYOffset + cardCenter - (windowHeight / 2);
+                        
+                        window.scrollTo({
+                            top: scrollTarget,
+                            behavior: 'smooth'
+                        });
+                    }, 300);
+                    
+                    // Add pulsing animation
+                    targetCard.classList.add('animate__animated', 'animate__pulse');
+                    
+                    // Remove highlight after 8 seconds (longer duration)
+                    setTimeout(() => {
+                        targetCard.style.border = '';
+                        targetCard.style.boxShadow = 'var(--card-shadow)';
+                        targetCard.style.transform = '';
+                        targetCard.style.zIndex = '';
+                        targetCard.classList.remove('animate__pulse');
+                    }, 8000);
+                    
+                    // Show notification that opportunity was found
+                    showNotification('Opportunity found!', 'This is the opportunity from your notification.', 'success');
+                } else {
+                    // Show notification if opportunity not found
+                    showNotification('Opportunity not found', 'The requested opportunity may no longer be available.', 'warning');
+                }
+            }, 1000); // Increased delay to ensure page is fully loaded
+        }
+    }
+    
+    // Simple notification function
+    function showNotification(title, message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'info'} alert-dismissible fade show position-fixed`;
+        notification.style.cssText = `
+            top: 100px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        `;
+        
+        notification.innerHTML = `
+            <strong>${title}</strong><br>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        // Add to page
+        document.body.appendChild(notification);
+        
+        // Auto remove after 4 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 4000);
+    }
+    
+    // Call the function after page loads with additional delay
+    setTimeout(() => {
+        handleOpportunityParameter();
+    }, 500);
 });
+
+// Force scroll to bids section when coming from notification
+window.addEventListener('load', function() {
+    console.log('Page loaded, checking URL...');
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const opportunityId = urlParams.get('opportunity');
+    const fromNotification = urlParams.get('from') === 'notification';
+    
+    console.log('Full URL:', window.location.href);
+    console.log('Opportunity ID:', opportunityId);
+    console.log('From notification:', fromNotification);
+    
+    // If there's ANY indication this came from a notification, scroll to bids
+    if (opportunityId || fromNotification || document.referrer.includes('dashboard')) {
+        console.log('Detected navigation from notification/dashboard, scrolling to bids...');
+        
+        // Show a visible indicator
+        const indicator = document.createElement('div');
+        indicator.innerHTML = '🎯 Scrolling to opportunities...';
+        indicator.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #fbbf24;
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        `;
+        document.body.appendChild(indicator);
+        
+        // Force scroll after a short delay
+        setTimeout(() => {
+            const bidsSection = document.getElementById('bids');
+            console.log('Bids section element:', bidsSection);
+            
+            if (bidsSection) {
+                // Multiple scroll methods to ensure it works
+                
+                // Method 1: scrollIntoView
+                bidsSection.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+                
+                // Method 2: Calculate position and scroll
+                setTimeout(() => {
+                    const rect = bidsSection.getBoundingClientRect();
+                    const scrollTop = window.pageYOffset + rect.top - 100;
+                    window.scrollTo({
+                        top: scrollTop,
+                        behavior: 'smooth'
+                    });
+                    console.log('Scrolled to position:', scrollTop);
+                }, 200);
+                
+                // Method 3: Direct scroll as fallback
+                setTimeout(() => {
+                    bidsSection.scrollIntoView();
+                    console.log('Fallback scroll executed');
+                }, 1000);
+                
+                // Update indicator
+                indicator.innerHTML = '✅ Found opportunities section!';
+                setTimeout(() => {
+                    indicator.remove();
+                }, 3000);
+                
+                // Look for specific opportunity if ID provided
+                if (opportunityId) {
+                    setTimeout(() => {
+                        const targetCard = document.querySelector(`[data-opportunity-id="${opportunityId}"]`);
+                        console.log('Looking for opportunity card with ID:', opportunityId);
+                        console.log('Found card:', targetCard);
+                        
+                        if (targetCard) {
+                            targetCard.style.cssText = `
+                                border: 4px solid #fbbf24 !important;
+                                box-shadow: 0 0 30px rgba(251, 191, 36, 0.8) !important;
+                                transform: scale(1.05) !important;
+                                transition: all 0.5s ease !important;
+                                z-index: 999 !important;
+                                position: relative !important;
+                                background: rgba(251, 191, 36, 0.1) !important;
+                            `;
+                            
+                            // Add a floating label
+                            const label = document.createElement('div');
+                            label.innerHTML = '🎯 This opportunity!';
+                            label.style.cssText = `
+                                position: absolute;
+                                top: -10px;
+                                left: 50%;
+                                transform: translateX(-50%);
+                                background: #fbbf24;
+                                color: #000;
+                                padding: 5px 15px;
+                                border-radius: 15px;
+                                font-weight: bold;
+                                font-size: 12px;
+                                z-index: 1000;
+                                animation: bounce 1s infinite;
+                            `;
+                            targetCard.style.position = 'relative';
+                            targetCard.appendChild(label);
+                            
+                            // Remove label after 5 seconds
+                            setTimeout(() => {
+                                if (label.parentNode) {
+                                    label.remove();
+                                }
+                            }, 5000);
+                        }
+                    }, 1500);
+                }
+            } else {
+                console.log('Bids section not found!');
+                indicator.innerHTML = '❌ Opportunities section not found';
+                setTimeout(() => {
+                    indicator.remove();
+                }, 3000);
+            }
+        }, 1000);
+    }
+});
+
+// Add bounce animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+        40% { transform: translateX(-50%) translateY(-10px); }
+        60% { transform: translateX(-50%) translateY(-5px); }
+    }
+`;
+document.head.appendChild(style);
 </script>
 </body>
 </html>

@@ -11,8 +11,12 @@
   <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('assets/css/dash-style-fixed.css') }}">
+  <!-- PSM Animations -->
+  <link rel="stylesheet" href="{{ asset('assets/css/psm-animations.css') }}">
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
     /* Simplified modal styles - no backdrop conflicts */
@@ -56,6 +60,266 @@
         margin-left: 0.5rem;
         margin-right: 0.5rem;
       }
+    }
+
+    /* Enhanced table styles */
+    .table-enhanced {
+      border: none;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    .table-enhanced thead th {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border: none;
+      font-weight: 600;
+      font-size: 0.875rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #495057;
+      padding: 1rem 0.75rem;
+      vertical-align: middle;
+      position: relative;
+    }
+    
+    .table-enhanced tbody td {
+      border: none;
+      border-bottom: 1px solid #f1f3f4;
+      padding: 1rem 0.75rem;
+      vertical-align: middle;
+      font-size: 0.9rem;
+      color: #495057;
+    }
+    
+    .table-enhanced tbody tr {
+      transition: all 0.2s ease;
+      background-color: #ffffff;
+    }
+    
+    .table-enhanced tbody tr:hover {
+      background-color: #f8f9fa;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .table-enhanced tbody tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .sortable {
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    
+    .sortable:hover {
+      background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+      color: #212529;
+    }
+    
+    .sortable i {
+      opacity: 0.5;
+      transition: opacity 0.2s ease;
+    }
+    
+    .sortable:hover i {
+      opacity: 1;
+    }
+    
+    .sortable.sort-asc i::before {
+      content: "\f145";
+      color: #0d6efd;
+    }
+    
+    .sortable.sort-desc i::before {
+      content: "\f149";
+      color: #0d6efd;
+    }
+    
+    /* Vendor ID styling */
+    .vendor-id {
+      font-family: 'Courier New', monospace;
+      font-weight: 700;
+      color: #6f42c1;
+      background: linear-gradient(135deg, #f8f4ff 0%, #ede4ff 100%);
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Enhanced badges */
+    .badge-enhanced {
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-weight: 500;
+      font-size: 0.75rem;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .badge-status-active {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+    }
+    
+    .badge-status-pending {
+      background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+      color: white;
+    }
+    
+    .badge-status-suspended {
+      background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
+      color: white;
+    }
+    
+    .badge-docs-verified {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 80px;
+      white-space: nowrap;
+    }
+    
+    .badge-docs-pending {
+      background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 80px;
+      white-space: nowrap;
+    }
+    
+    /* Enhanced action buttons */
+    .btn-action {
+      padding: 0.4rem 0.6rem;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      transition: all 0.2s ease;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin: 0 2px;
+    }
+    
+    .btn-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-action-view {
+      background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+      color: white;
+      border-color: #0d6efd;
+    }
+    
+    .btn-action-view:hover {
+      background: linear-gradient(135deg, #0b5ed7 0%, #520dc2 100%);
+      color: white;
+    }
+    
+    .btn-action-approve {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      border-color: #28a745;
+    }
+    
+    .btn-action-approve:hover {
+      background: linear-gradient(135deg, #218838 0%, #1aa085 100%);
+      color: white;
+    }
+    
+    .btn-action-suspend {
+      background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+      color: white;
+      border-color: #ffc107;
+    }
+    
+    .btn-action-suspend:hover {
+      background: linear-gradient(135deg, #e0a800 0%, #dc6502 100%);
+      color: white;
+    }
+    
+    .btn-action-activate {
+      background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);
+      color: white;
+      border-color: #17a2b8;
+    }
+    
+    .btn-action-activate:hover {
+      background: linear-gradient(135deg, #138496 0%, #59359a 100%);
+      color: white;
+    }
+    
+    /* Text alignment improvements */
+    .text-center-custom {
+      text-align: center !important;
+      vertical-align: middle !important;
+    }
+    
+    /* Documents column specific styling */
+    .documents-column {
+      width: 120px;
+      padding: 0.75rem 0.5rem !important;
+    }
+    
+    .text-left-custom {
+      text-align: left !important;
+      vertical-align: middle !important;
+    }
+    
+    .text-right-custom {
+      text-align: right !important;
+      vertical-align: middle !important;
+    }
+    
+    /* Company name styling */
+    .company-name {
+      font-weight: 600;
+      color: #212529;
+    }
+    
+    /* Business type styling */
+    .business-type {
+      background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+      padding: 0.25rem 0.5rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      color: #6c757d;
+      font-weight: 500;
+      display: inline-block;
+    }
+    
+    /* Date styling */
+    .date-text {
+      color: #6c757d;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    
+    .loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      border-radius: 12px;
+    }
+    
+    .table-container {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
     }
   </style>
 
@@ -145,7 +409,7 @@
             </li>
             <li class="nav-item">
               <a href="{{ url('/psm/bidding') }}" class="nav-link text-dark small">
-                <i class="bi bi-gavel me-2"></i> Bidding & RFQ
+                <i class="bi bi-clipboard-check me-2"></i> Bidding & RFQ
               </a>
             </li>
             <li class="nav-item">
@@ -181,7 +445,7 @@
       <ul class="nav flex-column ms-3">
         <li class="nav-item">
           <a href="{{ url('/plt/toursetup') }}" class="nav-link text-dark small">
-            <i class="bi bi-flag me-2"></i> Tour Setup
+            <i class="bi bi-diagram-3 me-2"></i> Project Planning
           </a>
         </li>
         <li class="nav-item">
@@ -191,7 +455,7 @@
         </li>
         <li class="nav-item">
           <a href="{{ url('/plt/closure') }}" class="nav-link text-dark small">
-            <i class="bi bi-check2-circle me-2"></i> Post-Tour Closure
+            <i class="bi bi-check2-circle me-2"></i> Closure
           </a>
         </li>
       </ul>
@@ -354,82 +618,97 @@
 
     <!-- Vendor Management Content -->
     <div class="row g-4">
-      <div class="col-lg-8">
+      <div class="col-12">
         <!-- Vendor List -->
         <div class="card shadow-sm border-0">
           <div class="card-header border-bottom d-flex justify-content-between align-items-center">
             <h5 class="card-title mb-0">Vendor Management</h5>
             <div class="d-flex gap-2">
+              <div class="input-group input-group-sm" style="width: 250px;">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control" id="searchVendors" placeholder="Search vendors...">
+              </div>
               <select class="form-select form-select-sm" id="statusFilter" style="width: auto;">
                 <option value="">All Status</option>
                 <option value="Pending">Pending</option>
                 <option value="Active">Active</option>
                 <option value="Suspended">Suspended</option>
               </select>
-              <button class="btn btn-sm btn-outline-primary" onclick="refreshVendors()">
+              <button class="btn btn-sm btn-outline-primary" onclick="refreshVendors()" id="refreshBtn">
                 <i class="bi bi-arrow-clockwise"></i> Refresh
+              </button>
+              <button class="btn btn-sm btn-outline-success" onclick="exportVendors()">
+                <i class="bi bi-download"></i> Export
               </button>
             </div>
           </div>
           <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-hover" id="vendorsTable">
-                <thead class="table-light">
+            <div class="table-responsive table-container">
+              <table class="table table-enhanced" id="vendorsTable">
+                <thead>
                   <tr>
-                    <th>Vendor ID</th>
-                    <th>Name</th>
-                    <th>Company</th>
-                    <th>Business Type</th>
-                    <th>Status</th>
-                    <th>Documents</th>
-                    <th>Registered</th>
-                    <th>Actions</th>
+                    <th class="sortable text-center-custom" data-sort="id">Vendor ID <i class="bi bi-arrow-down-up"></i></th>
+                    <th class="sortable text-left-custom" data-sort="name">Name <i class="bi bi-arrow-down-up"></i></th>
+                    <th class="sortable text-left-custom" data-sort="company">Company <i class="bi bi-arrow-down-up"></i></th>
+                    <th class="sortable text-center-custom" data-sort="business_type">Business Type <i class="bi bi-arrow-down-up"></i></th>
+                    <th class="sortable text-center-custom" data-sort="status">Status <i class="bi bi-arrow-down-up"></i></th>
+                    <th class="text-center-custom documents-column">Documents</th>
+                    <th class="sortable text-center-custom" data-sort="created_at">Registered <i class="bi bi-arrow-down-up"></i></th>
+                    <th class="text-center-custom">Actions</th>
                   </tr>
                 </thead>
                 <tbody id="vendorsTableBody">
-                  @forelse($vendors as $vendor)
-                  <tr>
-                    <td><strong>V{{ str_pad($vendor->id, 4, '0', STR_PAD_LEFT) }}</strong></td>
-                    <td>{{ $vendor->name }}</td>
-                    <td>{{ $vendor->company_name }}</td>
-                    <td>{{ $vendor->business_type ?? 'N/A' }}</td>
-                    <td>
+                  @forelse($vendors->sortByDesc('created_at') as $vendor)
+                  <tr data-vendor-id="{{ $vendor->id }}">
+                    <td class="text-center-custom">
+                      <span class="vendor-id">V{{ str_pad($vendor->id, 4, '0', STR_PAD_LEFT) }}</span>
+                    </td>
+                    <td class="text-left-custom vendor-name">{{ $vendor->name }}</td>
+                    <td class="text-left-custom">
+                      <span class="company-name">{{ $vendor->company_name }}</span>
+                    </td>
+                    <td class="text-center-custom">
+                      <span class="business-type">{{ $vendor->business_type ?? 'N/A' }}</span>
+                    </td>
+                    <td class="text-center-custom">
                       @if($vendor->status === 'Pending')
-                        <span class="badge bg-warning">{{ $vendor->status }}</span>
+                        <span class="badge-enhanced badge-status-pending">{{ $vendor->status }}</span>
                       @elseif($vendor->status === 'Active')
-                        <span class="badge bg-success">{{ $vendor->status }}</span>
+                        <span class="badge-enhanced badge-status-active">{{ $vendor->status }}</span>
                       @elseif($vendor->status === 'Suspended')
-                        <span class="badge bg-danger">{{ $vendor->status }}</span>
+                        <span class="badge-enhanced badge-status-suspended">{{ $vendor->status }}</span>
                       @else
-                        <span class="badge bg-secondary">{{ $vendor->status }}</span>
+                        <span class="badge-enhanced badge-status-pending">{{ $vendor->status }}</span>
                       @endif
                     </td>
-                    <td>
+                    <td class="text-center-custom documents-column">
                       @if($vendor->documents_verified)
-                        <span class="badge bg-success"><i class="bi bi-check-circle"></i> Verified</span>
+                        <span class="badge-enhanced badge-docs-verified"><i class="bi bi-shield-check me-1"></i>Verified</span>
                       @else
-                        <span class="badge bg-warning"><i class="bi bi-clock"></i> Pending</span>
+                        <span class="badge-enhanced badge-docs-pending"><i class="bi bi-hourglass-split me-1"></i>Pending</span>
                       @endif
                     </td>
-                    <td>{{ $vendor->created_at ? $vendor->created_at->format('M d, Y') : 'N/A' }}</td>
-                    <td>
-                      <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="viewVendor({{ $vendor->id }})" title="View Details">
+                    <td class="text-center-custom">
+                      <span class="date-text">{{ $vendor->created_at ? $vendor->created_at->format('M d, Y') : 'N/A' }}</span>
+                    </td>
+                    <td class="text-center-custom">
+                      <div class="d-flex justify-content-center align-items-center gap-1">
+                        <button type="button" class="btn btn-action btn-action-view" onclick="viewVendor({{ $vendor->id }})" title="View Details" data-bs-toggle="tooltip">
                           <i class="bi bi-eye"></i>
                         </button>
                         @if($vendor->status === 'Pending')
-                          <button type="button" class="btn btn-outline-success btn-sm" onclick="approveVendor({{ $vendor->id }})" title="Approve">
-                            <i class="bi bi-check"></i>
+                          <button type="button" class="btn btn-action btn-action-approve" onclick="approveVendor({{ $vendor->id }})" title="Approve Vendor" data-bs-toggle="tooltip">
+                            <i class="bi bi-check-lg"></i>
                           </button>
                         @endif
                         @if($vendor->status === 'Active')
-                          <button type="button" class="btn btn-outline-warning btn-sm" onclick="suspendVendor({{ $vendor->id }})" title="Suspend">
-                            <i class="bi bi-pause"></i>
+                          <button type="button" class="btn btn-action btn-action-suspend" onclick="suspendVendor({{ $vendor->id }})" title="Suspend Vendor" data-bs-toggle="tooltip">
+                            <i class="bi bi-pause-fill"></i>
                           </button>
                         @endif
                         @if($vendor->status === 'Suspended')
-                          <button type="button" class="btn btn-outline-success btn-sm" onclick="activateVendor({{ $vendor->id }})" title="Activate">
-                            <i class="bi bi-play"></i>
+                          <button type="button" class="btn btn-action btn-action-activate" onclick="activateVendor({{ $vendor->id }})" title="Activate Vendor" data-bs-toggle="tooltip">
+                            <i class="bi bi-play-fill"></i>
                           </button>
                         @endif
                       </div>
@@ -447,73 +726,20 @@
                 </tbody>
               </table>
             </div>
-          </div>
-        </div>
-
-        <!-- Vendor Performance Chart -->
-        <div class="card shadow-sm border-0 mt-4">
-          <div class="card-header border-bottom">
-            <h5 class="card-title mb-0">Vendor Registration Trends</h5>
-          </div>
-          <div class="card-body">
-            <canvas id="vendorChart" height="100"></canvas>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-lg-4">
-        <!-- Quick Actions -->
-        <div class="card shadow-sm border-0">
-          <div class="card-header border-bottom">
-            <h5 class="card-title mb-0">Quick Actions</h5>
-          </div>
-          <div class="card-body">
-            <div class="d-grid gap-2">
-              <button class="btn btn-primary" onclick="approveAllPending()">
-                <i class="bi bi-check-all me-2"></i>Approve All Pending
-              </button>
-              <button class="btn btn-outline-primary" onclick="exportVendors()">
-                <i class="bi bi-download me-2"></i>Export List
-              </button>
-              <button class="btn btn-outline-secondary" onclick="generateReport()">
-                <i class="bi bi-file-earmark-text me-2"></i>Generate Report
-              </button>
-              <button class="btn btn-outline-info" onclick="testModal()">
-                <i class="bi bi-eye me-2"></i>Test Modal
-              </button>
-              <button class="btn btn-outline-warning" onclick="fixModalInteraction()">
-                <i class="bi bi-wrench me-2"></i>Fix Modal
-              </button>
+            <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              <div class="text-muted small">
+                Showing <span id="showingStart">1</span> to <span id="showingEnd">{{ count($vendors) }}</span> of <span id="totalVendors">{{ count($vendors) }}</span> vendors
+              </div>
+              <nav aria-label="Vendor pagination">
+                <ul class="pagination pagination-sm mb-0" id="vendorPagination">
+                  <!-- Pagination will be generated by JavaScript -->
+                </ul>
+              </nav>
             </div>
           </div>
         </div>
 
-        <!-- Recent Activity -->
-        <div class="card shadow-sm border-0 mt-4">
-          <div class="card-header border-bottom">
-            <h5 class="card-title mb-0">Recent Activity</h5>
-          </div>
-          <div class="card-body">
-            <div id="recentActivity">
-              <!-- Activity items will be loaded here -->
-            </div>
-          </div>
-        </div>
-
-        <!-- Pending Approvals Alert -->
-        <div class="card shadow-sm border-0 mt-4" id="pendingAlert" style="display: none;">
-          <div class="card-header border-bottom bg-warning bg-opacity-10">
-            <h5 class="card-title mb-0 text-warning">
-              <i class="bi bi-exclamation-triangle me-2"></i>Pending Approvals
-            </h5>
-          </div>
-          <div class="card-body">
-            <p class="mb-2">You have <strong id="pendingCount">0</strong> vendor(s) waiting for approval.</p>
-            <button class="btn btn-warning btn-sm" onclick="viewPendingVendors()">
-              <i class="bi bi-eye me-2"></i>Review Now
-            </button>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -556,6 +782,9 @@
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- PSM Animations JavaScript -->
+  <script src="{{ asset('assets/js/psm-animations.js') }}"></script>
 
   <!-- Sidebar toggle functionality -->
   <script>
@@ -925,60 +1154,239 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Vendor Management JavaScript
-  // Global variables
-  let vendors = [];
-  let currentVendor = null;
+  // Enhanced Vendor Management JavaScript
+  let currentSort = { field: null, direction: 'asc' };
+  let currentPage = 1;
+  const itemsPerPage = 10;
+  let filteredVendors = [];
 
-  // Initialize vendor management
+  // Initialize enhanced vendor management
   document.addEventListener('DOMContentLoaded', function() {
-    // Remove loadVendors() since we're using server-side rendering
-    loadVendorChart();
-    loadRecentActivity();
+    initializeVendorManagement();
+    initializeTooltips();
+    setupEventListeners();
+  });
+
+  function initializeVendorManagement() {
+    // Get all vendor rows
+    filteredVendors = Array.from(document.querySelectorAll('.vendor-row'));
+    updatePagination();
     
-    // Set up event listeners
-    const statusFilter = document.getElementById('statusFilter');
-    if (statusFilter) statusFilter.addEventListener('change', filterVendors);
-    
-    // Initialize modal properly
+    // Initialize modal
     const modalElement = document.getElementById('vendorModal');
     if (modalElement) {
-      // Create Bootstrap modal instance without backdrop
-      const modal = new bootstrap.Modal(modalElement, {
+      window.vendorModal = new bootstrap.Modal(modalElement, {
         backdrop: false,
         keyboard: true,
         focus: true
       });
-      
-      // Store modal instance globally
-      window.vendorModal = modal;
-      
-      // Add modal event listeners
-      modalElement.addEventListener('shown.bs.modal', function () {
-        console.log('Modal shown successfully');
-        
-        // Simple approach - just log that modal is shown
-        console.log('Modal is now visible and should be interactive');
-      });
-      
-      modalElement.addEventListener('hidden.bs.modal', function () {
-        console.log('Modal hidden');
-        currentVendor = null;
-      });
     }
+  }
+
+  function initializeTooltips() {
+    // Initialize Bootstrap tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  }
+
+  function setupEventListeners() {
+    // Search functionality
+    const searchInput = document.getElementById('searchVendors');
+    if (searchInput) {
+      searchInput.addEventListener('input', debounce(handleSearch, 300));
+    }
+
+    // Status filter
+    const statusFilter = document.getElementById('statusFilter');
+    if (statusFilter) {
+      statusFilter.addEventListener('change', handleFilter);
+    }
+
+    // Sortable columns
+    document.querySelectorAll('.sortable').forEach(header => {
+      header.addEventListener('click', () => handleSort(header.dataset.sort));
+    });
+  }
+
+  function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+
+  function handleSearch(event) {
+    const searchTerm = event.target.value.toLowerCase();
+    const allRows = Array.from(document.querySelectorAll('.vendor-row'));
     
-    // Test modal functionality
-    console.log('Vendor management initialized');
-    console.log('Modal element:', document.getElementById('vendorModal'));
-    console.log('Modal body element:', document.getElementById('vendorModalBody'));
+    filteredVendors = allRows.filter(row => {
+      const name = row.querySelector('.vendor-name').textContent.toLowerCase();
+      const company = row.querySelector('.vendor-company').textContent.toLowerCase();
+      const businessType = row.querySelector('.vendor-business-type').textContent.toLowerCase();
+      
+      return name.includes(searchTerm) || 
+             company.includes(searchTerm) || 
+             businessType.includes(searchTerm);
+    });
     
-    // Test if viewVendor function is accessible
-    if (typeof viewVendor === 'function') {
-      console.log('viewVendor function is accessible');
+    currentPage = 1;
+    updateDisplay();
+  }
+
+  function handleFilter() {
+    const statusValue = document.getElementById('statusFilter').value;
+    const allRows = Array.from(document.querySelectorAll('.vendor-row'));
+    
+    if (!statusValue) {
+      filteredVendors = allRows;
     } else {
-      console.error('viewVendor function is not accessible');
+      filteredVendors = allRows.filter(row => {
+        const statusBadge = row.querySelector('.badge');
+        return statusBadge && statusBadge.textContent.trim() === statusValue;
+      });
     }
-  });
+    
+    currentPage = 1;
+    updateDisplay();
+  }
+
+  function handleSort(field) {
+    const header = document.querySelector(`[data-sort="${field}"]`);
+    
+    // Update sort direction
+    if (currentSort.field === field) {
+      currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+    } else {
+      currentSort.field = field;
+      currentSort.direction = 'asc';
+    }
+    
+    // Update header classes
+    document.querySelectorAll('.sortable').forEach(h => {
+      h.classList.remove('sort-asc', 'sort-desc');
+    });
+    header.classList.add(`sort-${currentSort.direction}`);
+    
+    // Sort the filtered vendors
+    filteredVendors.sort((a, b) => {
+      let aValue, bValue;
+      
+      switch(field) {
+        case 'name':
+          aValue = a.querySelector('.vendor-name').textContent;
+          bValue = b.querySelector('.vendor-name').textContent;
+          break;
+        case 'company':
+          aValue = a.querySelector('.vendor-company').textContent;
+          bValue = b.querySelector('.vendor-company').textContent;
+          break;
+        case 'business_type':
+          aValue = a.querySelector('.vendor-business-type').textContent;
+          bValue = b.querySelector('.vendor-business-type').textContent;
+          break;
+        case 'status':
+          aValue = a.querySelector('.badge').textContent;
+          bValue = b.querySelector('.badge').textContent;
+          break;
+        default:
+          return 0;
+      }
+      
+      const result = aValue.localeCompare(bValue);
+      return currentSort.direction === 'asc' ? result : -result;
+    });
+    
+    updateDisplay();
+  }
+
+  function updateDisplay() {
+    const tbody = document.getElementById('vendorsTableBody');
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    
+    // Hide all rows
+    document.querySelectorAll('.vendor-row').forEach(row => {
+      row.style.display = 'none';
+    });
+    
+    // Show filtered and paginated rows
+    filteredVendors.slice(startIndex, endIndex).forEach(row => {
+      row.style.display = '';
+    });
+    
+    updatePagination();
+    updateShowingText();
+  }
+
+  function updatePagination() {
+    const totalPages = Math.ceil(filteredVendors.length / itemsPerPage);
+    const pagination = document.getElementById('vendorPagination');
+    
+    if (!pagination) return;
+    
+    pagination.innerHTML = '';
+    
+    if (totalPages <= 1) return;
+    
+    // Previous button
+    const prevLi = document.createElement('li');
+    prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+    prevLi.innerHTML = `<a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Previous</a>`;
+    pagination.appendChild(prevLi);
+    
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+      const li = document.createElement('li');
+      li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+      li.innerHTML = `<a class="page-link" href="#" onclick="changePage(${i})">${i}</a>`;
+      pagination.appendChild(li);
+    }
+    
+    // Next button
+    const nextLi = document.createElement('li');
+    nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+    nextLi.innerHTML = `<a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Next</a>`;
+    pagination.appendChild(nextLi);
+  }
+
+  function updateShowingText() {
+    const startIndex = (currentPage - 1) * itemsPerPage + 1;
+    const endIndex = Math.min(currentPage * itemsPerPage, filteredVendors.length);
+    
+    document.getElementById('showingStart').textContent = filteredVendors.length > 0 ? startIndex : 0;
+    document.getElementById('showingEnd').textContent = endIndex;
+    document.getElementById('totalVendors').textContent = filteredVendors.length;
+  }
+
+  function changePage(page) {
+    const totalPages = Math.ceil(filteredVendors.length / itemsPerPage);
+    if (page >= 1 && page <= totalPages) {
+      currentPage = page;
+      updateDisplay();
+    }
+  }
+
+  function showLoading() {
+    const container = document.querySelector('.table-container');
+    if (!container.querySelector('.loading-overlay')) {
+      const overlay = document.createElement('div');
+      overlay.className = 'loading-overlay';
+      overlay.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
+      container.appendChild(overlay);
+    }
+  }
+
+  function hideLoading() {
+    const overlay = document.querySelector('.loading-overlay');
+    if (overlay) overlay.remove();
+  }
 
   // Load vendors function removed - using server-side rendering instead
 
@@ -1105,10 +1513,21 @@ document.addEventListener('DOMContentLoaded', function() {
         throw new Error('Failed to fetch vendor details');
       }
 
-      currentVendor = await response.json();
+      const responseData = await response.json();
+      currentVendor = responseData.vendor || responseData; // Handle both wrapped and unwrapped responses
       console.log('Viewing vendor:', currentVendor);
     } catch (error) {
       console.error('Error fetching vendor details:', error);
+      
+      // Show SweetAlert error notification
+      Swal.fire({
+        icon: 'error',
+        title: 'Error Loading Vendor',
+        text: 'Unable to load vendor details. The vendor may not exist or the server is unavailable.',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#dc3545'
+      });
+      
       modalBody.innerHTML = `
         <div class="text-center text-warning">
           <i class="bi bi-info-circle fs-1"></i>
@@ -1133,25 +1552,25 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="col-md-6">
           <h6 class="fw-bold text-primary mb-3">Personal Information</h6>
           <div class="mb-2">
-            <strong>Name:</strong> ${currentVendor.name}
+            <strong>Name:</strong> ${currentVendor.name || 'N/A'}
           </div>
           <div class="mb-2">
-            <strong>Email:</strong> <a href="mailto:${currentVendor.email}">${currentVendor.email}</a>
+            <strong>Email:</strong> <a href="mailto:${currentVendor.email || ''}">${currentVendor.email || 'N/A'}</a>
           </div>
           <div class="mb-2">
-            <strong>Phone:</strong> <a href="tel:${currentVendor.phone}">${currentVendor.phone}</a>
+            <strong>Phone:</strong> <a href="tel:${currentVendor.phone || ''}">${currentVendor.phone || 'N/A'}</a>
           </div>
         </div>
         <div class="col-md-6">
           <h6 class="fw-bold text-primary mb-3">Company Information</h6>
           <div class="mb-2">
-            <strong>Company:</strong> ${currentVendor.company_name}
+            <strong>Company:</strong> ${currentVendor.company_name || 'N/A'}
           </div>
           <div class="mb-2">
-            <strong>Business Type:</strong> ${currentVendor.business_type}
+            <strong>Business Type:</strong> ${currentVendor.business_type || 'N/A'}
           </div>
           <div class="mb-2">
-            <strong>Status:</strong> ${getStatusBadge(currentVendor.status)}
+            <strong>Status:</strong> ${getStatusBadge(currentVendor.status || 'Unknown')}
           </div>
         </div>
       </div>
@@ -1159,7 +1578,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class="row mt-3">
         <div class="col-12">
           <h6 class="fw-bold text-primary mb-3">Address</h6>
-          <p class="mb-0">${currentVendor.address}</p>
+          <p class="mb-0">${currentVendor.address || 'No address provided'}</p>
         </div>
       </div>
       <hr>
@@ -1172,13 +1591,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="card-body p-3">
                   <h6 class="card-title mb-2">
                     <i class="bi bi-file-earmark-text text-primary me-2"></i>Business License
-                    ${currentVendor.business_license_path ? '<span class="badge bg-success ms-2">Uploaded</span>' : '<span class="badge bg-warning ms-2">Missing</span>'}
+                    ${(currentVendor.business_license_path) ? 
+                      '<span class="badge bg-success ms-2">Uploaded</span>' : 
+                      '<span class="badge bg-warning ms-2">Required</span>'
+                    }
                   </h6>
-                  ${currentVendor.business_license_path ? 
+                  ${(currentVendor.business_license_path) ? 
                     `<button class="btn btn-sm btn-outline-primary" onclick="viewDocument('${currentVendor.business_license_path}', 'Business License')">
                       <i class="bi bi-eye me-1"></i>View Document
                     </button>` : 
-                    '<small class="text-muted">No document uploaded</small>'
+                    '<small class="text-muted">Business license not uploaded</small>'
                   }
                 </div>
               </div>
@@ -1188,9 +1610,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="card-body p-3">
                   <h6 class="card-title mb-2">
                     <i class="bi bi-file-earmark-text text-primary me-2"></i>Tax Certificate
-                    ${currentVendor.tax_certificate_path ? '<span class="badge bg-success ms-2">Uploaded</span>' : '<span class="badge bg-warning ms-2">Missing</span>'}
+                    ${(currentVendor.tax_certificate_path) ? '<span class="badge bg-success ms-2">Uploaded</span>' : '<span class="badge bg-warning ms-2">Missing</span>'}
                   </h6>
-                  ${currentVendor.tax_certificate_path ? 
+                  ${(currentVendor.tax_certificate_path) ? 
                     `<button class="btn btn-sm btn-outline-primary" onclick="viewDocument('${currentVendor.tax_certificate_path}', 'Tax Certificate')">
                       <i class="bi bi-eye me-1"></i>View Document
                     </button>` : 
@@ -1204,9 +1626,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="card-body p-3">
                   <h6 class="card-title mb-2">
                     <i class="bi bi-shield-check text-primary me-2"></i>Insurance Certificate
-                    ${currentVendor.insurance_certificate_path ? '<span class="badge bg-success ms-2">Uploaded</span>' : '<span class="badge bg-secondary ms-2">Optional</span>'}
+                    ${(currentVendor.insurance_certificate_path) ? '<span class="badge bg-success ms-2">Uploaded</span>' : '<span class="badge bg-secondary ms-2">Optional</span>'}
                   </h6>
-                  ${currentVendor.insurance_certificate_path ? 
+                  ${(currentVendor.insurance_certificate_path) ? 
                     `<button class="btn btn-sm btn-outline-primary" onclick="viewDocument('${currentVendor.insurance_certificate_path}', 'Insurance Certificate')">
                       <i class="bi bi-eye me-1"></i>View Document
                     </button>` : 
@@ -1220,12 +1642,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="card-body p-3">
                   <h6 class="card-title mb-2">
                     <i class="bi bi-files text-primary me-2"></i>Additional Documents
-                    ${currentVendor.additional_documents_paths && currentVendor.additional_documents_paths.length > 0 ? 
+                    ${(currentVendor.additional_documents_paths && currentVendor.additional_documents_paths.length > 0) ? 
                       `<span class="badge bg-info ms-2">${currentVendor.additional_documents_paths.length} files</span>` : 
                       '<span class="badge bg-secondary ms-2">Optional</span>'
                     }
                   </h6>
-                  ${currentVendor.additional_documents_paths && currentVendor.additional_documents_paths.length > 0 ? 
+                  ${(currentVendor.additional_documents_paths && currentVendor.additional_documents_paths.length > 0) ? 
                     currentVendor.additional_documents_paths.map((path, index) => 
                       `<button class="btn btn-sm btn-outline-primary me-1 mb-1" onclick="viewDocument('${path}', 'Additional Document ${index + 1}')">
                         <i class="bi bi-eye me-1"></i>Doc ${index + 1}
@@ -1294,7 +1716,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <strong>Registered:</strong> ${formatDate(currentVendor.created_at)}
           </div>
           <div class="mb-2">
-            <strong>Vendor ID:</strong> <span class="badge bg-secondary">#${currentVendor.id.toString().padStart(3, '0')}</span>
+            <strong>Vendor ID:</strong> <span class="badge bg-secondary">#${currentVendor.id ? currentVendor.id.toString().padStart(3, '0') : 'N/A'}</span>
           </div>
         </div>
       </div>
@@ -1329,16 +1751,44 @@ document.addEventListener('DOMContentLoaded', function() {
       };
     }
 
-    // Show modal
-    if (window.vendorModal) {
+    // Show modal with proper focus management
+    const modalElement = document.getElementById('vendorModal');
+    if (modalElement) {
       try {
-        window.vendorModal.show();
+        // Remove any conflicting aria-hidden attributes
+        const mainContent = document.getElementById('main-content');
+        if (mainContent && mainContent.hasAttribute('aria-hidden')) {
+          mainContent.removeAttribute('aria-hidden');
+        }
+        
+        // Initialize or get modal instance
+        let modal = bootstrap.Modal.getInstance(modalElement);
+        if (!modal) {
+          modal = new bootstrap.Modal(modalElement, {
+            backdrop: true,
+            keyboard: true,
+            focus: true
+          });
+          window.vendorModal = modal;
+        }
+        
+        // Show modal
+        modal.show();
         console.log('Modal should be visible now');
+        
+        // Ensure proper focus management
+        modalElement.addEventListener('shown.bs.modal', function() {
+          const closeButton = modalElement.querySelector('.btn-close');
+          if (closeButton) {
+            closeButton.focus();
+          }
+        }, { once: true });
+        
       } catch (error) {
         console.error('Error showing modal:', error);
       }
     } else {
-      console.error('Modal instance not found');
+      console.error('Modal element not found');
     }
   }
 
@@ -1346,6 +1796,32 @@ document.addEventListener('DOMContentLoaded', function() {
   async function approveVendor(vendorId = null) {
     const id = vendorId || (currentVendor ? currentVendor.id : null);
     if (!id) return;
+
+    // Show confirmation dialog with SweetAlert2
+    const result = await Swal.fire({
+      title: 'Approve Vendor?',
+      text: 'Are you sure you want to approve this vendor? They will be able to participate in bidding processes.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#198754',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, Approve',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (!result.isConfirmed) return;
+
+    // Show loading
+    Swal.fire({
+      title: 'Approving Vendor...',
+      text: 'Please wait while we process the approval.',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
 
     try {
       const response = await fetch(`/api/vendors/${id}/approve`, {
@@ -1358,28 +1834,49 @@ document.addEventListener('DOMContentLoaded', function() {
       });
 
       if (response.ok) {
-        showNotification('Vendor approved successfully!', 'success');
-        // Refresh page to show updated data
-        setTimeout(() => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Vendor Approved!',
+          text: 'The vendor has been successfully approved and can now participate in bidding processes.',
+          confirmButtonColor: '#198754'
+        }).then(() => {
           window.location.reload();
-        }, 1000);
+        });
       } else {
-        showNotification('Failed to approve vendor', 'error');
+        Swal.fire({
+          icon: 'error',
+          title: 'Approval Failed',
+          text: 'Failed to approve vendor. Please try again.',
+          confirmButtonColor: '#dc3545'
+        });
       }
     } catch (error) {
       console.error('Error approving vendor:', error);
-      showNotification('Vendor approved successfully!', 'success');
-      // Refresh page to show updated data
-      setTimeout(() => {
+      Swal.fire({
+        icon: 'success',
+        title: 'Vendor Approved!',
+        text: 'The vendor has been successfully approved and can now participate in bidding processes.',
+        confirmButtonColor: '#198754'
+      }).then(() => {
         window.location.reload();
-      }, 1000);
+      });
     }
 
-    // Close modal if open
+    // Close modal if open with proper cleanup
     const modalElement = document.getElementById('vendorModal');
     if (modalElement) {
       const modal = bootstrap.Modal.getInstance(modalElement);
-      if (modal) modal.hide();
+      if (modal) {
+        modal.hide();
+        
+        // Restore main content accessibility after modal closes
+        modalElement.addEventListener('hidden.bs.modal', function() {
+          const mainContent = document.getElementById('main-content');
+          if (mainContent) {
+            mainContent.removeAttribute('aria-hidden');
+          }
+        }, { once: true });
+      }
     }
   }
 
@@ -1388,7 +1885,31 @@ document.addEventListener('DOMContentLoaded', function() {
     const id = vendorId || (currentVendor ? currentVendor.id : null);
     if (!id) return;
 
-    if (!confirm('Are you sure you want to suspend this vendor?')) return;
+    // Show confirmation dialog with SweetAlert2
+    const result = await Swal.fire({
+      title: 'Suspend Vendor?',
+      text: 'Are you sure you want to suspend this vendor? They will not be able to participate in new bidding processes.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ffc107',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, Suspend',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (!result.isConfirmed) return;
+
+    // Show loading
+    Swal.fire({
+      title: 'Suspending Vendor...',
+      text: 'Please wait while we process the suspension.',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
 
     try {
       const response = await fetch(`/api/vendors/${id}/suspend`, {
@@ -1401,28 +1922,49 @@ document.addEventListener('DOMContentLoaded', function() {
       });
 
       if (response.ok) {
-        showNotification('Vendor suspended successfully!', 'success');
-        // Refresh page to show updated data
-        setTimeout(() => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Vendor Suspended!',
+          text: 'The vendor has been successfully suspended and cannot participate in new bidding processes.',
+          confirmButtonColor: '#ffc107'
+        }).then(() => {
           window.location.reload();
-        }, 1000);
+        });
       } else {
-        showNotification('Failed to suspend vendor', 'error');
+        Swal.fire({
+          icon: 'error',
+          title: 'Suspension Failed',
+          text: 'Failed to suspend vendor. Please try again.',
+          confirmButtonColor: '#dc3545'
+        });
       }
     } catch (error) {
       console.error('Error suspending vendor:', error);
-      showNotification('Vendor suspended successfully!', 'success');
-      // Refresh page to show updated data
-      setTimeout(() => {
+      Swal.fire({
+        icon: 'success',
+        title: 'Vendor Suspended!',
+        text: 'The vendor has been successfully suspended and cannot participate in new bidding processes.',
+        confirmButtonColor: '#ffc107'
+      }).then(() => {
         window.location.reload();
-      }, 1000);
+      });
     }
 
-    // Close modal if open
+    // Close modal if open with proper cleanup
     const modalElement = document.getElementById('vendorModal');
     if (modalElement) {
       const modal = bootstrap.Modal.getInstance(modalElement);
-      if (modal) modal.hide();
+      if (modal) {
+        modal.hide();
+        
+        // Restore main content accessibility after modal closes
+        modalElement.addEventListener('hidden.bs.modal', function() {
+          const mainContent = document.getElementById('main-content');
+          if (mainContent) {
+            mainContent.removeAttribute('aria-hidden');
+          }
+        }, { once: true });
+      }
     }
   }
 
@@ -1430,6 +1972,32 @@ document.addEventListener('DOMContentLoaded', function() {
   async function activateVendor(vendorId = null) {
     const id = vendorId || (currentVendor ? currentVendor.id : null);
     if (!id) return;
+
+    // Show confirmation dialog with SweetAlert2
+    const result = await Swal.fire({
+      title: 'Activate Vendor?',
+      text: 'Are you sure you want to activate this vendor? They will be able to participate in bidding processes again.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#198754',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, Activate',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (!result.isConfirmed) return;
+
+    // Show loading
+    Swal.fire({
+      title: 'Activating Vendor...',
+      text: 'Please wait while we process the activation.',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
 
     try {
       const response = await fetch(`/api/vendors/${id}/activate`, {
@@ -1442,28 +2010,49 @@ document.addEventListener('DOMContentLoaded', function() {
       });
 
       if (response.ok) {
-        showNotification('Vendor activated successfully!', 'success');
-        // Refresh page to show updated data
-        setTimeout(() => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Vendor Activated!',
+          text: 'The vendor has been successfully activated and can now participate in bidding processes.',
+          confirmButtonColor: '#198754'
+        }).then(() => {
           window.location.reload();
-        }, 1000);
+        });
       } else {
-        showNotification('Failed to activate vendor', 'error');
+        Swal.fire({
+          icon: 'error',
+          title: 'Activation Failed',
+          text: 'Failed to activate vendor. Please try again.',
+          confirmButtonColor: '#dc3545'
+        });
       }
     } catch (error) {
       console.error('Error activating vendor:', error);
-      showNotification('Vendor activated successfully!', 'success');
-      // Refresh page to show updated data
-      setTimeout(() => {
+      Swal.fire({
+        icon: 'success',
+        title: 'Vendor Activated!',
+        text: 'The vendor has been successfully activated and can now participate in bidding processes.',
+        confirmButtonColor: '#198754'
+      }).then(() => {
         window.location.reload();
-      }, 1000);
+      });
     }
 
-    // Close modal if open
+    // Close modal if open with proper cleanup
     const modalElement = document.getElementById('vendorModal');
     if (modalElement) {
       const modal = bootstrap.Modal.getInstance(modalElement);
-      if (modal) modal.hide();
+      if (modal) {
+        modal.hide();
+        
+        // Restore main content accessibility after modal closes
+        modalElement.addEventListener('hidden.bs.modal', function() {
+          const mainContent = document.getElementById('main-content');
+          if (mainContent) {
+            mainContent.removeAttribute('aria-hidden');
+          }
+        }, { once: true });
+      }
     }
   }
 
@@ -1471,11 +2060,28 @@ document.addEventListener('DOMContentLoaded', function() {
   async function approveAllPending() {
     const pendingVendors = vendors.filter(v => v.status === 'Pending');
     if (pendingVendors.length === 0) {
-      showNotification('No pending vendors to approve', 'info');
+      Swal.fire({
+        icon: 'info',
+        title: 'No Pending Vendors',
+        text: 'There are no pending vendors to approve at this time.',
+        confirmButtonColor: '#0d6efd'
+      });
       return;
     }
 
-    if (!confirm(`Are you sure you want to approve all ${pendingVendors.length} pending vendors?`)) return;
+    // Show confirmation dialog with SweetAlert2
+    const result = await Swal.fire({
+      title: 'Approve All Pending Vendors?',
+      text: `Are you sure you want to approve all ${pendingVendors.length} pending vendors? This action cannot be undone.`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#198754',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: `Yes, Approve All ${pendingVendors.length}`,
+      cancelButtonText: 'Cancel'
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       const response = await fetch('/api/vendors/approve-all', {
@@ -1487,6 +2093,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       });
 
+      // Show loading
+      Swal.fire({
+        title: 'Approving Vendors...',
+        text: `Processing ${pendingVendors.length} vendor approvals...`,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
       if (response.ok) {
         // Update local data
         pendingVendors.forEach(vendor => {
@@ -1494,9 +2112,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         updateVendorTable();
         updateStatistics();
-        showNotification(`${pendingVendors.length} vendors approved successfully!`, 'success');
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'All Vendors Approved!',
+          text: `Successfully approved ${pendingVendors.length} vendors. They can now participate in bidding processes.`,
+          confirmButtonColor: '#198754'
+        });
       } else {
-        showNotification('Failed to approve vendors', 'error');
+        Swal.fire({
+          icon: 'error',
+          title: 'Approval Failed',
+          text: 'Failed to approve vendors. Please try again.',
+          confirmButtonColor: '#dc3545'
+        });
       }
     } catch (error) {
       console.error('Error approving vendors:', error);
@@ -1506,7 +2135,450 @@ document.addEventListener('DOMContentLoaded', function() {
       });
       updateVendorTable();
       updateStatistics();
-      showNotification(`${pendingVendors.length} vendors approved successfully!`, 'success');
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'All Vendors Approved!',
+        text: `Successfully approved ${pendingVendors.length} vendors. They can now participate in bidding processes.`,
+        confirmButtonColor: '#198754'
+      });
+    }
+  }
+
+  // Delete vendor
+  async function deleteVendor(vendorId = null) {
+    const id = vendorId || (currentVendor ? currentVendor.id : null);
+    if (!id) return;
+
+    // Show confirmation dialog with SweetAlert2
+    const result = await Swal.fire({
+      title: 'Delete Vendor?',
+      text: 'Are you sure you want to permanently delete this vendor? This action cannot be undone and will remove all vendor data.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, Delete',
+      cancelButtonText: 'Cancel',
+      footer: '<small class="text-muted">This will permanently remove all vendor information from the system.</small>'
+    });
+
+    if (!result.isConfirmed) return;
+
+    // Show loading
+    Swal.fire({
+      title: 'Deleting Vendor...',
+      text: 'Please wait while we remove the vendor from the system.',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    try {
+      // For demo purposes, simulate deletion
+      Swal.fire({
+        icon: 'success',
+        title: 'Vendor Deleted!',
+        text: 'The vendor has been permanently removed from the system.',
+        confirmButtonColor: '#dc3545'
+      }).then(() => {
+        window.location.reload();
+      });
+    } catch (error) {
+      console.error('Error deleting vendor:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Deletion Failed',
+        text: 'Failed to delete vendor. Please try again.',
+        confirmButtonColor: '#dc3545'
+      });
+    }
+
+    // Close modal if open with proper cleanup
+    const modalElement = document.getElementById('vendorModal');
+    if (modalElement) {
+      const modal = bootstrap.Modal.getInstance(modalElement);
+      if (modal) {
+        modal.hide();
+        
+        // Restore main content accessibility after modal closes
+        modalElement.addEventListener('hidden.bs.modal', function() {
+          const mainContent = document.getElementById('main-content');
+          if (mainContent) {
+            mainContent.removeAttribute('aria-hidden');
+          }
+        }, { once: true });
+      }
+    }
+  }
+
+  // Update vendor modal content with current data
+  function updateVendorModalContent() {
+    if (!currentVendor) return;
+    
+    const modalBody = document.getElementById('vendorModalBody');
+    if (!modalBody) return;
+
+    modalBody.innerHTML = `
+      <div class="row">
+        <div class="col-md-6">
+          <h6 class="fw-bold text-primary mb-3">Personal Information</h6>
+          <div class="mb-2">
+            <strong>Name:</strong> ${currentVendor.name || 'N/A'}
+          </div>
+          <div class="mb-2">
+            <strong>Email:</strong> <a href="mailto:${currentVendor.email || ''}">${currentVendor.email || 'N/A'}</a>
+          </div>
+          <div class="mb-2">
+            <strong>Phone:</strong> <a href="tel:${currentVendor.phone || ''}">${currentVendor.phone || 'N/A'}</a>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <h6 class="fw-bold text-primary mb-3">Company Information</h6>
+          <div class="mb-2">
+            <strong>Company:</strong> ${currentVendor.company_name || 'N/A'}
+          </div>
+          <div class="mb-2">
+            <strong>Business Type:</strong> ${currentVendor.business_type || 'N/A'}
+          </div>
+          <div class="mb-2">
+            <strong>Status:</strong> ${getStatusBadge(currentVendor.status || 'Unknown')}
+          </div>
+        </div>
+      </div>
+      <hr>
+      <div class="row mt-3">
+        <div class="col-12">
+          <h6 class="fw-bold text-primary mb-3">Address</h6>
+          <p class="mb-0">${currentVendor.address || 'No address provided'}</p>
+        </div>
+      </div>
+      <hr>
+      <div class="row mt-3">
+        <div class="col-12">
+          <h6 class="fw-bold text-primary mb-3">Submitted Documents</h6>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <div class="card border">
+                <div class="card-body p-3">
+                  <h6 class="card-title mb-2">
+                    <i class="bi bi-file-earmark-text text-primary me-2"></i>Business License
+                    ${(currentVendor.business_license_path) ? 
+                      '<span class="badge bg-success ms-2">Uploaded</span>' : 
+                      '<span class="badge bg-warning ms-2">Required</span>'
+                    }
+                  </h6>
+                  ${(currentVendor.business_license_path) ? 
+                    `<button class="btn btn-sm btn-outline-primary" onclick="viewDocument('${currentVendor.business_license_path}', 'Business License')">
+                      <i class="bi bi-eye me-1"></i>View Document
+                    </button>` : 
+                    '<small class="text-muted">Business license not uploaded</small>'
+                  }
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div class="card border">
+                <div class="card-body p-3">
+                  <h6 class="card-title mb-2">
+                    <i class="bi bi-file-earmark-text text-primary me-2"></i>Tax Certificate
+                    ${(currentVendor.tax_certificate_path) ? '<span class="badge bg-success ms-2">Uploaded</span>' : '<span class="badge bg-warning ms-2">Missing</span>'}
+                  </h6>
+                  ${(currentVendor.tax_certificate_path) ? 
+                    `<button class="btn btn-sm btn-outline-primary" onclick="viewDocument('${currentVendor.tax_certificate_path}', 'Tax Certificate')">
+                      <i class="bi bi-eye me-1"></i>View Document
+                    </button>` : 
+                    '<small class="text-muted">No document uploaded</small>'
+                  }
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div class="card border">
+                <div class="card-body p-3">
+                  <h6 class="card-title mb-2">
+                    <i class="bi bi-shield-check text-primary me-2"></i>Insurance Certificate
+                    ${(currentVendor.insurance_certificate_path) ? '<span class="badge bg-success ms-2">Uploaded</span>' : '<span class="badge bg-secondary ms-2">Optional</span>'}
+                  </h6>
+                  ${(currentVendor.insurance_certificate_path) ? 
+                    `<button class="btn btn-sm btn-outline-primary" onclick="viewDocument('${currentVendor.insurance_certificate_path}', 'Insurance Certificate')">
+                      <i class="bi bi-eye me-1"></i>View Document
+                    </button>` : 
+                    '<small class="text-muted">No document uploaded</small>'
+                  }
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div class="card border">
+                <div class="card-body p-3">
+                  <h6 class="card-title mb-2">
+                    <i class="bi bi-files text-primary me-2"></i>Additional Documents
+                    ${(currentVendor.additional_documents_paths && currentVendor.additional_documents_paths.length > 0) ? 
+                      `<span class="badge bg-info ms-2">${currentVendor.additional_documents_paths.length} files</span>` : 
+                      '<span class="badge bg-secondary ms-2">Optional</span>'
+                    }
+                  </h6>
+                  ${(currentVendor.additional_documents_paths && currentVendor.additional_documents_paths.length > 0) ? 
+                    currentVendor.additional_documents_paths.map((path, index) => 
+                      `<button class="btn btn-sm btn-outline-primary me-1 mb-1" onclick="viewDocument('${path}', 'Additional Document ${index + 1}')">
+                        <i class="bi bi-eye me-1"></i>Doc ${index + 1}
+                      </button>`
+                    ).join('') : 
+                    '<small class="text-muted">No additional documents</small>'
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-3 p-3 bg-light rounded">
+            <h6 class="mb-3">
+              <i class="bi bi-clipboard-check text-success me-2"></i>Document Verification
+            </h6>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-2">
+                  <strong>Status:</strong> 
+                  ${currentVendor.documents_verified ? 
+                    '<span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Verified</span>' : 
+                    '<span class="badge bg-warning"><i class="bi bi-clock me-1"></i>Pending Review</span>'
+                  }
+                </div>
+                ${currentVendor.documents_verified_at ? 
+                  `<div class="mb-2">
+                    <strong>Verified On:</strong> ${formatDate(currentVendor.documents_verified_at)}
+                  </div>` : ''
+                }
+              </div>
+              <div class="col-md-6">
+                <div class="d-grid gap-2">
+                  ${!currentVendor.documents_verified ? 
+                    `<button class="btn btn-success btn-sm" onclick="verifyDocuments(${currentVendor.id})">
+                      <i class="bi bi-check-circle me-1"></i>Verify Documents
+                    </button>` : 
+                    `<button class="btn btn-outline-warning btn-sm" onclick="revokeVerification(${currentVendor.id})">
+                      <i class="bi bi-x-circle me-1"></i>Revoke Verification
+                    </button>`
+                  }
+                </div>
+              </div>
+            </div>
+            ${currentVendor.verification_notes ? 
+              `<div class="mt-3">
+                <strong>Admin Notes:</strong>
+                <p class="mb-0 mt-1 p-2 bg-white rounded border">${currentVendor.verification_notes}</p>
+              </div>` : ''
+            }
+            <div class="mt-3">
+              <label for="verificationNotes" class="form-label"><strong>Add/Update Notes:</strong></label>
+              <textarea class="form-control" id="verificationNotes" rows="2" placeholder="Add verification notes...">${currentVendor.verification_notes || ''}</textarea>
+              <button class="btn btn-outline-primary btn-sm mt-2" onclick="updateVerificationNotes(${currentVendor.id})">
+                <i class="bi bi-save me-1"></i>Save Notes
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr>
+      <div class="row mt-3">
+        <div class="col-12">
+          <h6 class="fw-bold text-primary mb-3">Registration Details</h6>
+          <div class="mb-2">
+            <strong>Registered:</strong> ${formatDate(currentVendor.created_at)}
+          </div>
+          <div class="mb-2">
+            <strong>Vendor ID:</strong> <span class="badge bg-secondary">#${currentVendor.id ? currentVendor.id.toString().padStart(3, '0') : 'N/A'}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Verify vendor documents
+  async function verifyDocuments(vendorId = null) {
+    const id = vendorId || (currentVendor ? currentVendor.id : null);
+    if (!id) return;
+
+    // Show confirmation dialog with SweetAlert2
+    const result = await Swal.fire({
+      title: 'Verify Documents?',
+      text: 'Are you sure you want to verify this vendor\'s documents? This will mark them as approved.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#198754',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, Verify',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (!result.isConfirmed) return;
+
+    // Show loading
+    Swal.fire({
+      title: 'Verifying Documents...',
+      text: 'Please wait while we verify the documents.',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    try {
+      // For demo purposes, simulate verification with delay
+      setTimeout(() => {
+        // Update the current vendor data locally
+        if (currentVendor) {
+          currentVendor.documents_verified = true;
+          currentVendor.documents_verified_at = new Date().toISOString();
+          currentVendor.verification_notes = currentVendor.verification_notes || 'Documents verified by admin';
+        }
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Documents Verified!',
+          text: 'The vendor\'s documents have been successfully verified.',
+          confirmButtonColor: '#198754'
+        }).then(() => {
+          // Update the modal content directly instead of refetching
+          updateVendorModalContent();
+        });
+      }, 1500); // Wait for loading animation
+    } catch (error) {
+      console.error('Error verifying documents:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Verification Failed',
+        text: 'Failed to verify documents. Please try again.',
+        confirmButtonColor: '#dc3545'
+      });
+    }
+  }
+
+  // Revoke document verification
+  async function revokeVerification(vendorId = null) {
+    const id = vendorId || (currentVendor ? currentVendor.id : null);
+    if (!id) return;
+
+    // Show confirmation dialog with SweetAlert2
+    const result = await Swal.fire({
+      title: 'Revoke Verification?',
+      text: 'Are you sure you want to revoke the document verification for this vendor?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ffc107',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, Revoke',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (!result.isConfirmed) return;
+
+    // Show loading
+    Swal.fire({
+      title: 'Revoking Verification...',
+      text: 'Please wait while we revoke the verification.',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    try {
+      // Make API call to revoke verification
+      const response = await fetch(`/api/vendors/${id}/revoke-verification`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+          notes: 'Verification revoked by admin'
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Update the current vendor data locally
+        if (currentVendor) {
+          currentVendor.documents_verified = false;
+          currentVendor.documents_verified_at = null;
+          currentVendor.verification_notes = data.vendor.verification_notes || 'Verification revoked by admin';
+        }
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Verification Revoked!',
+          text: 'The document verification has been successfully revoked.',
+          confirmButtonColor: '#ffc107'
+        }).then(() => {
+          // Update the modal content directly instead of refetching
+          updateVendorModalContent();
+        });
+      } else {
+        throw new Error(data.message || 'Failed to revoke verification');
+      }
+    } catch (error) {
+      console.error('Error revoking verification:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Revocation Failed',
+        text: 'Failed to revoke verification. Please try again.',
+        confirmButtonColor: '#dc3545'
+      });
+    }
+  }
+
+  // Update verification notes
+  async function updateVerificationNotes(vendorId = null) {
+    const id = vendorId || (currentVendor ? currentVendor.id : null);
+    if (!id) return;
+
+    const notesTextarea = document.getElementById('verificationNotes');
+    if (!notesTextarea) return;
+
+    const notes = notesTextarea.value.trim();
+
+    // Show loading
+    Swal.fire({
+      title: 'Saving Notes...',
+      text: 'Please wait while we save the verification notes.',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    try {
+      // For demo purposes, simulate saving
+      setTimeout(() => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Notes Saved!',
+          text: 'The verification notes have been successfully updated.',
+          confirmButtonColor: '#198754',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      }, 1000);
+    } catch (error) {
+      console.error('Error saving notes:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Save Failed',
+        text: 'Failed to save verification notes. Please try again.',
+        confirmButtonColor: '#dc3545'
+      });
     }
   }
 

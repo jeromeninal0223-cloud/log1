@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>Vehicle Storage Organization - Smart Warehousing</title>
+  <title>Storage Organization - Smart Warehousing</title>
 
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -416,7 +416,7 @@
       <ul class="nav flex-column ms-3">
         <li class="nav-item">
           <a href="{{ url('/plt/toursetup') }}" class="nav-link text-dark small">
-            <i class="bi bi-flag me-2"></i> Tour Setup
+            <i class="bi bi-diagram-3 me-2"></i> Project Planning
           </a>
         </li>
         <li class="nav-item">
@@ -426,7 +426,7 @@
         </li>
         <li class="nav-item">
           <a href="{{ url('/plt/closure') }}" class="nav-link text-dark small">
-            <i class="bi bi-check2-circle me-2"></i> Post-Tour Closure
+            <i class="bi bi-check2-circle me-2"></i> Closure
           </a>
         </li>
       </ul>
@@ -563,7 +563,7 @@
                 <i class="bi bi-grid-3x3 fs-5"></i>
               </div>
               <div class="flex-grow-1">
-                <h3 class="fw-bold mb-0">2</h3>
+                <h3 class="fw-bold mb-0">3</h3>
                 <p class="text-muted mb-0 small">Active Zones</p>
                 <small class="text-info"><i class="bi bi-info-circle"></i> Storage areas</small>
               </div>
@@ -630,9 +630,9 @@
                         <tr>
                           <th>Item Code</th>
                           <th>Item Name</th>
-                          <th>Category</th>
                           <th>Current Location</th>
                           <th>Quantity</th>
+                          <th>Item Image</th>
                           <th>Actions</th>
                         </tr>
                       </thead>
@@ -641,11 +641,32 @@
                         <tr>
                           <td><strong>{{ $item->receipt->receipt_number ?? 'N/A' }}</strong></td>
                           <td>{{ $item->item_name }}</td>
-                          <td><span class="badge bg-info">{{ $item->description ?? 'General' }}</span></td>
                           <td>
                             <span class="badge bg-warning">{{ ucfirst(str_replace('_', ' ', $item->storage_location ?? 'receiving_area')) }}</span>
                           </td>
-                          <td>{{ $item->quantity }} {{ $item->unit }}</td>
+                          <td>
+                            {{ $item->quantity }} {{ $item->unit }}
+                          </td>
+                          <td>
+                            @if($item->image_path)
+                              <div class="d-flex align-items-center">
+                                <img src="{{ asset('storage/' . $item->image_path) }}" 
+                                     alt="{{ $item->item_name }}" 
+                                     class="rounded me-2" 
+                                     style="width: 40px; height: 40px; object-fit: cover;">
+                                <button class="btn btn-sm btn-outline-primary view-item-image-btn" 
+                                        data-image="{{ asset('storage/' . $item->image_path) }}" 
+                                        data-item="{{ $item->item_name }}"
+                                        title="View Item Image">
+                                  <i class="bi bi-eye"></i> View
+                                </button>
+                              </div>
+                            @else
+                              <small class="text-muted">
+                                <i class="bi bi-camera-slash"></i> No image
+                              </small>
+                            @endif
+                          </td>
                           <td>
                             <button class="btn btn-sm btn-primary assign-location-btn" data-item-id="{{ $item->id }}" data-item-name="{{ $item->item_name }}">
                               <i class="bi bi-geo-alt"></i> Assign Location
@@ -686,6 +707,11 @@
                     'name' => 'Zone B - Tools & Equipment',
                     'color' => 'success',
                     'bins' => ['B1-1', 'B1-2', 'B1-3', 'B2-1', 'B2-2', 'B2-3']
+                  ],
+                  'C' => [
+                    'name' => 'Zone C - Project Materials & Supplies',
+                    'color' => 'info',
+                    'bins' => ['C1-1', 'C1-2', 'C1-3', 'C2-1', 'C2-2', 'C2-3']
                   ]
                 ];
               @endphp
@@ -791,6 +817,7 @@
                         <option value="">All Zones</option>
                         <option value="A">Zone A</option>
                         <option value="B">Zone B</option>
+                        <option value="C">Zone C</option>
                       </select>
                     </div>
                   </div>
@@ -818,12 +845,13 @@
                         <div class="col-md-3 text-end">
                           <div class="item-status mb-2">
                             @php
+                              $goodQuantity = $item->quantity;
                               $statusClass = 'success';
                               $statusText = 'optimal';
-                              if($item->quantity < 10) {
+                              if($goodQuantity < 10) {
                                 $statusClass = 'warning';
                                 $statusText = 'low';
-                              } elseif($item->quantity < 5) {
+                              } elseif($goodQuantity < 5) {
                                 $statusClass = 'danger';
                                 $statusText = 'critical';
                               }
@@ -1093,6 +1121,7 @@
                         <option value="">Select Zone</option>
                         <option value="A">Zone A - Vehicle Parts & Components</option>
                         <option value="B">Zone B - Tools & Equipment</option>
+                        <option value="C">Zone C - Project Materials & Supplies</option>
                       </select>
                     </div>
                     <div class="mb-3">
@@ -1132,7 +1161,14 @@
           binSelect.innerHTML = '<option value="">Select Bin</option>';
           
           if (zone) {
-            const bins = zone === 'A' ? ['1-1', '1-2', '1-3', '2-1', '2-2', '2-3'] : ['1-1', '1-2', '1-3', '2-1', '2-2', '2-3'];
+            let bins = [];
+            if (zone === 'A') {
+              bins = ['1-1', '1-2', '1-3', '2-1', '2-2', '2-3'];
+            } else if (zone === 'B') {
+              bins = ['1-1', '1-2', '1-3', '2-1', '2-2', '2-3'];
+            } else if (zone === 'C') {
+              bins = ['1-1', '1-2', '1-3', '2-1', '2-2', '2-3'];
+            }
             bins.forEach(bin => {
               const binId = zone + bin;
               binSelect.innerHTML += `<option value="${bin}">${binId}</option>`;
@@ -1252,6 +1288,7 @@ Next steps:
                         <option value="">Select Zone</option>
                         <option value="A">Zone A - Vehicle Parts & Components</option>
                         <option value="B">Zone B - Tools & Equipment</option>
+                        <option value="C">Zone C - Project Materials & Supplies</option>
                       </select>
                     </div>
                     <div class="mb-3">
@@ -1291,7 +1328,14 @@ Next steps:
           binSelect.innerHTML = '<option value="">Select Bin</option>';
           
           if (zone) {
-            const bins = zone === 'A' ? ['1-1', '1-2', '1-3', '2-1', '2-2', '2-3'] : ['1-1', '1-2', '1-3', '2-1', '2-2', '2-3'];
+            let bins = [];
+            if (zone === 'A') {
+              bins = ['1-1', '1-2', '1-3', '2-1', '2-2', '2-3'];
+            } else if (zone === 'B') {
+              bins = ['1-1', '1-2', '1-3', '2-1', '2-2', '2-3'];
+            } else if (zone === 'C') {
+              bins = ['1-1', '1-2', '1-3', '2-1', '2-2', '2-3'];
+            }
             bins.forEach(bin => {
               const binId = zone + bin;
               binSelect.innerHTML += `<option value="${bin}">${binId}</option>`;
@@ -1348,7 +1392,8 @@ Next steps:
               if (!isset($inventoryStats[$category])) {
                 $inventoryStats[$category] = ['quantity' => 0, 'items' => 0];
               }
-              $inventoryStats[$category]['quantity'] += $item->quantity;
+              $goodQuantity = $item->quantity;
+              $inventoryStats[$category]['quantity'] += $goodQuantity;
               $inventoryStats[$category]['items']++;
             }
           @endphp
@@ -1449,7 +1494,52 @@ Next steps:
       }
     }
   }
+
+  // Item image modal functionality
+  document.querySelectorAll('.view-item-image-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const imageUrl = this.dataset.image;
+      const itemName = this.dataset.item;
+      
+      document.getElementById('itemImageModalLabel').textContent = `Item Image - ${itemName}`;
+      document.getElementById('itemImage').src = imageUrl;
+      
+      const modal = new bootstrap.Modal(document.getElementById('itemImageModal'));
+      modal.show();
+    });
+  });
   
   </script>
+
+  <!-- Item Image Modal -->
+  <div class="modal fade" id="itemImageModal" tabindex="-1" aria-labelledby="itemImageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="itemImageModalLabel">
+            <i class="bi bi-image-fill me-2"></i>
+            Item Image
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <div class="mb-3">
+            <img id="itemImage" src="" alt="Item Image" class="img-fluid rounded shadow" style="max-height: 500px;">
+          </div>
+          <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>Note:</strong> This image was captured during the inventory receipt process.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" onclick="window.open(document.getElementById('itemImage').src, '_blank')">
+            <i class="bi bi-download me-1"></i>Download Image
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   </body>
   </html>

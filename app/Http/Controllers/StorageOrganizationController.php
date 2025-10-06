@@ -37,12 +37,16 @@ class StorageOrganizationController extends Controller
         $storageBins = $this->getStorageBinData();
 
         // Get available zones and bins
-        $zones = collect(['A', 'B', 'C', 'D', 'E']);
+        $zones = collect(['A', 'B', 'C']);
         $bins = InventoryReceiptItem::whereNotNull('storage_location')
             ->where('storage_location', 'LIKE', '%-%')
             ->distinct()
             ->pluck('storage_location')
-            ->merge(['A1-1', 'A1-2', 'A1-3', 'A2-1', 'A2-2', 'A2-3', 'B1-1', 'B1-2', 'B1-3', 'B2-1', 'B2-2', 'B2-3'])
+            ->merge([
+                'A1-1', 'A1-2', 'A1-3', 'A2-1', 'A2-2', 'A2-3',
+                'B1-1', 'B1-2', 'B1-3', 'B2-1', 'B2-2', 'B2-3',
+                'C1-1', 'C1-2', 'C1-3', 'C2-1', 'C2-2', 'C2-3'
+            ])
             ->unique()
             ->sort();
 
@@ -152,18 +156,29 @@ class StorageOrganizationController extends Controller
     private function getStorageBinData()
     {
         $bins = [
+            // Zone A - Vehicle Parts & Components
             'A1-1' => ['status' => 'available', 'capacity' => 100, 'max_capacity' => 100],
             'A1-2' => ['status' => 'available', 'capacity' => 100, 'max_capacity' => 100],
             'A1-3' => ['status' => 'available', 'capacity' => 100, 'max_capacity' => 100],
             'A2-1' => ['status' => 'maintenance', 'capacity' => 100, 'max_capacity' => 100],
             'A2-2' => ['status' => 'reserved', 'capacity' => 100, 'max_capacity' => 100],
             'A2-3' => ['status' => 'available', 'capacity' => 100, 'max_capacity' => 100],
+            
+            // Zone B - Tools & Equipment
             'B1-1' => ['status' => 'available', 'capacity' => 100, 'max_capacity' => 100],
             'B1-2' => ['status' => 'available', 'capacity' => 100, 'max_capacity' => 100],
             'B1-3' => ['status' => 'available', 'capacity' => 100, 'max_capacity' => 100],
             'B2-1' => ['status' => 'available', 'capacity' => 100, 'max_capacity' => 100],
             'B2-2' => ['status' => 'available', 'capacity' => 100, 'max_capacity' => 100],
             'B2-3' => ['status' => 'available', 'capacity' => 100, 'max_capacity' => 100],
+            
+            // Zone C - Project Materials & Supplies
+            'C1-1' => ['status' => 'available', 'capacity' => 100, 'max_capacity' => 100],
+            'C1-2' => ['status' => 'available', 'capacity' => 100, 'max_capacity' => 100],
+            'C1-3' => ['status' => 'available', 'capacity' => 100, 'max_capacity' => 100],
+            'C2-1' => ['status' => 'available', 'capacity' => 100, 'max_capacity' => 100],
+            'C2-2' => ['status' => 'available', 'capacity' => 100, 'max_capacity' => 100],
+            'C2-3' => ['status' => 'available', 'capacity' => 100, 'max_capacity' => 100],
         ];
 
         // Get actual items in each bin from inventory receipts

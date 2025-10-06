@@ -13,13 +13,13 @@ class DeliveryController extends Controller
     {
         // Get all purchase orders that are in delivery stages
         $deliveryOrders = PurchaseOrder::with(['contract', 'vendor', 'creator'])
-            ->whereIn('status', ['Issued', 'In Progress', 'Completed'])
+            ->whereIn('status', ['Issued', 'In Progress', 'Delivered', 'Completed'])
             ->latest()
             ->get();
 
         // Get delivery statistics
         $stats = [
-            'pending_receipts' => PurchaseOrder::whereIn('status', ['Issued', 'In Progress'])->count(),
+            'pending_receipts' => PurchaseOrder::whereIn('status', ['Issued', 'In Progress', 'Delivered'])->count(),
             'completed_today' => PurchaseOrder::where('status', 'Completed')
                 ->whereDate('actual_delivery_date', today())
                 ->count(),
@@ -33,14 +33,14 @@ class DeliveryController extends Controller
     public function updateDeliveryStatus(Request $request, PurchaseOrder $purchaseOrder)
     {
         $request->validate([
-            'status' => 'required|in:Issued,In Progress,Completed,Cancelled',
+            'status' => 'required|in:Issued,In Progress,Delivered,Completed,Cancelled',
             'actual_delivery_date' => 'nullable|date',
             'notes' => 'nullable|string|max:500',
         ]);
 
         $purchaseOrder->update([
             'status' => $request->status,
-            'actual_delivery_date' => $request->status === 'Completed' ? $request->actual_delivery_date : null,
+            'actual_delivery_date' => ($request->status === 'Completed' || $request->status === 'Delivered') ? $request->actual_delivery_date : null,
             'notes' => $request->notes,
         ]);
 

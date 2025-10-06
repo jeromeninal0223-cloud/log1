@@ -17,9 +17,43 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
+        // Check if user is already logged in with a different role
+        if (Auth::check()) {
+            $currentUser = Auth::user();
+            $attemptedUser = User::where('email', $credentials['email'])->first();
+            
+            if ($attemptedUser && $currentUser->id !== $attemptedUser->id) {
+                // Different user trying to login - show warning
+                return back()->withErrors([
+                    'email' => 'Another user is already logged in. Please logout first or use a different browser/incognito window.',
+                ])->onlyInput('email')->with('warning', 'Session conflict detected. Please use separate browser sessions for different user accounts.');
+            }
+        }
+
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->intended('/dashboard');
+            
+            // Redirect procurement officers to Officer dashboard, others to main dashboard
+            $user = Auth::user();
+            
+            // Debug logging to check user role
+            \Log::info('User login redirect debug', [
+                'user_id' => $user->id,
+                'user_role' => $user->role,
+                'user_name' => $user->name
+            ]);
+            
+            if ($user->role === 'procurement_officer') {
+                \Log::info('Redirecting procurement officer to /officer/dashboard');
+                return redirect('/officer/dashboard');
+            } elseif ($user->role === 'admin' || $user->role === 'logistics_staff') {
+                \Log::info('Redirecting admin/logistics to main dashboard');
+                return redirect('/dashboard');
+            }
+            
+            // Default fallback for unknown roles
+            \Log::info('Unknown role, redirecting to officer dashboard');
+            return redirect('/officer/dashboard');
         }
 
         return back()->withErrors([

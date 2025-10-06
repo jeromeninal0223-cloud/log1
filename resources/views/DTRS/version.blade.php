@@ -1,18 +1,78 @@
+{{-- Access Control Check --}}
+@if(!Auth::check())
+  <script>window.location.href = '/login';</script>
+  @php exit; @endphp
+@endif
+
+@if(!in_array(Auth::user()->role, ['logistics_staff', 'admin']))
+  <div class="container-fluid d-flex justify-content-center align-items-center" style="height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="text-center text-white">
+      <i class="bi bi-shield-exclamation display-1 mb-4"></i>
+      <h1 class="display-4 fw-bold mb-3">Access Denied</h1>
+      <p class="lead mb-4">You don't have permission to access the Document Version History.</p>
+      <p class="mb-4">This module is restricted to <strong>Logistics Staff</strong> and <strong>Administrators</strong> only.</p>
+      <a href="{{ Auth::user()->role === 'procurement_officer' ? '/officer/dashboard' : '/dashboard' }}" class="btn btn-light btn-lg">
+        <i class="bi bi-arrow-left me-2"></i>Return to Dashboard
+      </a>
+    </div>
+  </div>
+  @php exit; @endphp
+@endif
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Smart Warehousing Dashboard</title>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>Document Version History - Jetlouge Travels</title>
 
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('assets/css/dash-style-fixed.css') }}">
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <style>
+    .avatar-sm {
+      width: 32px;
+      height: 32px;
+      font-size: 12px;
+    }
+    
+    .changes-summary {
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .version-actions .btn-group {
+      gap: 2px;
+    }
+    
+    .version-actions .btn {
+      border-radius: 4px !important;
+      margin-right: 2px;
+    }
+    
+    .version-actions .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .btn-action-view { border-color: #0d6efd; color: #0d6efd; }
+    .btn-action-view:hover { background-color: #0d6efd; color: white; }
+    
+    .btn-action-download { border-color: #198754; color: #198754; }
+    .btn-action-download:hover { background-color: #198754; color: white; }
+    
+    .btn-action-restore { border-color: #fd7e14; color: #fd7e14; }
+    .btn-action-restore:hover { background-color: #fd7e14; color: white; }
+    
+    .btn-action-compare { border-color: #20c997; color: #20c997; }
+    .btn-action-compare:hover { background-color: #20c997; color: white; }
+  </style>
 </head>
 <body style="background-color: #f8f9fa !important;">
 
@@ -50,36 +110,7 @@
           <i class="bi bi-speedometer2 me-2"></i> Dashboard
         </a>
       </li>
-      <li class="nav-item">
-        <a href="#" class="nav-link text-dark" data-bs-toggle="collapse" data-bs-target="#warehouseSubmenu" aria-expanded="false" aria-controls="warehouseSubmenu">
-          <i class="bi bi-box-seam me-2"></i> Smart Warehousing
-          <i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <div class="collapse" id="warehouseSubmenu">
-          <ul class="nav flex-column ms-3">
-            <li class="nav-item">
-              <a href="{{ url('/inventory-receipt') }}" class="nav-link text-dark small">
-                <i class="bi bi-box-arrow-in-down me-2"></i> Inventory Receipt
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="{{ url('/storage-organization') }}" class="nav-link text-dark small">
-                <i class="bi bi-grid-3x3 me-2"></i> Storage Organization
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="{{ url('/picking-dispatch') }}" class="nav-link text-dark small">
-                <i class="bi bi-box-arrow-up me-2"></i> Picking and Dispatch
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="{{ url('/stock-replenishment') }}" class="nav-link text-dark small">
-                <i class="bi bi-arrow-repeat me-2"></i> Stock Replenishment
-              </a>
-            </li>
-          </ul>
-        </div>
-      </li>
+      
       @if(Auth::user()->role !== 'logistics_staff')
       <li class="nav-item">
         <a href="#" class="nav-link text-dark" data-bs-toggle="collapse" data-bs-target="#procurementSubmenu" aria-expanded="false" aria-controls="procurementSubmenu">
@@ -127,34 +158,66 @@
         </div>
       </li>
       @endif
-       <li class="nav-item">
-    <a href="#" class="nav-link text-dark " data-bs-toggle="collapse" data-bs-target="#pltSubmenu" aria-expanded="true" aria-controls="pltSubmenu">
-      <i class="bi bi-truck me-2"></i> Project Logistics Tracker
-      <i class="bi bi-chevron-down ms-auto"></i>
-    </a>
-    <div class="collapse " id="pltSubmenu">
-      <ul class="nav flex-column ms-3">
-        <li class="nav-item">
-          <a href="{{ url('/plt/toursetup') }}" class="nav-link text-dark small ">
-            <i class="bi bi-flag me-2"></i> Tour Setup
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="{{ url('/plt/execution') }}" class="nav-link text-dark small">
-            <i class="bi bi-bar-chart-steps me-2"></i> Execution Monitoring
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="{{ url('/plt/closure') }}" class="nav-link text-dark small">
-            <i class="bi bi-check2-circle me-2"></i> Closure
-          </a>
-        </li>
-      </ul>
-    </div>
-  </li>
- <!-- Asset Life Cycle & Maintenance -->
+
       <li class="nav-item">
-        <a href="#" class="nav-link text-dark " data-bs-toggle="collapse" data-bs-target="#assetSubmenu" aria-expanded="false" aria-controls="assetSubmenu">
+        <a href="#" class="nav-link text-dark" data-bs-toggle="collapse" data-bs-target="#pltSubmenu" aria-expanded="false" aria-controls="pltSubmenu">
+          <i class="bi bi-truck me-2"></i> Project Logistics Tracker
+          <i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <div class="collapse" id="pltSubmenu">
+          <ul class="nav flex-column ms-3">
+            <li class="nav-item">
+              <a href="{{ url('/plt/toursetup') }}" class="nav-link text-dark small">
+                <i class="bi bi-diagram-3 me-2"></i> Project Planning
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ url('/plt/execution') }}" class="nav-link text-dark small">
+                <i class="bi bi-bar-chart-steps me-2"></i> Execution Monitoring
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ url('/plt/closure') }}" class="nav-link text-dark small">
+                <i class="bi bi-check2-circle me-2"></i> Closure
+              </a>
+            </li>
+          </ul>
+        </div>
+      </li>
+
+      <li class="nav-item">
+        <a href="#" class="nav-link text-dark" data-bs-toggle="collapse" data-bs-target="#warehouseSubmenu" aria-expanded="false" aria-controls="warehouseSubmenu">
+          <i class="bi bi-box-seam me-2"></i> Smart Warehousing
+          <i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <div class="collapse" id="warehouseSubmenu">
+          <ul class="nav flex-column ms-3">
+            <li class="nav-item">
+              <a href="{{ url('/inventory-receipt') }}" class="nav-link text-dark small">
+                <i class="bi bi-box-arrow-in-down me-2"></i> Inventory Receipt
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ url('/storage-organization') }}" class="nav-link text-dark small">
+                <i class="bi bi-grid-3x3 me-2"></i> Storage Organization
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ url('/picking-dispatch') }}" class="nav-link text-dark small">
+                <i class="bi bi-box-arrow-up me-2"></i> Picking and Dispatch
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ url('/stock-replenishment') }}" class="nav-link text-dark small">
+                <i class="bi bi-arrow-repeat me-2"></i> Stock Replenishment
+              </a>
+            </li>
+          </ul>
+        </div>
+      </li>
+
+      <li class="nav-item">
+        <a href="#" class="nav-link text-dark" data-bs-toggle="collapse" data-bs-target="#assetSubmenu" aria-expanded="false" aria-controls="assetSubmenu">
           <i class="bi bi-tools me-2"></i> Asset Life Cycle & Maintenance
           <i class="bi bi-chevron-down ms-auto"></i>
         </a>
@@ -166,7 +229,7 @@
               </a>
             </li>
             <li class="nav-item">
-              <a href="{{ url('/alms/maintenance') }}" class="nav-link text-dark small  ">
+              <a href="{{ url('/alms/maintenance') }}" class="nav-link text-dark small">
                 <i class="bi bi-arrow-repeat me-2"></i> Maintenance Schedule
               </a>
             </li>
@@ -178,31 +241,33 @@
           </ul>
         </div>
       </li>
+
       <li class="nav-item">
-  <a href="#" class="nav-link text-dark active" data-bs-toggle="collapse" data-bs-target="#documentSubmenu" aria-expanded="false" aria-controls="documentSubmenu">
-    <i class="bi bi-journal-text me-2"></i> Document Tracking & Logistics Records
-    <i class="bi bi-chevron-down ms-auto"></i>
-  </a>
-  <div class="collapse show" id="documentSubmenu">
-    <ul class="nav flex-column ms-3">
-      <li class="nav-item">
-        <a href="{{ url('/dtrs/document') }}" class="nav-link text-dark small">
-          <i class="bi bi-file-earmark-text me-2"></i> Documents
+        <a href="#" class="nav-link text-dark active" data-bs-toggle="collapse" data-bs-target="#documentSubmenu" aria-expanded="true" aria-controls="documentSubmenu">
+          <i class="bi bi-journal-text me-2"></i> Document Tracking & Logistics Records
+          <i class="bi bi-chevron-down ms-auto"></i>
         </a>
+        <div class="collapse show" id="documentSubmenu">
+          <ul class="nav flex-column ms-3">
+            <li class="nav-item">
+              <a href="{{ url('/dtrs/document') }}" class="nav-link text-dark small">
+                <i class="bi bi-file-earmark-text me-2"></i> Documents
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ url('/dtrs/audits') }}" class="nav-link text-dark small">
+                <i class="bi bi-clipboard-check me-2"></i> Audits
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ url('/dtrs/version') }}" class="nav-link text-dark small active">
+                <i class="bi bi-clock-history me-2"></i> Version History
+              </a>
+            </li>
+          </ul>
+        </div>
       </li>
-      <li class="nav-item">
-        <a href="{{ url('/dtrs/audits') }}" class="nav-link text-dark small ">
-          <i class="bi bi-clipboard-check me-2"></i> Audits
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="{{ url('/dtrs/version') }}" class="nav-link text-dark small active">
-          <i class="bi bi-clock-history me-2"></i> Version History
-        </a>
-      </li>
-    </ul>
-  </div>
-</li>
+
       <li class="nav-item mt-3">
         <a href="#" class="nav-link text-danger" id="logoutBtn">
           <i class="bi bi-box-arrow-right me-2"></i> Logout
@@ -215,500 +280,483 @@
   <div id="overlay" class="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50" style="z-index:1040; display: none;"></div>
 
   <main id="main-content">
-  <!-- Page Header -->
-  <div class="page-header-container mb-4">
-    <div class="d-flex justify-content-between align-items-center page-header">
-      <div class="d-flex align-items-center">
-        <div class="dashboard-logo me-3">
-          <i class="bi bi-box-seam fs-1 text-primary"></i>
-        </div>
-        <div>
-          <h2 class="fw-bold mb-1">Version Control</h2>
-          <p class="text-muted mb-0">Welcome back, Sarah! Manage document versioning and control.</p>
-        </div>
-      </div>
-      <nav aria-label="breadcrumb">
-        <ol class="breadcrumb mb-0">
-          <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}" class="text-decoration-none">Home</a></li>
-            <li class="breadcrumb-item"><a href="{{ url('/dtrs') }}" class="text-decoration-none">Document Tracking</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Version Control</li>
-        </ol>
-      </nav>
-    </div>
-  </div>
 
-  <!-- Statistics Cards -->
-  <div class="row g-4 mb-4">
-    <div class="col-md-3">
-      <div class="card stat-card shadow-sm border-0">
-        <div class="card-body">
-          <div class="d-flex align-items-center">
-            <div class="stat-icon bg-primary bg-opacity-10 text-primary me-3">
-              <i class="bi bi-box-arrow-in-down"></i>
-            </div>
-            <div>
-              <h3 class="fw-bold mb-0">24</h3>
-              <p class="text-muted mb-0 small">Pending Receipts</p>
-              <small class="text-success"><i class="bi bi-arrow-up"></i> +3 today</small>
-            </div>
-          </div>
-        </div>
+<!-- Page Header -->
+<div class="page-header-container mb-4">
+  <div class="d-flex justify-content-between align-items-center page-header">
+    <div class="d-flex align-items-center">
+      <div class="dashboard-logo me-3">
+        <i class="bi bi-clock-history fs-1 text-primary"></i>
+      </div>
+      <div>
+        <h2 class="fw-bold mb-1">Document Version History</h2>
+        <p class="text-muted mb-0">Track and manage document versions and changes over time.</p>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="card stat-card shadow-sm border-0">
-        <div class="card-body">
-          <div class="d-flex align-items-center">
-            <div class="stat-icon bg-success bg-opacity-10 text-success me-3">
-              <i class="bi bi-check-circle"></i>
-            </div>
-            <div>
-              <h3 class="fw-bold mb-0">156</h3>
-              <p class="text-muted mb-0 small">Completed Today</p>
-              <small class="text-success"><i class="bi bi-arrow-up"></i> +12%</small>
-            </div>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}" class="text-decoration-none">Home</a></li>
+        <li class="breadcrumb-item"><a href="{{ url('/dtrs/document') }}" class="text-decoration-none">DTRS</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Version History</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row g-4 mb-4">
+  <div class="col-md-3">
+    <div class="card stat-card shadow-sm border-0">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="stat-icon bg-primary bg-opacity-10 text-primary me-3">
+            <i class="bi bi-file-earmark-text"></i>
           </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="card stat-card shadow-sm border-0">
-        <div class="card-body">
-          <div class="d-flex align-items-center">
-            <div class="stat-icon bg-warning bg-opacity-10 text-warning me-3">
-              <i class="bi bi-exclamation-triangle"></i>
-            </div>
-            <div>
-              <h3 class="fw-bold mb-0">8</h3>
-              <p class="text-muted mb-0 small">Quality Issues</p>
-              <small class="text-warning"><i class="bi bi-arrow-up"></i> +2</small>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="card stat-card shadow-sm border-0">
-        <div class="card-body">
-          <div class="d-flex align-items-center">
-            <div class="stat-icon bg-info bg-opacity-10 text-info me-3">
-              <i class="bi bi-clock"></i>
-            </div>
-            <div>
-              <h3 class="fw-bold mb-0">45min</h3>
-              <p class="text-muted mb-0 small">Avg Process Time</p>
-              <small class="text-success"><i class="bi bi-arrow-down"></i> -5min</small>
-            </div>
+          <div>
+            <h3 class="fw-bold mb-0">{{ $totalDocuments ?? 0 }}</h3>
+            <p class="text-muted mb-0 small">Total Documents</p>
+            <small class="text-success"><i class="bi bi-arrow-up"></i> Active tracking</small>
           </div>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- Main Content Area -->
-  <div class="row g-4">
-    <!-- Left Column -->
-    <div class="col-lg-8">
-      <!-- Receipt Entry Form -->
-      <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header border-bottom bg-primary text-white">
-          <h5 class="card-title mb-0">New Inventory Receipt</h5>
-        </div>
-        <div class="card-body">
-          <!-- Manual Inventory Receipt Entry -->
-          <form id="receiptForm">
-            <div class="row g-3">
-              <!-- Supplier Information -->
-              <div class="col-md-6">
-                <label for="supplier" class="form-label">Supplier</label>
-                <input type="text" class="form-control" id="supplier" placeholder="Enter supplier name" required>
-              </div>
-              <div class="col-md-6">
-                <label for="category" class="form-label">Category</label>
-                <input type="text" class="form-control" id="category" placeholder="Enter category" required>
-              </div>
-              <div class="col-md-6">
-                <label for="deliveryDate" class="form-label">Delivery Date</label>
-                <input type="date" class="form-control" id="deliveryDate" required>
-              </div>
-              <div class="col-md-6">
-                <label for="invoiceNumber" class="form-label">Invoice #</label>
-                <input type="text" class="form-control" id="invoiceNumber" required>
-              </div>
-              <div class="col-12">
-                <label for="notes" class="form-label">Notes</label>
-                <textarea class="form-control" id="notes" rows="2"></textarea>
-              </div>
-            </div>
-            
-            <hr class="my-4">
-            
-            <!-- Item Entry Section -->
-            <h6 class="mb-3">Items Received</h6>
-            <div class="table-responsive mb-3">
-              <table class="table table-sm" id="itemsTable">
-                <thead>
-                  <tr>
-                    <th>Item Name</th>
-                    <th>Description</th>
-                    <th>Quantity</th>
-                    <th>Unit</th>
-                    <th>Supplier</th>
-                    <th>Category</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody id="itemsTableBody">
-                  <!-- Items will be added here -->
-                </tbody>
-              </table>
-            </div>
-            
-            <!-- Add Item Form (hidden by default) -->
-            <div id="addItemForm" class="mb-3" style="display:none;">
-              <div class="row g-2">
-                <div class="col-md-2">
-                  <input type="text" class="form-control" id="itemName" placeholder="Item Name" required>
-                </div>
-                <div class="col-md-2">
-                  <input type="text" class="form-control" id="itemDesc" placeholder="Description" required>
-                </div>
-                <div class="col-md-2">
-                  <input type="number" class="form-control" id="itemQty" placeholder="Qty" min="1" required>
-                </div>
-                <div class="col-md-2">
-                  <input type="text" class="form-control" id="itemUnit" placeholder="Unit" required>
-                </div>
-                <div class="col-md-2">
-                  <input type="text" class="form-control" id="itemSupplier" placeholder="Supplier" required>
-                </div>
-                <div class="col-md-2">
-                  <input type="text" class="form-control" id="itemCategory" placeholder="Category" required>
-                </div>
-                <div class="col-md-12 mt-2">
-                  <button type="button" class="btn btn-success btn-sm" id="saveItemBtn">
-                    <i class="bi bi-check-circle me-1"></i>Save Item
-                  </button>
-                  <button type="button" class="btn btn-outline-secondary btn-sm" id="cancelItemBtn">
-                    <i class="bi bi-x-circle me-1"></i>Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Add Item Button -->
-            <button type="button" class="btn btn-outline-primary btn-sm mb-3" id="addItemBtn">
-              <i class="bi bi-plus-circle me-1"></i>Add Item
-            </button>
-            
-            <!-- Form Actions -->
-            <div class="d-flex justify-content-between">
-              <button type="reset" class="btn btn-outline-secondary">
-                <i class="bi bi-x-circle me-1"></i>Cancel
-              </button>
-              <button type="submit" class="btn btn-primary">
-                <i class="bi bi-check-circle me-1"></i>Complete Receipt
-              </button>
-            </div>
-          </form>
-
-          <!-- Static JS for manual item entry -->
-          <script>
-            document.addEventListener('DOMContentLoaded', function() {
-              const addItemBtn = document.getElementById('addItemBtn');
-              const addItemForm = document.getElementById('addItemForm');
-              const saveItemBtn = document.getElementById('saveItemBtn');
-              const cancelItemBtn = document.getElementById('cancelItemBtn');
-              const itemsTableBody = document.getElementById('itemsTableBody');
-
-              addItemBtn.addEventListener('click', function() {
-                addItemForm.style.display = 'block';
-                addItemBtn.style.display = 'none';
-              });
-
-              cancelItemBtn.addEventListener('click', function() {
-                addItemForm.style.display = 'none';
-                addItemBtn.style.display = 'inline-block';
-                clearItemFields();
-              });
-
-              saveItemBtn.addEventListener('click', function() {
-                // Get values
-                const name = document.getElementById('itemName').value;
-                const desc = document.getElementById('itemDesc').value;
-                const qty = document.getElementById('itemQty').value;
-                const unit = document.getElementById('itemUnit').value;
-                const supplier = document.getElementById('itemSupplier').value;
-                const category = document.getElementById('itemCategory').value;
-
-                if (name && desc && qty && unit && supplier && category) {
-                  // Add row to table
-                  const row = document.createElement('tr');
-                  row.innerHTML = `
-                    <td>${name}</td>
-                    <td>${desc}</td>
-                    <td>${qty}</td>
-                    <td>${unit}</td>
-                    <td>${supplier}</td>
-                    <td>${category}</td>
-                    <td>
-                      <button type="button" class="btn btn-sm btn-danger removeItemBtn"><i class="bi bi-trash"></i></button>
-                    </td>
-                  `;
-                  itemsTableBody.appendChild(row);
-
-                  // Remove item functionality
-                  row.querySelector('.removeItemBtn').addEventListener('click', function() {
-                    row.remove();
-                  });
-
-                  addItemForm.style.display = 'none';
-                  addItemBtn.style.display = 'inline-block';
-                  clearItemFields();
-                }
-              });
-
-              function clearItemFields() {
-                document.getElementById('itemName').value = '';
-                document.getElementById('itemDesc').value = '';
-                document.getElementById('itemQty').value = '';
-                document.getElementById('itemUnit').value = '';
-                document.getElementById('itemSupplier').value = '';
-                document.getElementById('itemCategory').value = '';
-              }
-            });
-          </script>
+  <div class="col-md-3">
+    <div class="card stat-card shadow-sm border-0">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="stat-icon bg-success bg-opacity-10 text-success me-3">
+            <i class="bi bi-clock-history"></i>
+          </div>
+          <div>
+            <h3 class="fw-bold mb-0">{{ $totalVersions ?? 0 }}</h3>
+            <p class="text-muted mb-0 small">Total Versions</p>
+            <small class="text-success"><i class="bi bi-arrow-up"></i> All revisions</small>
+          </div>
         </div>
       </div>
-      
-      <!-- Recent Receipts -->
-      <div class="card shadow-sm border-0">
-        <div class="card-header border-bottom d-flex justify-content-between align-items-center">
-          <h5 class="card-title mb-0">Recent Receipts</h5>
-          <button class="btn btn-sm btn-outline-primary">View All</button>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card shadow-sm border-0">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="stat-icon bg-warning bg-opacity-10 text-warning me-3">
+            <i class="bi bi-pencil-square"></i>
+          </div>
+          <div>
+            <h3 class="fw-bold mb-0">{{ $recentChanges ?? 0 }}</h3>
+            <p class="text-muted mb-0 small">Recent Changes</p>
+            <small class="text-warning"><i class="bi bi-clock"></i> Last 7 days</small>
+          </div>
         </div>
-        <div class="card-body">
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card shadow-sm border-0">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="stat-icon bg-info bg-opacity-10 text-info me-3">
+            <i class="bi bi-people"></i>
+          </div>
+          <div>
+            <h3 class="fw-bold mb-0">{{ $activeUsers ?? 0 }}</h3>
+            <p class="text-muted mb-0 small">Active Contributors</p>
+            <small class="text-success"><i class="bi bi-person-check"></i> This month</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content Area -->
+<div class="row g-4">
+  <!-- Document Version History -->
+  <div class="col-12">
+    <!-- Document Version History -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-header border-bottom bg-primary text-white">
+        <h5 class="card-title mb-0">Document Version History</h5>
+      </div>
+      <div class="card-body">
+        <!-- Document Selection -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-8">
+            <label for="documentSelect" class="form-label">Select Document</label>
+            <select class="form-select" id="documentSelect" {{ $documents->isEmpty() ? 'disabled' : '' }}>
+              @if($documents->isEmpty())
+                <option value="">No documents available</option>
+              @else
+                <option value="">Choose a document to view version history...</option>
+                @foreach($documents as $document)
+                  <option value="{{ $document->id }}">{{ $document->title }} - {{ $document->document_type }}</option>
+                @endforeach
+              @endif
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">&nbsp;</label>
+            <div class="d-grid">
+              <button type="button" class="btn btn-primary" id="loadVersionsBtn" {{ $documents->isEmpty() ? 'disabled' : '' }}>
+                <i class="bi bi-search me-2"></i>Load Version History
+              </button>
+            </div>
+          </div>
+        </div>
+
+        @if($documents->isEmpty())
+        <!-- No Documents Message -->
+        <div class="alert alert-info d-flex align-items-center" role="alert">
+          <i class="bi bi-info-circle fs-4 me-3"></i>
+          <div>
+            <h6 class="alert-heading mb-1">No Documents Found</h6>
+            <p class="mb-0">{{ $noDocumentsMessage ?? 'No documents are available for version tracking. Please create documents first.' }}</p>
+          </div>
+        </div>
+        @endif
+        
+        <!-- Version History Table -->
+        <div id="versionHistoryContainer" style="display: none;">
           <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover" id="versionHistoryTable">
               <thead class="table-light">
                 <tr>
-                  <th>Receipt ID</th>
-                  <th>Date</th>
-                  <th>Supplier</th>
-                  <th>Items</th>
-                  <th>PO #</th>
+                  <th>Version</th>
+                  <th>Modified By</th>
+                  <th>Date Modified</th>
+                  <th>Changes</th>
+                  <th>File Size</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td><strong>#REC-2024-105</strong></td>
-                  <td>Today, 10:45 AM</td>
-                  <td>TechCorp Inc.</td>
-                  <td>12 items</td>
-                  <td>PO-2024-012</td>
-                  <td><span class="badge bg-success">Completed</span></td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-primary">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary">
-                      <i class="bi bi-printer"></i>
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>#REC-2024-104</strong></td>
-                  <td>Today, 9:30 AM</td>
-                  <td>Global Electronics</td>
-                  <td>8 items</td>
-                  <td>PO-2024-011</td>
-                  <td><span class="badge bg-success">Completed</span></td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-primary">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary">
-                      <i class="bi bi-printer"></i>
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>#REC-2024-103</strong></td>
-                  <td>Yesterday, 3:15 PM</td>
-                  <td>Smart Parts Co.</td>
-                  <td>15 items</td>
-                  <td>PO-2024-010</td>
-                  <td><span class="badge bg-success">Completed</span></td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-primary">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary">
-                      <i class="bi bi-printer"></i>
-                    </button>
-                  </td>
-                </tr>
+              <tbody id="versionHistoryBody">
+                <!-- Version history will be loaded here -->
               </tbody>
             </table>
           </div>
         </div>
-      </div>
-    </div>
-    
-    <!-- Right Column -->
-    <div class="col-lg-4">
-      <!-- Quick Actions -->
-      <div class="card shadow-sm border-0">
-        <div class="card-header border-bottom">
-          <h5 class="card-title mb-0">Quick Actions</h5>
-        </div>
-        <div class="card-body">
-          <div class="d-grid gap-2">
-            <button class="btn btn-primary" id="newReceiptBtn">
-              <i class="bi bi-plus-circle me-2"></i>New Receipt
-            </button>
-            <button class="btn btn-outline-primary" id="scanBarcodeBtn">
-              <i class="bi bi-upc-scan me-2"></i>Scan Barcode
-            </button>
-            <button class="btn btn-outline-primary" id="importCSVBtn">
-              <i class="bi bi-file-earmark-excel me-2"></i>Import from CSV
-            </button>
-            <button class="btn btn-outline-secondary" id="printReceiptBtn">
-              <i class="bi bi-printer me-2"></i>Print Receipt
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- PO Preview (Hidden by default, shown when viewing PO) -->
-      <div class="card shadow-sm border-0 mt-4 d-none" id="poPreviewCard">
-        <div class="card-header border-bottom d-flex justify-content-between align-items-center">
-          <h5 class="card-title mb-0">PO Preview</h5>
-          <button class="btn btn-sm btn-close" id="closePOPreview"></button>
-        </div>
-        <div class="card-body">
-          <h6 class="fw-bold">PO-2024-001</h6>
-          <p class="small text-muted">Issued: 15 Jan 2024 | Expected: 20 Jan 2024</p>
-          
-          <div class="table-responsive">
-            <table class="table table-sm">
-              <thead>
-                <tr>
-                  <th>Item</th>
-                  <th>Qty</th>
-                  <th>Unit</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Laptop Pro 15"</td>
-                  <td>10</td>
-                  <td>pcs</td>
-                </tr>
-                <tr>
-                  <td>Wireless Mouse</td>
-                  <td>25</td>
-                  <td>pcs</td>
-                </tr>
-                <tr>
-                  <td>USB-C Hub</td>
-                  <td>15</td>
-                  <td>pcs</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Receipt Summary -->
-      <div class="card shadow-sm border-0 mt-4">
-        <div class="card-header border-bottom">
-          <h5 class="card-title mb-0">Today's Summary</h5>
-        </div>
-        <div class="card-body">
-          <div class="mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small">Receipts Completed</span>
-              <span class="small fw-bold">12</span>
-            </div>
-            <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-success" style="width: 80%"></div>
-            </div>
-          </div>
-          <div class="mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small">Items Received</span>
-              <span class="small fw-bold">187</span>
-            </div>
-            <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-primary" style="width: 65%"></div>
-            </div>
-          </div>
-          <div class="mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small">Damaged Items</span>
-              <span class="small fw-bold">3</span>
-            </div>
-            <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-danger" style="width: 5%"></div>
-            </div>
-          </div>
-          <div>
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small">Avg. Time per Receipt</span>
-              <span class="small fw-bold">32min</span>
-            </div>
-            <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-info" style="width: 75%"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Alerts -->
-      <div class="card shadow-sm border-0 mt-4">
-        <div class="card-header border-bottom">
-          <h5 class="card-title mb-0">Alerts</h5>
-        </div>
-        <div class="card-body">
-          <div class="alert alert-danger alert-sm mb-2">
-            <i class="bi bi-exclamation-triangle me-2"></i>
-            Low stock: Laptop batteries (5 units)
-          </div>
-          <div class="alert alert-warning alert-sm mb-2">
-            <i class="bi bi-clock me-2"></i>
-            Order #ORD-2024-001 delayed
-          </div>
-          <div class="alert alert-info alert-sm">
-            <i class="bi bi-info-circle me-2"></i>
-            New shipment arriving in 2 hours
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</main>
 
-  <!-- Static Modals for Quick Actions -->
-  <div class="modal fade" id="staticModal" tabindex="-1" aria-labelledby="staticModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="staticModalLabel">Action</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body" id="staticModalBody">
-          <!-- Content will be set by JS -->
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <!-- Empty State -->
+        <div id="emptyState" class="text-center py-5">
+          <i class="bi bi-clock-history fs-1 text-muted mb-3"></i>
+          <h5 class="text-muted">No Document Selected</h5>
+          <p class="text-muted">Select a document above to view its version history and track changes over time.</p>
         </div>
       </div>
     </div>
   </div>
+</div>
+
+<!-- Version History JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const documentSelect = document.getElementById('documentSelect');
+    const loadVersionsBtn = document.getElementById('loadVersionsBtn');
+    const versionHistoryContainer = document.getElementById('versionHistoryContainer');
+    const emptyState = document.getElementById('emptyState');
+    const versionHistoryBody = document.getElementById('versionHistoryBody');
+
+    // Load version history
+    loadVersionsBtn.addEventListener('click', function() {
+        const documentId = documentSelect.value;
+        if (!documentId) {
+            alert('Please select a document first.');
+            return;
+        }
+
+        // Show loading state
+        loadVersionsBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Loading...';
+        loadVersionsBtn.disabled = true;
+
+        // Fetch version history from API
+        fetch(`/dtrs/document/${documentId}/versions`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                displayVersionHistory(data.versions);
+            } else {
+                throw new Error(data.message || 'Failed to load version history');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error loading version history: ' + error.message);
+            // Show empty state on error
+            versionHistoryBody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center py-4">
+                        <div class="text-danger">
+                            <i class="bi bi-exclamation-triangle fs-4 d-block mb-2"></i>
+                            <p class="mb-0">Error loading version history. Please try again.</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            emptyState.style.display = 'none';
+            versionHistoryContainer.style.display = 'block';
+        })
+        .finally(() => {
+            loadVersionsBtn.innerHTML = '<i class="bi bi-search me-2"></i>Load Version History';
+            loadVersionsBtn.disabled = false;
+        });
+    });
+
+    function displayVersionHistory(versions) {
+        versionHistoryBody.innerHTML = '';
+        
+        if (versions.length === 0) {
+            versionHistoryBody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center py-4">
+                        <div class="text-muted">
+                            <i class="bi bi-info-circle fs-4 d-block mb-2"></i>
+                            <p class="mb-0">No version history found for this document.</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        } else {
+            versions.forEach((version, index) => {
+                const row = createVersionRow(version, index === 0);
+                versionHistoryBody.appendChild(row);
+            });
+        }
+
+        emptyState.style.display = 'none';
+        versionHistoryContainer.style.display = 'block';
+    }
+
+    function createVersionRow(version, isCurrent) {
+        const row = document.createElement('tr');
+        const statusBadge = getStatusBadge(version.status, isCurrent);
+        const changesSummary = version.changes_summary || 'No changes recorded';
+        
+        row.innerHTML = `
+            <td>
+                <strong>v${version.version_number}</strong>
+                ${isCurrent ? '<span class="badge bg-success ms-2">Current</span>' : ''}
+            </td>
+            <td>
+                <div class="d-flex align-items-center">
+                    <div class="avatar-sm bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <div>
+                        <div class="fw-semibold">${version.modified_by}</div>
+                        <small class="text-muted">${version.user_role || 'User'}</small>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div>${formatDate(version.created_at)}</div>
+                <small class="text-muted">${formatTime(version.created_at)}</small>
+            </td>
+            <td>
+                <div class="changes-summary">
+                    ${changesSummary}
+                </div>
+            </td>
+            <td>
+                <span class="badge bg-light text-dark">${formatFileSize(version.file_size)}</span>
+            </td>
+            <td>${statusBadge}</td>
+            <td class="version-actions">
+                <div class="d-flex gap-1">
+                    <button type="button" class="btn btn-sm btn-action-view" onclick="viewVersion('${version.id}', this)" title="View Version">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-action-download" onclick="downloadVersion('${version.id}', this)" title="Download Version">
+                        <i class="bi bi-download"></i>
+                    </button>
+                    ${!isCurrent ? `<button type="button" class="btn btn-sm btn-action-restore" onclick="restoreVersion('${version.id}', this)" title="Restore Version (Admin Only)">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>` : `<button type="button" class="btn btn-sm btn-secondary" disabled title="Current Version">
+                        <i class="bi bi-check-circle"></i>
+                    </button>`}
+                    <button type="button" class="btn btn-sm btn-action-compare" onclick="compareVersions('${version.id}', this)" title="Compare with Current">
+                        <i class="bi bi-file-diff"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        
+        return row;
+    }
+
+    function getStatusBadge(status, isCurrent) {
+        if (isCurrent) return '<span class="badge bg-success">Current</span>';
+        
+        switch(status) {
+            case 'active': return '<span class="badge bg-success">Active</span>';
+            case 'archived': return '<span class="badge bg-secondary">Archived</span>';
+            case 'deleted': return '<span class="badge bg-danger">Deleted</span>';
+            default: return '<span class="badge bg-secondary">Unknown</span>';
+        }
+    }
+
+    function formatDate(dateString) {
+        return new Date(dateString).toLocaleDateString();
+    }
+
+    function formatTime(dateString) {
+        return new Date(dateString).toLocaleTimeString();
+    }
+
+    function formatFileSize(bytes) {
+        if (!bytes) return 'N/A';
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(1024));
+        return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+    }
+
+});
+
+// Global functions for version actions (defined outside DOMContentLoaded for global access)
+window.viewVersion = function(versionId, buttonElement) {
+    console.log('viewVersion called with:', versionId, buttonElement);
+    
+    // Get button element - either passed directly or find it
+    const button = buttonElement || document.querySelector(`[onclick*="viewVersion(${versionId})"]`);
+    if (button) {
+        const originalContent = button.innerHTML;
+        button.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+        button.disabled = true;
+        
+        setTimeout(() => {
+            button.innerHTML = originalContent;
+            button.disabled = false;
+        }, 500);
+    }
+    
+    // Open version view for all document types
+    window.open(`/dtrs/document/version/${versionId}/view`, '_blank');
+};
+
+window.downloadVersion = function(versionId, buttonElement) {
+    console.log('downloadVersion called with:', versionId, buttonElement);
+    
+    // Get button element
+    const button = buttonElement || document.querySelector(`[onclick*="downloadVersion(${versionId})"]`);
+    if (button) {
+        const originalContent = button.innerHTML;
+        button.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+        button.disabled = true;
+        
+        setTimeout(() => {
+            button.innerHTML = originalContent;
+            button.disabled = false;
+        }, 1000);
+    }
+    
+    // Download version for all document types
+    window.location.href = `/dtrs/document/version/${versionId}/download`;
+};
+
+window.restoreVersion = function(versionId, buttonElement) {
+    // Check if this is a vendor document
+    if (typeof versionId === 'string' && versionId.startsWith('vendor_')) {
+        alert('⚠️ Restore functionality is not available for vendor documents.\n\nVendor documents are managed through the vendor registration system.');
+        return;
+    }
+    
+    if (confirm('⚠️ Are you sure you want to restore this version?\n\nThis will create a new version based on the selected one and make it the current version.')) {
+        const button = buttonElement || document.querySelector(`[onclick*="restoreVersion(${versionId})"]`);
+        let originalContent = '';
+        
+        if (button) {
+            originalContent = button.innerHTML;
+            button.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+            button.disabled = true;
+        }
+        
+        fetch(`/dtrs/document/version/${versionId}/restore`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                const successMsg = document.createElement('div');
+                successMsg.className = 'alert alert-success alert-dismissible fade show position-fixed';
+                successMsg.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+                successMsg.innerHTML = `
+                    <i class="bi bi-check-circle me-2"></i>
+                    <strong>Version Restored!</strong><br>
+                    New version: ${data.new_version || 'N/A'}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.body.appendChild(successMsg);
+                
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    if (successMsg.parentNode) {
+                        successMsg.remove();
+                    }
+                }, 5000);
+                
+                // Reload version history
+                setTimeout(() => {
+                    const loadVersionsBtn = document.getElementById('loadVersionsBtn');
+                    if (loadVersionsBtn) {
+                        loadVersionsBtn.click();
+                    }
+                }, 1000);
+            } else {
+                alert('❌ Error restoring version: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('❌ Error restoring version. Please try again.');
+        })
+        .finally(() => {
+            if (button) {
+                button.innerHTML = originalContent;
+                button.disabled = false;
+            }
+        });
+    }
+};
+
+window.compareVersions = function(versionId, buttonElement) {
+    // Get button element
+    const button = buttonElement || document.querySelector(`[onclick*="compareVersions(${versionId})"]`);
+    if (button) {
+        const originalContent = button.innerHTML;
+        button.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+        button.disabled = true;
+        
+        setTimeout(() => {
+            button.innerHTML = originalContent;
+            button.disabled = false;
+        }, 500);
+    }
+    
+    // Open comparison view for all document types
+    window.open(`/dtrs/document/version/${versionId}/compare`, '_blank');
+};
+</script>
+
+  </main>
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -716,74 +764,27 @@
   <!-- Sidebar toggle functionality -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Check if user is authenticated
-      const authToken = localStorage.getItem('auth_token');
-      if (!authToken) {
-        // Redirect to login if no token
-        window.location.href = '{{ url('/login') }}';
-        return;
-      }
-
-      // Verify token is still valid
-      fetch('{{ url('/api/profile') }}', {
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-          'Accept': 'application/json'
-        }
-      })
-      .then(response => {
-        if (!response.ok) {
-          // Token is invalid, redirect to login
-          localStorage.removeItem('auth_token');
-          localStorage.removeItem('user_data');
-          window.location.href = '{{ url('/login') }}';
-          return;
-        }
-        return response.json();
-      })
-      .then(data => {
-        if (data && data.data && data.data.user) {
-          // Update user info in the sidebar
-          const userData = data.data.user;
-          document.querySelector('.profile-section h6').textContent = userData.name;
-        }
-      })
-      .catch(error => {
-        console.error('Auth check error:', error);
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('user_data');
-        window.location.href = '{{ url('/login') }}';
-      });
-
       // Logout functionality
       const logoutBtn = document.getElementById('logoutBtn');
       if (logoutBtn) {
-        logoutBtn.addEventListener('click', async function(e) {
+        logoutBtn.addEventListener('click', function(e) {
           e.preventDefault();
-
-          const authToken = localStorage.getItem('auth_token');
-          if (!authToken) {
-            window.location.href = '{{ url('/login') }}';
-            return;
+          
+          if (confirm('Are you sure you want to logout?')) {
+            // Create a form and submit it to logout
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route("logout") }}';
+            
+            const csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = '_token';
+            csrfToken.value = '{{ csrf_token() }}';
+            
+            form.appendChild(csrfToken);
+            document.body.appendChild(form);
+            form.submit();
           }
-
-          try {
-            // Call logout API
-            await fetch('{{ url('/api/logout') }}', {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${authToken}`,
-                'Accept': 'application/json'
-              }
-            });
-          } catch (error) {
-            console.error('Logout API error:', error);
-          }
-
-          // Clear local storage and redirect regardless of API response
-          localStorage.removeItem('auth_token');
-          localStorage.removeItem('user_data');
-          window.location.href = '{{ url('/login') }}';
         });
       }
 

@@ -80,9 +80,13 @@ class PSMInvoiceController extends Controller
     public function recordPayment(Invoice $invoice)
     {
         $invoice->payment_status = 'Paid';
-        if ($invoice->status === 'Submitted') {
-            $invoice->status = 'Approved';
+        
+        // Update status to 'Paid' when payment is recorded, regardless of current status
+        // This handles cases where invoices are auto-generated with 'Pending' status
+        if (in_array($invoice->status, ['Pending', 'Submitted', 'Approved'])) {
+            $invoice->status = 'Paid';
         }
+        
         $invoice->save();
         return redirect()->route('psm.invoice.index')->with('status', 'Invoice marked as paid.');
     }

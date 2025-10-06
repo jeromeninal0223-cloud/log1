@@ -129,6 +129,46 @@ class TravelBidDataGenerator:
         
         return bids
     
+    def generate_vendor_submissions(self, num_submissions=20):
+        """Generate vendor submission history with detailed tracking"""
+        vendors = [
+            "AUTOCHECKER INC.", "Smart Supplier Inc.", "TravelLouge", 
+            "Global Travel Solutions", "Premium Tours Ltd", "Express Travel Co",
+            "Elite Logistics", "Rapid Transit Corp", "Quality Services Inc"
+        ]
+        
+        submissions = []
+        for i in range(num_submissions):
+            vendor = self.fake.random_element(vendors)
+            submission_date = self.fake.date_between(start_date='-6m', end_date='today')
+            
+            submission = {
+                'submission_id': f"SUB-{i+1:04d}",
+                'bid_id': f"BID-{i+1:04d}",
+                'supplier_name': vendor,
+                'supplier_type': self.fake.random_element(['Local', 'National', 'International']),
+                'service_type': self.fake.random_element(self.service_types),
+                'bid_amount': round(self.fake.random_int(min=15000, max=80000), 2),
+                'quality_score': self.fake.random_int(min=60, max=98),
+                'delivery_time_days': self.fake.random_int(min=1, max=14),
+                'experience_years': self.fake.random_int(min=2, max=25),
+                'customer_rating': round(self.fake.random.uniform(3.0, 5.0), 1),
+                'previous_projects': self.fake.random_int(min=5, max=100),
+                'warranty_months': self.fake.random_element([6, 12, 18, 24, 36]),
+                'certifications': self.fake.boolean(chance_of_getting_true=70),
+                'insurance_coverage': self.fake.boolean(chance_of_getting_true=80),
+                'availability_24_7': self.fake.boolean(chance_of_getting_true=40),
+                'sustainability_certified': self.fake.boolean(chance_of_getting_true=30),
+                'payment_terms': self.fake.random_element(['Net 15', 'Net 30', 'Net 45', 'COD']),
+                'location_coverage': self.fake.random_element(['Local', 'Regional', 'National', 'International']),
+                'submission_date': submission_date.strftime('%Y-%m-%d'),
+                'status': self.fake.random_element(['Under Review', 'Approved', 'Rejected', 'Won', 'Lost']),
+                'bid_text': self.generate_bid_text()
+            }
+            submissions.append(submission)
+        
+        return submissions
+    
     def save_to_csv(self, bids, filename='travel_bids_dataset.csv'):
         """Save bids to CSV file"""
         df = pd.DataFrame(bids)
@@ -154,4 +194,46 @@ if __name__ == "__main__":
     print(f"Generated {len(bids)} sample bids")
     print("\nSample bid:")
     print(json.dumps(bids[0], indent=2))
+
+# Add the method to the TravelBidDataGenerator class
+def add_vendor_submissions_method():
+    def generate_vendor_submissions(self, num_submissions=20):
+        """Generate vendor submission history with detailed tracking"""
+        vendors = [
+            "AUTOCHECKER INC.", "Smart Supplier Inc.", "TravelLouge", 
+            "Global Travel Solutions", "Premium Tours Ltd", "Express Travel Co",
+            "Elite Logistics", "Rapid Transit Corp", "Quality Services Inc"
+        ]
+        
+        submissions = []
+        for i in range(num_submissions):
+            vendor = self.fake.random_element(vendors)
+            submission_date = self.fake.date_between(start_date='-6m', end_date='today')
+            
+            submission = {
+                'submission_id': f"SUB-{i+1:04d}",
+                'bid_id': f"BID-{i+1:04d}",
+                'supplier_name': vendor,
+                'supplier_type': self.fake.random_element(['Local', 'National', 'International']),
+                'service_type': self.fake.random_element(self.service_types),
+                'bid_amount': round(self.fake.random_int(min=15000, max=80000), 2),
+                'quality_score': self.fake.random_int(min=60, max=98),
+                'delivery_time_days': self.fake.random_int(min=1, max=14),
+                'experience_years': self.fake.random_int(min=2, max=25),
+                'customer_rating': round(self.fake.random.uniform(3.0, 5.0), 1),
+                'previous_projects': self.fake.random_int(min=5, max=100),
+                'warranty_months': self.fake.random_element([6, 12, 18, 24, 36]),
+                'certifications': self.fake.boolean(chance_of_getting_true=70),
+                'insurance_coverage': self.fake.boolean(chance_of_getting_true=80),
+                'availability_24_7': self.fake.boolean(chance_of_getting_true=40),
+                'sustainability_certified': self.fake.boolean(chance_of_getting_true=30),
+                'payment_terms': self.fake.random_element(['Net 15', 'Net 30', 'Net 45', 'COD']),
+                'location_coverage': self.fake.random_element(['Local', 'Regional', 'National', 'International']),
+                'submission_date': submission_date.strftime('%Y-%m-%d'),
+                'status': self.fake.random_element(['Under Review', 'Approved', 'Rejected', 'Won', 'Lost']),
+                'bid_text': self.generate_bid_text()
+            }
+            submissions.append(submission)
+        
+        return submissions
 

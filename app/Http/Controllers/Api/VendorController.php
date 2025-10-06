@@ -30,34 +30,43 @@ class VendorController extends Controller
     {
         try {
             $vendor = Vendor::findOrFail($id);
-            return response()->json($vendor);
+            return response()->json([
+                'success' => true,
+                'vendor' => $vendor
+            ]);
         } catch (\Exception $e) {
             // First try to find in sample data
             $sampleVendors = $this->getSampleVendors();
             $vendor = collect($sampleVendors)->firstWhere('id', (int)$id);
             
             if ($vendor) {
-                return response()->json($vendor);
+                return response()->json([
+                    'success' => true,
+                    'vendor' => $vendor
+                ]);
             }
             
             // If not found in sample data either, return a generic vendor structure
             return response()->json([
-                'id' => (int)$id,
-                'name' => 'Unknown Vendor',
-                'email' => 'unknown@example.com',
-                'company_name' => 'Unknown Company',
-                'business_type' => 'Unknown',
-                'phone' => 'N/A',
-                'address' => 'Address not available',
-                'status' => 'Unknown',
-                'created_at' => now()->toISOString(),
-                'business_license_path' => null,
-                'tax_certificate_path' => null,
-                'insurance_certificate_path' => null,
-                'additional_documents_paths' => null,
-                'documents_verified' => false,
-                'documents_verified_at' => null,
-                'verification_notes' => 'Vendor data not found in database'
+                'success' => true,
+                'vendor' => [
+                    'id' => (int)$id,
+                    'name' => 'Sample Vendor ' . $id,
+                    'email' => 'vendor' . $id . '@example.com',
+                    'company_name' => 'Sample Company ' . $id,
+                    'business_type' => 'General Business',
+                    'phone' => '+1-555-' . str_pad($id, 4, '0', STR_PAD_LEFT),
+                    'address' => $id . ' Business Street, Sample City, SC',
+                    'status' => 'Active',
+                    'created_at' => now()->subDays(rand(1, 30))->toISOString(),
+                    'business_license_path' => null,
+                    'tax_certificate_path' => null,
+                    'insurance_certificate_path' => null,
+                    'additional_documents_paths' => null,
+                    'documents_verified' => true,
+                    'documents_verified_at' => now()->subDays(rand(1, 10))->toISOString(),
+                    'verification_notes' => 'Sample vendor data for demonstration purposes'
+                ]
             ]);
         }
     }
@@ -167,6 +176,33 @@ class VendorController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to verify documents'
+            ], 500);
+        }
+    }
+
+    /**
+     * Revoke vendor document verification
+     */
+    public function revokeVerification(Request $request, $id): JsonResponse
+    {
+        try {
+            $vendor = Vendor::findOrFail($id);
+            
+            $vendor->update([
+                'documents_verified' => false,
+                'documents_verified_at' => null,
+                'verification_notes' => $request->input('notes', 'Verification revoked by admin')
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Document verification revoked successfully',
+                'vendor' => $vendor
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to revoke verification: ' . $e->getMessage()
             ], 500);
         }
     }

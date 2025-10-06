@@ -3,16 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Smart Warehousing Dashboard</title>
+  <title>Document Audit Trail - DTRS</title>
 
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('assets/css/dash-style-fixed.css') }}">
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 </head>
 <body style="background-color: #f8f9fa !important;">
 
@@ -80,7 +77,8 @@
           </ul>
         </div>
       </li>
-      @if(Auth::user()->role !== 'logistics_staff')
+      {{-- Show procurement menu only for authorized roles --}}
+      @if(in_array(Auth::user()->role, ['procurement_officer', 'admin']))
       <li class="nav-item">
         <a href="#" class="nav-link text-dark" data-bs-toggle="collapse" data-bs-target="#procurementSubmenu" aria-expanded="false" aria-controls="procurementSubmenu">
           <i class="bi bi-cart-plus me-2"></i> Procurement & Sourcing Management
@@ -127,32 +125,37 @@
         </div>
       </li>
       @endif
-       <li class="nav-item">
-    <a href="#" class="nav-link text-dark " data-bs-toggle="collapse" data-bs-target="#pltSubmenu" aria-expanded="true" aria-controls="pltSubmenu">
-      <i class="bi bi-truck me-2"></i> Project Logistics Tracker
-      <i class="bi bi-chevron-down ms-auto"></i>
-    </a>
-    <div class="collapse " id="pltSubmenu">
-      <ul class="nav flex-column ms-3">
-        <li class="nav-item">
-          <a href="{{ url('/plt/toursetup') }}" class="nav-link text-dark small ">
-            <i class="bi bi-flag me-2"></i> Tour Setup
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="{{ url('/plt/execution') }}" class="nav-link text-dark small">
-            <i class="bi bi-bar-chart-steps me-2"></i> Execution Monitoring
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="{{ url('/plt/closure') }}" class="nav-link text-dark small">
-            <i class="bi bi-check2-circle me-2"></i> Closure
-          </a>
-        </li>
-      </ul>
-    </div>
-  </li>
-  <!-- Asset Life Cycle & Maintenance -->
+      {{-- Show PLT menu only for authorized roles --}}
+      @if(in_array(Auth::user()->role, ['logistics_staff', 'admin']))
+      <li class="nav-item">
+        <a href="#" class="nav-link text-dark" data-bs-toggle="collapse" data-bs-target="#pltSubmenu" aria-expanded="false" aria-controls="pltSubmenu">
+          <i class="bi bi-truck me-2"></i> Project Logistics Tracker
+          <i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <div class="collapse" id="pltSubmenu">
+          <ul class="nav flex-column ms-3">
+            <li class="nav-item">
+              <a href="{{ url('/plt/toursetup') }}" class="nav-link text-dark small">
+                <i class="bi bi-diagram-3 me-2"></i> Project Planning
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ url('/plt/execution') }}" class="nav-link text-dark small">
+                <i class="bi bi-bar-chart-steps me-2"></i> Execution Monitoring
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ url('/plt/closure') }}" class="nav-link text-dark small">
+                <i class="bi bi-check2-circle me-2"></i> Closure
+              </a>
+            </li>
+          </ul>
+        </div>
+      </li>
+      @endif
+      {{-- Show Asset Management only for authorized roles --}}
+      @if(in_array(Auth::user()->role, ['logistics_staff', 'admin']))
+      <!-- Asset Life Cycle & Maintenance -->
       <li class="nav-item">
         <a href="#" class="nav-link text-dark" data-bs-toggle="collapse" data-bs-target="#assetSubmenu" aria-expanded="false" aria-controls="assetSubmenu">
           <i class="bi bi-tools me-2"></i> Asset Life Cycle & Maintenance
@@ -178,11 +181,14 @@
           </ul>
         </div>
       </li>
+      @endif
+      
+      {{-- Document Tracking - Current Module (Always visible for authorized users) --}}
       <li class="nav-item">
-  <a href="#" class="nav-link text-dark active" data-bs-toggle="collapse" data-bs-target="#documentSubmenu" aria-expanded="false" aria-controls="documentSubmenu">
-    <i class="bi bi-journal-text me-2"></i> Document Tracking & Logistics Records
-    <i class="bi bi-chevron-down ms-auto"></i>
-  </a>
+        <a href="#" class="nav-link text-dark active" data-bs-toggle="collapse" data-bs-target="#documentSubmenu" aria-expanded="false" aria-controls="documentSubmenu">
+          <i class="bi bi-journal-text me-2"></i> Document Tracking & Records
+          <i class="bi bi-chevron-down ms-auto"></i>
+        </a>
   <div class="collapse show" id="documentSubmenu">
     <ul class="nav flex-column ms-3">
       <li class="nav-item">
@@ -220,36 +226,36 @@
     <div class="d-flex justify-content-between align-items-center page-header">
       <div class="d-flex align-items-center">
         <div class="dashboard-logo me-3">
-          <i class="bi bi-box-seam fs-1 text-primary"></i>
+          <i class="bi bi-file-earmark-check fs-1 text-primary"></i>
         </div>
         <div>
-          <h2 class="fw-bold mb-1">Audit Management</h2>
-          <p class="text-muted mb-0">Welcome back, Sarah! Manage audit processes and compliance tracking.</p>
+          <h2 class="fw-bold mb-1">Document Audit Trail</h2>
+          <p class="text-muted mb-0">Welcome back, {{ Auth::user()->name }}! Monitor and track all document activities and access logs.</p>
         </div>
       </div>
               <nav aria-label="breadcrumb">
           <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}" class="text-decoration-none">Home</a></li>
             <li class="breadcrumb-item"><a href="{{ url('/dtrs') }}" class="text-decoration-none">Document Tracking</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Audit Management</li>
+            <li class="breadcrumb-item active" aria-current="page">Document Audit Trail</li>
           </ol>
         </nav>
     </div>
   </div>
 
-  <!-- Statistics Cards -->
+  <!-- Document Audit Statistics Cards -->
   <div class="row g-4 mb-4">
     <div class="col-md-3">
       <div class="card stat-card shadow-sm border-0">
         <div class="card-body">
           <div class="d-flex align-items-center">
             <div class="stat-icon bg-primary bg-opacity-10 text-primary me-3">
-              <i class="bi bi-box-arrow-in-down"></i>
+              <i class="bi bi-file-earmark-text"></i>
             </div>
             <div>
-              <h3 class="fw-bold mb-0">24</h3>
-              <p class="text-muted mb-0 small">Pending Receipts</p>
-              <small class="text-success"><i class="bi bi-arrow-up"></i> +3 today</small>
+              <h3 class="fw-bold mb-0">{{ $todayStats['document_activities'] ?? 0 }}</h3>
+              <p class="text-muted mb-0 small">Document Activities Today</p>
+              <small class="text-success"><i class="bi bi-file-earmark-text"></i> Views, downloads, uploads</small>
             </div>
           </div>
         </div>
@@ -260,12 +266,12 @@
         <div class="card-body">
           <div class="d-flex align-items-center">
             <div class="stat-icon bg-success bg-opacity-10 text-success me-3">
-              <i class="bi bi-check-circle"></i>
+              <i class="bi bi-cloud-upload"></i>
             </div>
             <div>
-              <h3 class="fw-bold mb-0">156</h3>
-              <p class="text-muted mb-0 small">Completed Today</p>
-              <small class="text-success"><i class="bi bi-arrow-up"></i> +12%</small>
+              <h3 class="fw-bold mb-0">{{ $todayStats['documents_uploaded'] ?? 0 }}</h3>
+              <p class="text-muted mb-0 small">Documents Uploaded</p>
+              <small class="text-muted"><i class="bi bi-cloud-upload"></i> New documents added</small>
             </div>
           </div>
         </div>
@@ -276,12 +282,12 @@
         <div class="card-body">
           <div class="d-flex align-items-center">
             <div class="stat-icon bg-warning bg-opacity-10 text-warning me-3">
-              <i class="bi bi-exclamation-triangle"></i>
+              <i class="bi bi-shield-exclamation"></i>
             </div>
             <div>
-              <h3 class="fw-bold mb-0">8</h3>
-              <p class="text-muted mb-0 small">Quality Issues</p>
-              <small class="text-warning"><i class="bi bi-arrow-up"></i> +2</small>
+              <h3 class="fw-bold mb-0">{{ $todayStats['access_violations'] ?? 0 }}</h3>
+              <p class="text-muted mb-0 small">Access Violations</p>
+              <small class="text-danger"><i class="bi bi-shield-exclamation"></i> Unauthorized attempts</small>
             </div>
           </div>
         </div>
@@ -292,12 +298,12 @@
         <div class="card-body">
           <div class="d-flex align-items-center">
             <div class="stat-icon bg-info bg-opacity-10 text-info me-3">
-              <i class="bi bi-clock"></i>
+              <i class="bi bi-clock-history"></i>
             </div>
             <div>
-              <h3 class="fw-bold mb-0">45min</h3>
-              <p class="text-muted mb-0 small">Avg Process Time</p>
-              <small class="text-success"><i class="bi bi-arrow-down"></i> -5min</small>
+              <h3 class="fw-bold mb-0">{{ $todayStats['version_changes'] ?? 0 }}</h3>
+              <p class="text-muted mb-0 small">Version Changes</p>
+              <small class="text-success"><i class="bi bi-clock-history"></i> Document updates</small>
             </div>
           </div>
         </div>
@@ -307,384 +313,275 @@
 
   <!-- Main Content Area -->
   <div class="row g-4">
-    <!-- Left Column -->
-    <div class="col-lg-8">
-      <!-- Receipt Entry Form -->
+    <!-- Main Column -->
+    <div class="col-12">
+      <!-- Audit Filters -->
       <div class="card shadow-sm border-0 mb-4">
         <div class="card-header border-bottom bg-primary text-white">
-          <h5 class="card-title mb-0">New Inventory Receipt</h5>
+          <h5 class="card-title mb-0">Document Audit Filters</h5>
         </div>
         <div class="card-body">
-          <!-- Manual Inventory Receipt Entry -->
-          <form id="receiptForm">
+          <form id="auditFiltersForm" method="GET" action="{{ route('dtrs.audits') }}">
             <div class="row g-3">
-              <!-- Supplier Information -->
-              <div class="col-md-6">
-                <label for="supplier" class="form-label">Supplier</label>
-                <input type="text" class="form-control" id="supplier" placeholder="Enter supplier name" required>
+              <!-- Date Range -->
+              <div class="col-md-3">
+                <label for="startDate" class="form-label">Start Date</label>
+                <input type="date" class="form-control" id="startDate" name="start_date" value="{{ $startDate }}">
               </div>
-              <div class="col-md-6">
-                <label for="category" class="form-label">Category</label>
-                <input type="text" class="form-control" id="category" placeholder="Enter category" required>
+              <div class="col-md-3">
+                <label for="endDate" class="form-label">End Date</label>
+                <input type="date" class="form-control" id="endDate" name="end_date" value="{{ $endDate }}">
               </div>
-              <div class="col-md-6">
-                <label for="deliveryDate" class="form-label">Delivery Date</label>
-                <input type="date" class="form-control" id="deliveryDate" required>
+              
+              <!-- User Filter -->
+              <div class="col-md-3">
+                <label for="userFilter" class="form-label">User</label>
+                <select class="form-select" id="userFilter" name="user_id">
+                  <option value="">All Users</option>
+                  @foreach($users as $user)
+                    <option value="{{ $user->id }}" {{ $userId == $user->id ? 'selected' : '' }}>
+                      {{ $user->name }} ({{ ucfirst(str_replace('_', ' ', $user->role)) }})
+                    </option>
+                  @endforeach
+                </select>
               </div>
-              <div class="col-md-6">
-                <label for="invoiceNumber" class="form-label">Invoice #</label>
-                <input type="text" class="form-control" id="invoiceNumber" required>
+              
+              <!-- Document Action Filter -->
+              <div class="col-md-3">
+                <label for="actionFilter" class="form-label">Document Action</label>
+                <select class="form-select" id="actionFilter" name="action">
+                  <option value="">All Actions</option>
+                  <option value="upload" {{ $action == 'upload' ? 'selected' : '' }}>Upload</option>
+                  <option value="view" {{ $action == 'view' ? 'selected' : '' }}>View</option>
+                  <option value="download" {{ $action == 'download' ? 'selected' : '' }}>Download</option>
+                  <option value="edit" {{ $action == 'edit' ? 'selected' : '' }}>Edit</option>
+                  <option value="delete" {{ $action == 'delete' ? 'selected' : '' }}>Delete</option>
+                  <option value="approve" {{ $action == 'approve' ? 'selected' : '' }}>Approve</option>
+                  <option value="reject" {{ $action == 'reject' ? 'selected' : '' }}>Reject</option>
+                  <option value="version_create" {{ $action == 'version_create' ? 'selected' : '' }}>Version Create</option>
+                  <option value="share" {{ $action == 'share' ? 'selected' : '' }}>Share</option>
+                  <option value="access_denied" {{ $action == 'access_denied' ? 'selected' : '' }}>Access Denied</option>
+                </select>
               </div>
-              <div class="col-12">
-                <label for="notes" class="form-label">Notes</label>
-                <textarea class="form-control" id="notes" rows="2"></textarea>
+              
+              <!-- Document Type Filter -->
+              <div class="col-md-3">
+                <label for="documentTypeFilter" class="form-label">Document Type</label>
+                <select class="form-select" id="documentTypeFilter" name="document_type">
+                  <option value="">All Document Types</option>
+                  <option value="contract" {{ $document_type == 'contract' ? 'selected' : '' }}>Contracts</option>
+                  <option value="invoice" {{ $document_type == 'invoice' ? 'selected' : '' }}>Invoices</option>
+                  <option value="purchase_order" {{ $document_type == 'purchase_order' ? 'selected' : '' }}>Purchase Orders</option>
+                  <option value="receipt" {{ $document_type == 'receipt' ? 'selected' : '' }}>Receipts</option>
+                  <option value="policy" {{ $document_type == 'policy' ? 'selected' : '' }}>Policies</option>
+                  <option value="procedure" {{ $document_type == 'procedure' ? 'selected' : '' }}>Procedures</option>
+                  <option value="report" {{ $document_type == 'report' ? 'selected' : '' }}>Reports</option>
+                  <option value="certificate" {{ $document_type == 'certificate' ? 'selected' : '' }}>Certificates</option>
+                  <option value="specification" {{ $document_type == 'specification' ? 'selected' : '' }}>Specifications</option>
+                  <option value="other" {{ $document_type == 'other' ? 'selected' : '' }}>Other</option>
+                </select>
               </div>
-            </div>
-            
-            <hr class="my-4">
-            
-            <!-- Item Entry Section -->
-            <h6 class="mb-3">Items Received</h6>
-            <div class="table-responsive mb-3">
-              <table class="table table-sm" id="itemsTable">
-                <thead>
-                  <tr>
-                    <th>Item Name</th>
-                    <th>Description</th>
-                    <th>Quantity</th>
-                    <th>Unit</th>
-                    <th>Supplier</th>
-                    <th>Category</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody id="itemsTableBody">
-                  <!-- Items will be added here -->
-                </tbody>
-              </table>
-            </div>
-            
-            <!-- Add Item Form (hidden by default) -->
-            <div id="addItemForm" class="mb-3" style="display:none;">
-              <div class="row g-2">
-                <div class="col-md-2">
-                  <input type="text" class="form-control" id="itemName" placeholder="Item Name" required>
-                </div>
-                <div class="col-md-2">
-                  <input type="text" class="form-control" id="itemDesc" placeholder="Description" required>
-                </div>
-                <div class="col-md-2">
-                  <input type="number" class="form-control" id="itemQty" placeholder="Qty" min="1" required>
-                </div>
-                <div class="col-md-2">
-                  <input type="text" class="form-control" id="itemUnit" placeholder="Unit" required>
-                </div>
-                <div class="col-md-2">
-                  <input type="text" class="form-control" id="itemSupplier" placeholder="Supplier" required>
-                </div>
-                <div class="col-md-2">
-                  <input type="text" class="form-control" id="itemCategory" placeholder="Category" required>
-                </div>
-                <div class="col-md-12 mt-2">
-                  <button type="button" class="btn btn-success btn-sm" id="saveItemBtn">
-                    <i class="bi bi-check-circle me-1"></i>Save Item
-                  </button>
-                  <button type="button" class="btn btn-outline-secondary btn-sm" id="cancelItemBtn">
-                    <i class="bi bi-x-circle me-1"></i>Cancel
-                  </button>
-                </div>
+              
+              <!-- Search Field -->
+              <div class="col-md-9">
+                <label for="searchFilter" class="form-label">Search</label>
+                <input type="text" class="form-control" id="searchFilter" name="search" 
+                       value="{{ $search ?? '' }}" placeholder="Search by document name, user name, or action description...">
               </div>
-            </div>
-            
-            <!-- Add Item Button -->
-            <button type="button" class="btn btn-outline-primary btn-sm mb-3" id="addItemBtn">
-              <i class="bi bi-plus-circle me-1"></i>Add Item
-            </button>
-            
-            <!-- Form Actions -->
-            <div class="d-flex justify-content-between">
-              <button type="reset" class="btn btn-outline-secondary">
-                <i class="bi bi-x-circle me-1"></i>Cancel
-              </button>
-              <button type="submit" class="btn btn-primary">
-                <i class="bi bi-check-circle me-1"></i>Complete Receipt
-              </button>
+              
+              <!-- Actions -->
+              <div class="col-md-12 d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary me-2">
+                  <i class="bi bi-search me-1"></i>Filter
+                </button>
+                <button type="button" class="btn btn-outline-secondary me-2" id="resetFiltersBtn">
+                  <i class="bi bi-arrow-clockwise me-1"></i>Reset
+                </button>
+                <button type="button" class="btn btn-outline-success" id="exportAuditBtn">
+                  <i class="bi bi-download me-1"></i>Export
+                </button>
+              </div>
             </div>
           </form>
-
-          <!-- Static JS for manual item entry -->
-          <script>
-            document.addEventListener('DOMContentLoaded', function() {
-              const addItemBtn = document.getElementById('addItemBtn');
-              const addItemForm = document.getElementById('addItemForm');
-              const saveItemBtn = document.getElementById('saveItemBtn');
-              const cancelItemBtn = document.getElementById('cancelItemBtn');
-              const itemsTableBody = document.getElementById('itemsTableBody');
-
-              addItemBtn.addEventListener('click', function() {
-                addItemForm.style.display = 'block';
-                addItemBtn.style.display = 'none';
-              });
-
-              cancelItemBtn.addEventListener('click', function() {
-                addItemForm.style.display = 'none';
-                addItemBtn.style.display = 'inline-block';
-                clearItemFields();
-              });
-
-              saveItemBtn.addEventListener('click', function() {
-                // Get values
-                const name = document.getElementById('itemName').value;
-                const desc = document.getElementById('itemDesc').value;
-                const qty = document.getElementById('itemQty').value;
-                const unit = document.getElementById('itemUnit').value;
-                const supplier = document.getElementById('itemSupplier').value;
-                const category = document.getElementById('itemCategory').value;
-
-                if (name && desc && qty && unit && supplier && category) {
-                  // Add row to table
-                  const row = document.createElement('tr');
-                  row.innerHTML = `
-                    <td>${name}</td>
-                    <td>${desc}</td>
-                    <td>${qty}</td>
-                    <td>${unit}</td>
-                    <td>${supplier}</td>
-                    <td>${category}</td>
-                    <td>
-                      <button type="button" class="btn btn-sm btn-danger removeItemBtn"><i class="bi bi-trash"></i></button>
-                    </td>
-                  `;
-                  itemsTableBody.appendChild(row);
-
-                  // Remove item functionality
-                  row.querySelector('.removeItemBtn').addEventListener('click', function() {
-                    row.remove();
-                  });
-
-                  addItemForm.style.display = 'none';
-                  addItemBtn.style.display = 'inline-block';
-                  clearItemFields();
-                }
-              });
-
-              function clearItemFields() {
-                document.getElementById('itemName').value = '';
-                document.getElementById('itemDesc').value = '';
-                document.getElementById('itemQty').value = '';
-                document.getElementById('itemUnit').value = '';
-                document.getElementById('itemSupplier').value = '';
-                document.getElementById('itemCategory').value = '';
-              }
-            });
-          </script>
         </div>
       </div>
       
-      <!-- Recent Receipts -->
+      <!-- Audit Trail Table -->
       <div class="card shadow-sm border-0">
         <div class="card-header border-bottom d-flex justify-content-between align-items-center">
-          <h5 class="card-title mb-0">Recent Receipts</h5>
-          <button class="btn btn-sm btn-outline-primary">View All</button>
+          <h5 class="card-title mb-0">Document Activity Log</h5>
+          <div>
+            <button class="btn btn-sm btn-outline-primary me-2" id="refreshAuditBtn">
+              <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+            <span class="badge bg-primary">{{ $auditLogs->total() ?? 0 }} Records</span>
+          </div>
         </div>
-        <div class="card-body">
+        <div class="card-body p-0">
           <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover mb-0">
               <thead class="table-light">
                 <tr>
-                  <th>Receipt ID</th>
-                  <th>Date</th>
-                  <th>Supplier</th>
-                  <th>Items</th>
-                  <th>PO #</th>
+                  <th>Timestamp</th>
+                  <th>User</th>
+                  <th>Document</th>
+                  <th>Action</th>
+                  <th>Details</th>
                   <th>Status</th>
-                  <th>Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody id="auditTableBody">
+                @forelse($auditLogs as $log)
                 <tr>
-                  <td><strong>#REC-2024-105</strong></td>
-                  <td>Today, 10:45 AM</td>
-                  <td>TechCorp Inc.</td>
-                  <td>12 items</td>
-                  <td>PO-2024-012</td>
-                  <td><span class="badge bg-success">Completed</span></td>
+                  <td><small>{{ $log->created_at->format('Y-m-d H:i:s') }}</small></td>
                   <td>
-                    <button class="btn btn-sm btn-outline-primary">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary">
-                      <i class="bi bi-printer"></i>
-                    </button>
+                    <div class="d-flex align-items-center">
+                      <div class="avatar-sm {{ $log->user_avatar_color ?? 'bg-primary' }} text-white rounded-circle me-2 d-flex align-items-center justify-content-center">
+                        <i class="bi bi-person-fill"></i>
+                      </div>
+                      <div>
+                        <div class="fw-semibold">{{ $log->user_name ?? 'Unknown User' }}</div>
+                        <small class="text-muted">{{ ucfirst(str_replace('_', ' ', $log->user_role ?? 'Unknown')) }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <i class="bi bi-file-earmark-text text-primary me-2"></i>
+                      <div>
+                        <div class="fw-semibold">{{ $log->document_name ?? 'Unknown Document' }}</div>
+                        <small class="text-muted">{{ ucfirst($log->document_type ?? 'Unknown Type') }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="badge {{ $log->action_badge_class ?? 'bg-secondary' }}">{{ ucfirst(str_replace('_', ' ', $log->action)) }}</span></td>
+                  <td><small>{{ $log->description }}</small></td>
+                  <td><i class="bi {{ $log->status_icon ?? 'bi-check-circle' }} text-{{ $log->status === 'success' ? 'success' : ($log->status === 'failed' ? 'danger' : 'warning') }}"></i></td>
+                </tr>
+                @empty
+                <tr>
+                  <td colspan="6" class="text-center py-4">
+                    <div class="text-muted">
+                      <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                      <p class="mb-0">No document audit logs found for the selected criteria.</p>
+                      <small>Try adjusting your filters, date range, or document type.</small>
+                    </div>
                   </td>
                 </tr>
-                <tr>
-                  <td><strong>#REC-2024-104</strong></td>
-                  <td>Today, 9:30 AM</td>
-                  <td>Global Electronics</td>
-                  <td>8 items</td>
-                  <td>PO-2024-011</td>
-                  <td><span class="badge bg-success">Completed</span></td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-primary">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary">
-                      <i class="bi bi-printer"></i>
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>#REC-2024-103</strong></td>
-                  <td>Yesterday, 3:15 PM</td>
-                  <td>Smart Parts Co.</td>
-                  <td>15 items</td>
-                  <td>PO-2024-010</td>
-                  <td><span class="badge bg-success">Completed</span></td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-primary">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary">
-                      <i class="bi bi-printer"></i>
-                    </button>
-                  </td>
-                </tr>
+                @endforelse
               </tbody>
             </table>
           </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Right Column -->
-    <div class="col-lg-4">
-      <!-- Quick Actions -->
-      <div class="card shadow-sm border-0">
-        <div class="card-header border-bottom">
-          <h5 class="card-title mb-0">Quick Actions</h5>
-        </div>
-        <div class="card-body">
-          <div class="d-grid gap-2">
-            <button class="btn btn-primary" id="newReceiptBtn">
-              <i class="bi bi-plus-circle me-2"></i>New Receipt
-            </button>
-            <button class="btn btn-outline-primary" id="scanBarcodeBtn">
-              <i class="bi bi-upc-scan me-2"></i>Scan Barcode
-            </button>
-            <button class="btn btn-outline-primary" id="importCSVBtn">
-              <i class="bi bi-file-earmark-excel me-2"></i>Import from CSV
-            </button>
-            <button class="btn btn-outline-secondary" id="printReceiptBtn">
-              <i class="bi bi-printer me-2"></i>Print Receipt
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- PO Preview (Hidden by default, shown when viewing PO) -->
-      <div class="card shadow-sm border-0 mt-4 d-none" id="poPreviewCard">
-        <div class="card-header border-bottom d-flex justify-content-between align-items-center">
-          <h5 class="card-title mb-0">PO Preview</h5>
-          <button class="btn btn-sm btn-close" id="closePOPreview"></button>
-        </div>
-        <div class="card-body">
-          <h6 class="fw-bold">PO-2024-001</h6>
-          <p class="small text-muted">Issued: 15 Jan 2024 | Expected: 20 Jan 2024</p>
-          
-          <div class="table-responsive">
-            <table class="table table-sm">
-              <thead>
-                <tr>
-                  <th>Item</th>
-                  <th>Qty</th>
-                  <th>Unit</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Laptop Pro 15"</td>
-                  <td>10</td>
-                  <td>pcs</td>
-                </tr>
-                <tr>
-                  <td>Wireless Mouse</td>
-                  <td>25</td>
-                  <td>pcs</td>
-                </tr>
-                <tr>
-                  <td>USB-C Hub</td>
-                  <td>15</td>
-                  <td>pcs</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Receipt Summary -->
-      <div class="card shadow-sm border-0 mt-4">
-        <div class="card-header border-bottom">
-          <h5 class="card-title mb-0">Today's Summary</h5>
-        </div>
-        <div class="card-body">
-          <div class="mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small">Receipts Completed</span>
-              <span class="small fw-bold">12</span>
+          <!-- Enhanced Pagination -->
+          <div class="card-footer border-top bg-light">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center text-muted small">
+                  <i class="bi bi-info-circle me-2"></i>
+                  <span>
+                    @if($auditLogs->total() > 0)
+                      Showing <strong>{{ $auditLogs->firstItem() }}</strong> to <strong>{{ $auditLogs->lastItem() }}</strong> 
+                      of <strong>{{ number_format($auditLogs->total()) }}</strong> audit records
+                    @else
+                      No audit records found
+                    @endif
+                  </span>
+                </div>
+                @if($auditLogs->hasPages())
+                <div class="mt-2">
+                  <small class="text-muted">
+                    <i class="bi bi-layers me-1"></i>
+                    Page {{ $auditLogs->currentPage() }} of {{ $auditLogs->lastPage() }}
+                    ({{ $auditLogs->perPage() }} records per page)
+                  </small>
+                </div>
+                @endif
+              </div>
+              <div class="col-md-6">
+                @if($auditLogs->total() > 0)
+                <div class="d-flex justify-content-end">
+                  <nav aria-label="Audit logs pagination">
+                    <ul class="pagination pagination-sm mb-0">
+                      {{-- Previous Page Link --}}
+                      @if ($auditLogs->onFirstPage())
+                        <li class="page-item disabled">
+                          <span class="page-link">&laquo;</span>
+                        </li>
+                      @else
+                        <li class="page-item">
+                          <a class="page-link" href="{{ $auditLogs->appends(request()->query())->previousPageUrl() }}" rel="prev">&laquo;</a>
+                        </li>
+                      @endif
+
+                      {{-- Always show at least page 1 --}}
+                      @if($auditLogs->lastPage() > 1)
+                        {{-- Pagination Elements --}}
+                        @php
+                          $currentPage = $auditLogs->currentPage();
+                          $lastPage = $auditLogs->lastPage();
+                          $showPages = 5; // Number of pages to show around current page
+                          $halfShow = floor($showPages / 2);
+                        @endphp
+
+                        {{-- First page --}}
+                        @if ($currentPage > $halfShow + 2)
+                          <li class="page-item">
+                            <a class="page-link" href="{{ $auditLogs->appends(request()->query())->url(1) }}">1</a>
+                          </li>
+                          @if ($currentPage > $halfShow + 3)
+                            <li class="page-item disabled">
+                              <span class="page-link">...</span>
+                            </li>
+                          @endif
+                        @endif
+
+                        {{-- Pages around current page --}}
+                        @for ($i = max(1, $currentPage - $halfShow); $i <= min($lastPage, $currentPage + $halfShow); $i++)
+                          @if ($i == $currentPage)
+                            <li class="page-item active">
+                              <span class="page-link">{{ $i }}</span>
+                            </li>
+                          @else
+                            <li class="page-item">
+                              <a class="page-link" href="{{ $auditLogs->appends(request()->query())->url($i) }}">{{ $i }}</a>
+                            </li>
+                          @endif
+                        @endfor
+
+                        {{-- Last page --}}
+                        @if ($currentPage < $lastPage - $halfShow - 1)
+                          @if ($currentPage < $lastPage - $halfShow - 2)
+                            <li class="page-item disabled">
+                              <span class="page-link">...</span>
+                            </li>
+                          @endif
+                          <li class="page-item">
+                            <a class="page-link" href="{{ $auditLogs->appends(request()->query())->url($lastPage) }}">{{ $lastPage }}</a>
+                          </li>
+                        @endif
+                      @else
+                        {{-- Single page --}}
+                        <li class="page-item active">
+                          <span class="page-link">1</span>
+                        </li>
+                      @endif
+
+                      {{-- Next Page Link --}}
+                      @if ($auditLogs->hasMorePages())
+                        <li class="page-item">
+                          <a class="page-link" href="{{ $auditLogs->appends(request()->query())->nextPageUrl() }}" rel="next">&raquo;</a>
+                        </li>
+                      @else
+                        <li class="page-item disabled">
+                          <span class="page-link">&raquo;</span>
+                        </li>
+                      @endif
+                    </ul>
+                  </nav>
+                </div>
+                @endif
+              </div>
             </div>
-            <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-success" style="width: 80%"></div>
-            </div>
-          </div>
-          <div class="mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small">Items Received</span>
-              <span class="small fw-bold">187</span>
-            </div>
-            <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-primary" style="width: 65%"></div>
-            </div>
-          </div>
-          <div class="mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small">Damaged Items</span>
-              <span class="small fw-bold">3</span>
-            </div>
-            <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-danger" style="width: 5%"></div>
-            </div>
-          </div>
-          <div>
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small">Avg. Time per Receipt</span>
-              <span class="small fw-bold">32min</span>
-            </div>
-            <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-info" style="width: 75%"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Alerts -->
-      <div class="card shadow-sm border-0 mt-4">
-        <div class="card-header border-bottom">
-          <h5 class="card-title mb-0">Alerts</h5>
-        </div>
-        <div class="card-body">
-          <div class="alert alert-danger alert-sm mb-2">
-            <i class="bi bi-exclamation-triangle me-2"></i>
-            Low stock: Laptop batteries (5 units)
-          </div>
-          <div class="alert alert-warning alert-sm mb-2">
-            <i class="bi bi-clock me-2"></i>
-            Order #ORD-2024-001 delayed
-          </div>
-          <div class="alert alert-info alert-sm">
-            <i class="bi bi-info-circle me-2"></i>
-            New shipment arriving in 2 hours
           </div>
         </div>
       </div>
@@ -692,42 +589,157 @@
   </div>
 </main>
 
-  <!-- Static Modals for Quick Actions -->
-  <div class="modal fade" id="staticModal" tabindex="-1" aria-labelledby="staticModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="staticModalLabel">Action</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body" id="staticModalBody">
-          <!-- Content will be set by JS -->
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <!-- Sidebar toggle functionality -->
+  <!-- Audit Trail Functionality -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      // Filter form submission
+      const auditFiltersForm = document.getElementById('auditFiltersForm');
+      auditFiltersForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        filterAuditLogs();
+      });
+
+      // Reset filters
+      document.getElementById('resetFiltersBtn').addEventListener('click', function() {
+        auditFiltersForm.reset();
+        document.getElementById('startDate').value = '{{ date('Y-m-d', strtotime('-7 days')) }}';
+        document.getElementById('endDate').value = '{{ date('Y-m-d') }}';
+        filterAuditLogs();
+      });
+
+      // Export audit logs
+      document.getElementById('exportAuditBtn').addEventListener('click', function() {
+        Swal.fire({
+          title: 'Export Audit Logs',
+          text: 'Generate audit trail report for the selected filters?',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Export',
+          confirmButtonColor: '#198754'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            exportAuditLogs();
+          }
+        });
+      });
+
+      // Refresh audit logs
+      document.getElementById('refreshAuditBtn').addEventListener('click', function() {
+        filterAuditLogs();
+      });
+
+      function filterAuditLogs() {
+        const formData = new FormData(auditFiltersForm);
+        
+        Swal.fire({
+          title: 'Loading...',
+          text: 'Filtering audit logs',
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+
+        // Simulate API call
+        setTimeout(() => {
+          Swal.close();
+          updateAuditTable();
+        }, 1500);
+      }
+
+      function updateAuditTable() {
+        // This would typically make an AJAX call to get filtered results
+        Swal.fire({
+          icon: 'success',
+          title: 'Filters Applied',
+          text: 'Audit logs have been updated.',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      }
+
+      function exportAuditLogs() {
+        Swal.fire({
+          title: 'Generating Export...',
+          text: 'Please wait while we prepare your audit report.',
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+
+        // Simulate export generation
+        setTimeout(() => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Export Complete!',
+            text: 'Your audit trail report has been downloaded.',
+            confirmButtonColor: '#0d6efd'
+          });
+          
+          // Simulate file download
+          const link = document.createElement('a');
+          link.href = '#';
+          link.download = `audit_trail_${new Date().toISOString().split('T')[0]}.xlsx`;
+          link.click();
+        }, 3000);
+      }
+
+      function generateAuditReport() {
+        Swal.fire({
+          title: 'Generate Audit Report',
+          html: `
+            <div class="mb-3">
+              <label class="form-label">Report Type</label>
+              <select class="form-select" id="reportType">
+                <option value="summary">Activity Summary</option>
+                <option value="detailed">Detailed Log</option>
+                <option value="security">Security Report</option>
+                <option value="compliance">Compliance Report</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Format</label>
+              <select class="form-select" id="reportFormat">
+                <option value="pdf">PDF</option>
+                <option value="excel">Excel</option>
+                <option value="csv">CSV</option>
+              </select>
+            </div>
+          `,
+          confirmButtonText: 'Generate Report',
+          showCancelButton: true,
+          confirmButtonColor: '#0d6efd'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const reportType = document.getElementById('reportType').value;
+            const format = document.getElementById('reportFormat').value;
+            
+            Swal.fire({
+              icon: 'success',
+              title: 'Report Generated!',
+              text: `Your ${reportType} report in ${format.toUpperCase()} format is ready.`,
+              confirmButtonColor: '#0d6efd'
+            });
+          }
+        });
+      }
+
       // Logout functionality
       const logoutBtn = document.getElementById('logoutBtn');
       if (logoutBtn) {
         logoutBtn.addEventListener('click', function(e) {
           e.preventDefault();
           
-          // Create a form and submit it to logout route
           const form = document.createElement('form');
           form.method = 'POST';
-          form.action = '{{ route('logout') }}';
+          form.action = '/logout';
           
-          // Add CSRF token
           const csrfToken = document.createElement('input');
           csrfToken.type = 'hidden';
           csrfToken.name = '_token';
@@ -739,6 +751,7 @@
         });
       }
 
+      // Sidebar toggle elements
       const menuBtn = document.getElementById('menu-btn');
       const desktopToggle = document.getElementById('desktop-toggle');
       const sidebar = document.getElementById('sidebar');
@@ -844,5 +857,6 @@
       });
     });
   </script>
+
 </body>
 </html>

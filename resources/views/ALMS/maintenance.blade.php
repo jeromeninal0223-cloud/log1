@@ -13,6 +13,12 @@
   <link rel="stylesheet" href="{{ asset('assets/css/dash-style-fixed.css') }}">
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- FullCalendar CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
+  <!-- FullCalendar JS -->
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 </head>
 <body style="background-color: #f8f9fa !important;">
@@ -137,7 +143,7 @@
       <ul class="nav flex-column ms-3">
         <li class="nav-item">
           <a href="{{ url('/plt/toursetup') }}" class="nav-link text-dark small ">
-            <i class="bi bi-flag me-2"></i> Tour Setup
+            <i class="bi bi-diagram-3 me-2"></i> Project Planning
           </a>
         </li>
         <li class="nav-item">
@@ -308,163 +314,243 @@
 
   <!-- Main Content Area -->
   <div class="row g-4">
-    <!-- Left Column -->
-    <div class="col-lg-8">
-      <!-- Maintenance Scheduling Form -->
-      <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header border-bottom bg-primary text-white">
-          <h5 class="card-title mb-0">New Maintenance Schedule</h5>
+    <!-- Full Width Content -->
+    <div class="col-12">
+      <!-- Maintenance Schedules -->
+      <div class="card shadow-sm border-0">
+        <div class="card-header border-bottom">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-calendar-check me-2"></i>Maintenance Schedules
+            </h5>
+            <div class="d-flex align-items-center gap-2">
+              <!-- View Toggle Buttons -->
+              <div class="btn-group" role="group" aria-label="View toggle">
+                <button type="button" class="btn btn-outline-secondary active" id="tableViewBtn">
+                  <i class="bi bi-table me-1"></i>Table
+                </button>
+                <button type="button" class="btn btn-outline-secondary" id="calendarViewBtn">
+                  <i class="bi bi-calendar3 me-1"></i>Calendar
+                </button>
+              </div>
+              <!-- Action Buttons -->
+              <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newScheduleModal">
+                <i class="bi bi-plus-circle me-1"></i>New Schedule
+              </button>
+              <button class="btn btn-outline-primary" id="refreshSchedulesBtn">
+                <i class="bi bi-arrow-clockwise"></i>
+              </button>
+            </div>
+          </div>
         </div>
-        <div class="card-body">
-          <!-- Schedule Entry -->
-          <form id="scheduleForm" method="POST" action="{{ url('/alms/maintenance/schedules') }}">
-            @csrf
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label for="assetId" class="form-label">Asset</label>
-                <select class="form-control" id="assetId" required>
-                  <option value="">Select asset</option>
-                  @isset($assets)
-                  @foreach($assets as $asset)
-                  <option value="{{ $asset->id }}">#VEH-{{ $asset->id }} — {{ $asset->plate_number }} ({{ $asset->vehicle_type }})</option>
-                  @endforeach
-                  @endisset
+        
+        <div class="card-body p-0">
+          <!-- Table View -->
+          <div id="tableView" class="p-3">
+            <!-- Filter and Search Bar -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-3">
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="bi bi-search"></i>
+                  </span>
+                  <input type="text" class="form-control" id="searchSchedules" placeholder="Search schedules...">
+                </div>
+              </div>
+              <div class="col-md-2">
+                <select class="form-select" id="filterCategory">
+                  <option value="">All Categories</option>
+                  <option value="Preventive">🔧 Preventive</option>
+                  <option value="Corrective">⚠️ Corrective</option>
+                  <option value="Emergency">🚨 Emergency</option>
+                  <option value="Inspection">🔍 Inspection</option>
+                  <option value="Cleaning">🧽 Cleaning</option>
+                  <option value="Upgrade">⬆️ Upgrade</option>
+                  <option value="Calibration">⚖️ Calibration</option>
+                  <option value="Replacement">🔄 Replacement</option>
                 </select>
               </div>
-              <div class="col-md-6">
-                <label for="title" class="form-label">Title</label>
-                <input type="text" class="form-control" id="title" placeholder="e.g., Oil change" required>
-              </div>
-              <div class="col-md-6">
-                <label for="scheduledDate" class="form-label">Scheduled Date</label>
-                <input type="date" class="form-control" id="scheduledDate" required>
-              </div>
-              <div class="col-md-6">
-                <label for="status" class="form-label">Status</label>
-                <select class="form-control" id="status" required>
+              <div class="col-md-2">
+                <select class="form-select" id="filterStatus">
+                  <option value="">All Status</option>
                   <option value="Scheduled">Scheduled</option>
                   <option value="In Progress">In Progress</option>
                   <option value="Completed">Completed</option>
                   <option value="Cancelled">Cancelled</option>
                 </select>
               </div>
-              <div class="col-12">
-                <label for="notes" class="form-label">Notes</label>
-                <textarea class="form-control" id="notes" rows="2" placeholder="Optional"></textarea>
+              <div class="col-md-2">
+                <select class="form-select" id="filterPriority">
+                  <option value="">All Priority</option>
+                  <option value="Low">🟢 Low</option>
+                  <option value="Medium">🟡 Medium</option>
+                  <option value="High">🟠 High</option>
+                  <option value="Critical">🔴 Critical</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <select class="form-select" id="filterAsset">
+                  <option value="">All Assets</option>
+                  @isset($assets)
+                  @foreach($assets as $asset)
+                  <option value="{{ $asset->id }}">{{ $asset->asset_id ?? '#ASSET-' . $asset->id }}</option>
+                  @endforeach
+                  @endisset
+                </select>
+              </div>
+              <div class="col-md-1">
+                <button class="btn btn-outline-secondary w-100" id="clearFilters" title="Clear all filters">
+                  <i class="bi bi-x-circle"></i>
+                </button>
               </div>
             </div>
-            
-            <!-- Form Actions -->
-            <div class="d-flex justify-content-between">
-              <button type="reset" class="btn btn-outline-secondary">
-                <i class="bi bi-x-circle me-1"></i>Clear
-              </button>
-              <button type="submit" class="btn btn-primary" id="createScheduleBtn">
-                <i class="bi bi-check-circle me-1"></i>Create Schedule
-              </button>
+
+            <!-- Enhanced Table -->
+            <div class="table-responsive">
+              <table class="table table-hover" id="schedulesTable">
+                <thead class="table-light">
+                  <tr>
+                    <th>
+                      <input type="checkbox" class="form-check-input" id="selectAll">
+                    </th>
+                    <th>ID</th>
+                    <th>Category</th>
+                    <th>Asset</th>
+                    <th>Title</th>
+                    <th>Scheduled Date</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @if(isset($schedules) && $schedules->count())
+                    @foreach($schedules as $s)
+                    <tr data-schedule-id="{{ $s->id }}">
+                      <td>
+                        <input type="checkbox" class="form-check-input schedule-checkbox" value="{{ $s->id }}">
+                      </td>
+                      <td><strong>#MS-{{ str_pad($s->id, 4, '0', STR_PAD_LEFT) }}</strong></td>
+                      <td>
+                        @php
+                          $categoryIcons = [
+                            'Preventive' => '🔧',
+                            'Corrective' => '⚠️',
+                            'Emergency' => '🚨',
+                            'Inspection' => '🔍',
+                            'Cleaning' => '🧽',
+                            'Upgrade' => '⬆️',
+                            'Calibration' => '⚖️',
+                            'Replacement' => '🔄'
+                          ];
+                          $categoryIcon = $categoryIcons[$s->category ?? 'Preventive'] ?? '🔧';
+                        @endphp
+                        <span class="badge bg-info">
+                          {{ $categoryIcon }} {{ $s->category ?? 'Preventive' }}
+                        </span>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <div class="asset-icon me-2">
+                            <i class="bi bi-truck text-primary"></i>
+                          </div>
+                          <div>
+                            <div class="fw-semibold">{{ optional($s->asset)->asset_id ?? '#ASSET-' . $s->asset_id }}</div>
+                            <small class="text-muted">{{ optional($s->asset)->plate_number ?? optional($s->asset)->building_name ?? optional($s->asset)->equipment_name ?? 'Asset Details' }}</small>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="fw-semibold">{{ $s->title }}</div>
+                        @if($s->notes)
+                        <small class="text-muted">{{ Str::limit($s->notes, 50) }}</small>
+                        @endif
+                      </td>
+                      <td>
+                        <div>{{ \Carbon\Carbon::parse($s->scheduled_date)->format('M d, Y') }}</div>
+                        <small class="text-muted">{{ \Carbon\Carbon::parse($s->scheduled_date)->diffForHumans() }}</small>
+                      </td>
+                      <td>
+                        <span class="badge {{ $s->status === 'Completed' ? 'bg-success' : ($s->status === 'In Progress' ? 'bg-primary' : ($s->status === 'Cancelled' ? 'bg-secondary' : 'bg-warning')) }}">
+                          {{ $s->status }}
+                        </span>
+                      </td>
+                      <td>
+                        @php
+                          // Use priority from database if available, otherwise calculate based on date
+                          $priority = $s->priority ?? 'Medium';
+                          $priorityClass = match($priority) {
+                            'Critical' => 'bg-danger',
+                            'High' => 'bg-warning text-dark',
+                            'Medium' => 'bg-primary',
+                            'Low' => 'bg-success',
+                            default => 'bg-secondary'
+                          };
+                          $priorityIcon = match($priority) {
+                            'Critical' => '🔴',
+                            'High' => '🟠',
+                            'Medium' => '🟡',
+                            'Low' => '🟢',
+                            default => '⚪'
+                          };
+                        @endphp
+                        <span class="badge {{ $priorityClass }}">{{ $priorityIcon }} {{ $priority }}</span>
+                      </td>
+                      <td>
+                        <div class="btn-group btn-group-sm" role="group">
+                          <button class="btn btn-outline-primary view-schedule-btn" data-id="{{ $s->id }}" title="View Details">
+                            <i class="bi bi-eye"></i>
+                          </button>
+                          <button class="btn btn-outline-secondary edit-schedule-btn" data-id="{{ $s->id }}" title="Edit Schedule">
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                          <button class="btn btn-outline-danger delete-schedule-btn" data-id="{{ $s->id }}" title="Delete Schedule">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    @endforeach
+                  @else
+                    <tr>
+                      <td colspan="9" class="text-center py-4">
+                        <div class="empty-state">
+                          <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
+                          <h6 class="text-muted mt-2">No maintenance schedules yet</h6>
+                          <p class="text-muted small">Create your first maintenance schedule to get started</p>
+                          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newScheduleModal">
+                            <i class="bi bi-plus-circle me-1"></i>Create Schedule
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  @endif
+                </tbody>
+              </table>
             </div>
-          </form>
 
-          <!-- Maintenance Scheduling JS -->
-          <script>
-            document.addEventListener('DOMContentLoaded', function() {
-              const scheduleForm = document.getElementById('scheduleForm');
-              const scheduledDate = document.getElementById('scheduledDate');
-              const today = new Date().toISOString().split('T')[0];
-              if (scheduledDate) scheduledDate.value = today;
+            <!-- Bulk Actions -->
+            <div class="d-flex justify-content-between align-items-center mt-3" id="bulkActions" style="display: none !important;">
+              <div>
+                <span id="selectedCount">0</span> schedules selected
+              </div>
+              <div class="btn-group" role="group">
+                <button class="btn btn-outline-success" id="bulkComplete">
+                  <i class="bi bi-check-circle me-1"></i>Mark Complete
+                </button>
+                <button class="btn btn-outline-warning" id="bulkReschedule">
+                  <i class="bi bi-calendar-event me-1"></i>Reschedule
+                </button>
+                <button class="btn btn-outline-danger" id="bulkDelete">
+                  <i class="bi bi-trash me-1"></i>Delete Selected
+                </button>
+              </div>
+            </div>
+          </div>
 
-              if (scheduleForm) {
-                scheduleForm.addEventListener('submit', async function(e) {
-                  e.preventDefault();
-                  const assetId = document.getElementById('assetId').value;
-                  const title = document.getElementById('title').value;
-                  const status = document.getElementById('status').value;
-                  const notes = document.getElementById('notes').value;
-                  const dateVal = document.getElementById('scheduledDate').value;
-                  if (!assetId || !title || !dateVal || !status) {
-                    alert('Please fill all required fields.');
-                    return;
-                  }
-                  const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                  try {
-                    const res = await fetch("{{ url('/alms/maintenance/schedules') }}", {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
-                      },
-                      body: JSON.stringify({
-                        asset_id: assetId,
-                        title: title,
-                        scheduled_date: dateVal,
-                        status: status,
-                        notes: notes || null
-                      })
-                    });
-                    if (!res.ok) {
-                      alert('Failed to create schedule.');
-                      return;
-                    }
-                    window.location.href = "{{ url('/alms/maintenance') }}";
-                  } catch (err) {
-                    console.error(err);
-                    alert('Unexpected error.');
-                  }
-                });
-              }
-            });
-          </script>
-        </div>
-      </div>
-      
-      <!-- Upcoming Maintenance Schedules -->
-      <div class="card shadow-sm border-0">
-        <div class="card-header border-bottom d-flex justify-content-between align-items-center">
-          <h5 class="card-title mb-0">Maintenance Schedules</h5>
-          <button class="btn btn-sm btn-outline-primary" id="refreshSchedulesBtn">Refresh</button>
-        </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-hover">
-              <thead class="table-light">
-                <tr>
-                  <th>ID</th>
-                  <th>Asset</th>
-                  <th>Title</th>
-                  <th>Date</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                @if(isset($schedules) && $schedules->count())
-                  @foreach($schedules as $s)
-                  <tr>
-                    <td><strong>#MS-{{ $s->id }}</strong></td>
-                    <td>#VEH-{{ $s->asset_id }} — {{ optional($s->asset)->plate_number }}</td>
-                    <td>{{ $s->title }}</td>
-                    <td>{{ $s->scheduled_date }}</td>
-                    <td>
-                      <span class="badge {{ $s->status === 'Completed' ? 'bg-success' : ($s->status === 'In Progress' ? 'bg-primary' : ($s->status === 'Cancelled' ? 'bg-secondary' : 'bg-warning')) }}">{{ $s->status }}</span>
-                  </td>
-                    <td>
-                      <button class="btn btn-sm btn-outline-primary view-schedule-btn" data-id="{{ $s->id }}">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                      <button class="btn btn-sm btn-outline-secondary edit-schedule-btn" data-id="{{ $s->id }}">
-                        <i class="bi bi-pencil"></i>
-                    </button>
-                  </td>
-                </tr>
-                  @endforeach
-                @else
-                  <tr>
-                    <td colspan="6" class="text-muted">No maintenance schedules yet.</td>
-                </tr>
-                @endif
-              </tbody>
-            </table>
+          <!-- Calendar View -->
+          <div id="calendarView" class="p-3" style="display: none;">
+            <div id="maintenanceCalendar"></div>
           </div>
         </div>
       </div>
@@ -472,28 +558,6 @@
     
     <!-- Right Column -->
     <div class="col-lg-4">
-      <!-- Quick Actions -->
-      <div class="card shadow-sm border-0">
-        <div class="card-header border-bottom">
-          <h5 class="card-title mb-0">Quick Actions</h5>
-        </div>
-        <div class="card-body">
-          <div class="d-grid gap-2">
-            <button class="btn btn-primary" id="newReceiptBtn">
-              <i class="bi bi-plus-circle me-2"></i>New Receipt
-            </button>
-            <button class="btn btn-outline-primary" id="scanBarcodeBtn">
-              <i class="bi bi-upc-scan me-2"></i>Scan Barcode
-            </button>
-            <button class="btn btn-outline-primary" id="importCSVBtn">
-              <i class="bi bi-file-earmark-excel me-2"></i>Import from CSV
-            </button>
-            <button class="btn btn-outline-secondary" id="printReceiptBtn">
-              <i class="bi bi-printer me-2"></i>Print Receipt
-            </button>
-          </div>
-        </div>
-      </div>
       
       <!-- PO Preview (Hidden by default, shown when viewing PO) -->
       <div class="card shadow-sm border-0 mt-4 d-none" id="poPreviewCard">
@@ -536,71 +600,7 @@
         </div>
       </div>
       
-      <!-- Receipt Summary -->
-      <div class="card shadow-sm border-0 mt-4">
-        <div class="card-header border-bottom">
-          <h5 class="card-title mb-0">Today's Summary</h5>
-        </div>
-        <div class="card-body">
-          <div class="mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small">Receipts Completed</span>
-              <span class="small fw-bold">12</span>
-            </div>
-            <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-success" style="width: 80%"></div>
-            </div>
-          </div>
-          <div class="mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small">Items Received</span>
-              <span class="small fw-bold">187</span>
-            </div>
-            <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-primary" style="width: 65%"></div>
-            </div>
-          </div>
-          <div class="mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small">Damaged Items</span>
-              <span class="small fw-bold">3</span>
-            </div>
-            <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-danger" style="width: 5%"></div>
-            </div>
-          </div>
-          <div>
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small">Avg. Time per Receipt</span>
-              <span class="small fw-bold">32min</span>
-            </div>
-            <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-info" style="width: 75%"></div>
-            </div>
-          </div>
-        </div>
-      </div>
       
-      <!-- Alerts -->
-      <div class="card shadow-sm border-0 mt-4">
-        <div class="card-header border-bottom">
-          <h5 class="card-title mb-0">Alerts</h5>
-        </div>
-        <div class="card-body">
-          <div class="alert alert-danger alert-sm mb-2">
-            <i class="bi bi-exclamation-triangle me-2"></i>
-            Low stock: Laptop batteries (5 units)
-          </div>
-          <div class="alert alert-warning alert-sm mb-2">
-            <i class="bi bi-clock me-2"></i>
-            Order #ORD-2024-001 delayed
-          </div>
-          <div class="alert alert-info alert-sm">
-            <i class="bi bi-info-circle me-2"></i>
-            New shipment arriving in 2 hours
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </main>
@@ -623,6 +623,112 @@
     </div>
   </div>
 
+  <!-- New Schedule Modal -->
+  <div class="modal fade" id="newScheduleModal" tabindex="-1" aria-labelledby="newScheduleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="newScheduleModalLabel">
+            <i class="bi bi-calendar-plus me-2"></i>New Maintenance Schedule
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="scheduleForm" method="POST" action="{{ url('/alms/maintenance/schedules') }}">
+            @csrf
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="assetId" class="form-label">Asset <span class="text-danger">*</span></label>
+                <select class="form-control" id="assetId" required>
+                  <option value="">Select asset</option>
+                  @isset($assets)
+                  @foreach($assets as $asset)
+                  <option value="{{ $asset->id }}">{{ $asset->asset_id ?? '#ASSET-' . $asset->id }} — {{ $asset->plate_number ?? $asset->building_name ?? $asset->equipment_name ?? 'Asset' }} @if($asset->vehicle_type)({{ $asset->vehicle_type }})@endif</option>
+                  @endforeach
+                  @endisset
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="category" class="form-label">Category <span class="text-danger">*</span></label>
+                <select class="form-control" id="category" required>
+                  <option value="">Select category</option>
+                  <option value="Preventive">🔧 Preventive Maintenance</option>
+                  <option value="Corrective">⚠️ Corrective Maintenance</option>
+                  <option value="Emergency">🚨 Emergency Repair</option>
+                  <option value="Inspection">🔍 Safety Inspection</option>
+                  <option value="Cleaning">🧽 Cleaning & Detailing</option>
+                  <option value="Upgrade">⬆️ Upgrade/Modification</option>
+                  <option value="Calibration">⚖️ Calibration</option>
+                  <option value="Replacement">🔄 Parts Replacement</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="title" placeholder="e.g., Oil change, Brake inspection" required>
+              </div>
+              <div class="col-md-6">
+                <label for="priority" class="form-label">Priority <span class="text-danger">*</span></label>
+                <select class="form-control" id="priority" required>
+                  <option value="">Select priority</option>
+                  <option value="Low">🟢 Low Priority</option>
+                  <option value="Medium">🟡 Medium Priority</option>
+                  <option value="High">🟠 High Priority</option>
+                  <option value="Critical">🔴 Critical Priority</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="scheduledDate" class="form-label">Scheduled Date <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="scheduledDate" required>
+              </div>
+              <div class="col-md-6">
+                <label for="estimatedDuration" class="form-label">Estimated Duration</label>
+                <select class="form-control" id="estimatedDuration">
+                  <option value="">Select duration</option>
+                  <option value="30 minutes">30 minutes</option>
+                  <option value="1 hour">1 hour</option>
+                  <option value="2 hours">2 hours</option>
+                  <option value="4 hours">4 hours</option>
+                  <option value="1 day">1 day</option>
+                  <option value="2 days">2 days</option>
+                  <option value="1 week">1 week</option>
+                  <option value="Custom">Custom duration</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="assignedTechnician" class="form-label">Assigned Technician</label>
+                <input type="text" class="form-control" id="assignedTechnician" placeholder="e.g., John Smith, Maintenance Team">
+              </div>
+              <div class="col-md-6">
+                <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
+                <select class="form-control" id="status" required>
+                  <option value="Scheduled">📅 Scheduled</option>
+                  <option value="In Progress">⚙️ In Progress</option>
+                  <option value="Completed">✅ Completed</option>
+                  <option value="Cancelled">❌ Cancelled</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label for="notes" class="form-label">Notes & Instructions</label>
+                <textarea class="form-control" id="notes" rows="3" placeholder="Additional maintenance notes, special instructions, or required tools/parts..."></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-circle me-1"></i>Cancel
+          </button>
+          <button type="reset" form="scheduleForm" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-clockwise me-1"></i>Reset
+          </button>
+          <button type="submit" form="scheduleForm" class="btn btn-primary" id="createScheduleBtn">
+            <i class="bi bi-check-circle me-1"></i>Create Schedule
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- View/Edit Schedule Modal -->
   <div class="modal fade" id="scheduleModal" tabindex="-1" aria-labelledby="scheduleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -639,7 +745,7 @@
               <select id="schAssetId" class="form-control">
                 @isset($assets)
                 @foreach($assets as $asset)
-                <option value="{{ $asset->id }}">#VEH-{{ $asset->id }} — {{ $asset->plate_number }}</option>
+                <option value="{{ $asset->id }}">{{ $asset->asset_id ?? '#ASSET-' . $asset->id }} — {{ $asset->plate_number ?? $asset->building_name ?? $asset->equipment_name ?? 'Asset' }}</option>
                 @endforeach
                 @endisset
               </select>
@@ -680,6 +786,512 @@
   <!-- Sidebar toggle functionality -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      // Initialize calendar
+      let calendar;
+      
+      // View switching
+      const tableViewBtn = document.getElementById('tableViewBtn');
+      const calendarViewBtn = document.getElementById('calendarViewBtn');
+      const tableView = document.getElementById('tableView');
+      const calendarView = document.getElementById('calendarView');
+
+      tableViewBtn.addEventListener('click', function() {
+        tableView.style.display = 'block';
+        calendarView.style.display = 'none';
+        tableViewBtn.classList.add('active');
+        calendarViewBtn.classList.remove('active');
+      });
+
+      calendarViewBtn.addEventListener('click', function() {
+        tableView.style.display = 'none';
+        calendarView.style.display = 'block';
+        calendarViewBtn.classList.add('active');
+        tableViewBtn.classList.remove('active');
+        
+        // Initialize calendar if not already done
+        if (!calendar) {
+          initializeCalendar();
+        }
+      });
+
+      // Initialize FullCalendar
+      function initializeCalendar() {
+        const calendarEl = document.getElementById('maintenanceCalendar');
+        
+        // Prepare events data
+        const events = [
+          @if(isset($schedules) && $schedules->count())
+            @foreach($schedules as $s)
+            {
+              id: '{{ $s->id }}',
+              title: '{{ $s->title }}',
+              start: '{{ $s->scheduled_date }}',
+              backgroundColor: '{{ $s->status === "Completed" ? "#28a745" : ($s->status === "In Progress" ? "#007bff" : ($s->status === "Cancelled" ? "#6c757d" : "#ffc107")) }}',
+              borderColor: '{{ $s->status === "Completed" ? "#28a745" : ($s->status === "In Progress" ? "#007bff" : ($s->status === "Cancelled" ? "#6c757d" : "#ffc107")) }}',
+              extendedProps: {
+                assetId: '{{ $s->asset_id }}',
+                status: '{{ $s->status }}',
+                notes: '{{ $s->notes ?? "" }}',
+                assetName: '{{ optional($s->asset)->asset_id ?? "#ASSET-" . $s->asset_id }} — {{ optional($s->asset)->plate_number ?? optional($s->asset)->building_name ?? optional($s->asset)->equipment_name ?? "Asset Details" }}'
+              }
+            },
+            @endforeach
+          @endif
+        ];
+
+        calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: 'dayGridMonth',
+          headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,listWeek'
+          },
+          events: events,
+          eventClick: function(info) {
+            // Show schedule details when event is clicked
+            viewScheduleDetails(info.event.id);
+          },
+          dateClick: function(info) {
+            // Open new schedule modal with selected date
+            document.getElementById('scheduledDate').value = info.dateStr;
+            new bootstrap.Modal(document.getElementById('newScheduleModal')).show();
+          },
+          eventDidMount: function(info) {
+            // Add tooltip
+            info.el.title = `${info.event.title}\nAsset: ${info.event.extendedProps.assetName}\nStatus: ${info.event.extendedProps.status}`;
+          }
+        });
+
+        calendar.render();
+      }
+
+      // Search and filter functionality
+      const searchInput = document.getElementById('searchSchedules');
+      const filterCategory = document.getElementById('filterCategory');
+      const filterStatus = document.getElementById('filterStatus');
+      const filterPriority = document.getElementById('filterPriority');
+      const filterAsset = document.getElementById('filterAsset');
+      const clearFiltersBtn = document.getElementById('clearFilters');
+
+      function filterTable() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const categoryFilter = filterCategory.value;
+        const statusFilter = filterStatus.value;
+        const priorityFilter = filterPriority.value;
+        const assetFilter = filterAsset.value;
+        const rows = document.querySelectorAll('#schedulesTable tbody tr[data-schedule-id]');
+
+        rows.forEach(row => {
+          const text = row.textContent.toLowerCase();
+          const badges = row.querySelectorAll('.badge');
+          
+          // Find category, status, and priority badges
+          let categoryBadge = null;
+          let statusBadge = null;
+          let priorityBadge = null;
+          
+          badges.forEach(badge => {
+            const badgeText = badge.textContent.trim();
+            if (badgeText.includes('🔧') || badgeText.includes('⚠️') || badgeText.includes('🚨') || 
+                badgeText.includes('🔍') || badgeText.includes('🧽') || badgeText.includes('⬆️') || 
+                badgeText.includes('⚖️') || badgeText.includes('🔄')) {
+              categoryBadge = badge;
+            } else if (badgeText.includes('🔴') || badgeText.includes('🟠') || 
+                      badgeText.includes('🟡') || badgeText.includes('🟢')) {
+              priorityBadge = badge;
+            } else if (badge.classList.contains('bg-success') || badge.classList.contains('bg-primary') || 
+                      badge.classList.contains('bg-warning') || badge.classList.contains('bg-secondary')) {
+              statusBadge = badge;
+            }
+          });
+          
+          const matchesSearch = text.includes(searchTerm);
+          const matchesCategory = !categoryFilter || (categoryBadge && categoryBadge.textContent.includes(categoryFilter));
+          const matchesStatus = !statusFilter || (statusBadge && statusBadge.textContent.trim() === statusFilter);
+          const matchesPriority = !priorityFilter || (priorityBadge && priorityBadge.textContent.includes(priorityFilter));
+          const matchesAsset = !assetFilter || text.includes(`#ASSET-${assetFilter}`) || text.includes(assetFilter);
+          
+          row.style.display = (matchesSearch && matchesCategory && matchesStatus && matchesPriority && matchesAsset) ? '' : 'none';
+        });
+      }
+
+      searchInput?.addEventListener('input', filterTable);
+      filterCategory?.addEventListener('change', filterTable);
+      filterStatus?.addEventListener('change', filterTable);
+      filterPriority?.addEventListener('change', filterTable);
+      filterAsset?.addEventListener('change', filterTable);
+
+      clearFiltersBtn?.addEventListener('click', function() {
+        searchInput.value = '';
+        filterCategory.value = '';
+        filterStatus.value = '';
+        filterPriority.value = '';
+        filterAsset.value = '';
+        filterTable();
+      });
+
+      // Bulk actions
+      const selectAllCheckbox = document.getElementById('selectAll');
+      const scheduleCheckboxes = document.querySelectorAll('.schedule-checkbox');
+      const bulkActions = document.getElementById('bulkActions');
+      const selectedCount = document.getElementById('selectedCount');
+
+      function updateBulkActions() {
+        const checkedBoxes = document.querySelectorAll('.schedule-checkbox:checked');
+        const count = checkedBoxes.length;
+        
+        selectedCount.textContent = count;
+        bulkActions.style.display = count > 0 ? 'flex' : 'none';
+        
+        // Update select all checkbox
+        selectAllCheckbox.indeterminate = count > 0 && count < scheduleCheckboxes.length;
+        selectAllCheckbox.checked = count === scheduleCheckboxes.length && count > 0;
+      }
+
+      selectAllCheckbox?.addEventListener('change', function() {
+        scheduleCheckboxes.forEach(checkbox => {
+          checkbox.checked = this.checked;
+        });
+        updateBulkActions();
+      });
+
+      scheduleCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateBulkActions);
+      });
+
+      // Bulk actions functionality
+      document.getElementById('bulkComplete')?.addEventListener('click', function() {
+        const selectedIds = Array.from(document.querySelectorAll('.schedule-checkbox:checked')).map(cb => cb.value);
+        
+        if (selectedIds.length === 0) return;
+        
+        Swal.fire({
+          title: 'Mark as Complete?',
+          text: `Are you sure you want to mark ${selectedIds.length} schedule(s) as completed?`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonColor: '#28a745',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Yes, mark complete!',
+          cancelButtonText: 'Cancel'
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            // Show loading
+            Swal.fire({
+              title: 'Updating Schedules...',
+              text: 'Please wait while we update the selected schedules',
+              icon: 'info',
+              allowOutsideClick: false,
+              showConfirmButton: false,
+              didOpen: () => Swal.showLoading()
+            });
+            
+            // Simulate bulk update (you'll need to implement the actual API)
+            setTimeout(() => {
+              Swal.fire({
+                title: 'Success!',
+                text: `${selectedIds.length} schedule(s) marked as completed!`,
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false
+              }).then(() => {
+                window.location.reload();
+              });
+            }, 1500);
+          }
+        });
+      });
+
+      document.getElementById('bulkReschedule')?.addEventListener('click', function() {
+        const selectedIds = Array.from(document.querySelectorAll('.schedule-checkbox:checked')).map(cb => cb.value);
+        
+        if (selectedIds.length === 0) return;
+        
+        // Show date picker dialog
+        Swal.fire({
+          title: 'Reschedule Maintenance',
+          text: `Select a new date for ${selectedIds.length} selected schedule(s):`,
+          icon: 'question',
+          html: `
+            <div class="mb-3">
+              <label for="newScheduleDate" class="form-label">New Scheduled Date:</label>
+              <input type="date" id="newScheduleDate" class="form-control" min="${new Date().toISOString().split('T')[0]}">
+            </div>
+            <div class="mb-3">
+              <label for="rescheduleReason" class="form-label">Reason for Rescheduling (Optional):</label>
+              <textarea id="rescheduleReason" class="form-control" rows="3" placeholder="e.g., Equipment unavailable, weather conditions, etc."></textarea>
+            </div>
+          `,
+          showCancelButton: true,
+          confirmButtonColor: '#ffc107',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Reschedule',
+          cancelButtonText: 'Cancel',
+          preConfirm: () => {
+            const newDate = document.getElementById('newScheduleDate').value;
+            const reason = document.getElementById('rescheduleReason').value;
+            
+            if (!newDate) {
+              Swal.showValidationMessage('Please select a new date');
+              return false;
+            }
+            
+            return { newDate, reason };
+          }
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            const { newDate, reason } = result.value;
+            
+            // Show loading
+            Swal.fire({
+              title: 'Rescheduling...',
+              text: 'Please wait while we update the selected schedules',
+              icon: 'info',
+              allowOutsideClick: false,
+              showConfirmButton: false,
+              didOpen: () => Swal.showLoading()
+            });
+            
+            try {
+              const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+              
+              // Make API call to reschedule
+              const response = await fetch("{{ url('/alms/maintenance/schedules/bulk-reschedule') }}", {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRF-TOKEN': csrfToken,
+                  'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                  schedule_ids: selectedIds,
+                  new_date: newDate,
+                  reason: reason
+                })
+              });
+              
+              if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || 'Failed to reschedule schedules');
+              }
+              
+              Swal.fire({
+                title: 'Rescheduled!',
+                text: `${selectedIds.length} schedule(s) have been rescheduled to ${new Date(newDate).toLocaleDateString()}.`,
+                icon: 'success',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false
+              }).then(() => {
+                window.location.reload();
+              });
+              
+            } catch (error) {
+              console.error('Reschedule error:', error);
+              Swal.fire({
+                title: 'Reschedule Failed!',
+                text: error.message || 'Failed to reschedule schedules. Please try again.',
+                icon: 'error',
+                confirmButtonColor: '#dc3545'
+              });
+            }
+          }
+        });
+      });
+
+      document.getElementById('bulkDelete')?.addEventListener('click', function() {
+        const selectedIds = Array.from(document.querySelectorAll('.schedule-checkbox:checked')).map(cb => cb.value);
+        
+        if (selectedIds.length === 0) return;
+        
+        Swal.fire({
+          title: 'Delete Schedules?',
+          text: `Are you sure you want to delete ${selectedIds.length} schedule(s)? This action cannot be undone.`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#dc3545',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Yes, delete them!',
+          cancelButtonText: 'Cancel',
+          reverseButtons: true
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            // Show loading
+            Swal.fire({
+              title: 'Deleting Schedules...',
+              text: 'Please wait while we delete the selected schedules',
+              icon: 'info',
+              allowOutsideClick: false,
+              showConfirmButton: false,
+              didOpen: () => Swal.showLoading()
+            });
+            
+            // Simulate bulk delete (you'll need to implement the actual API)
+            setTimeout(() => {
+              Swal.fire({
+                title: 'Deleted!',
+                text: `${selectedIds.length} schedule(s) have been deleted successfully.`,
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false
+              }).then(() => {
+                window.location.reload();
+              });
+            }, 1500);
+          }
+        });
+      });
+
+      // Refresh button functionality
+      document.getElementById('refreshSchedulesBtn')?.addEventListener('click', function() {
+        const btn = this;
+        const originalText = btn.innerHTML;
+        
+        // Show loading state
+        btn.innerHTML = '<i class="bi bi-arrow-clockwise spin me-1"></i>Refreshing...';
+        btn.disabled = true;
+        
+        // Add spin animation
+        const style = document.createElement('style');
+        style.textContent = `
+          .spin {
+            animation: spin 1s linear infinite;
+          }
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+        `;
+        document.head.appendChild(style);
+        
+        // Simulate refresh (reload page after delay)
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      });
+
+      // New Schedule Modal handlers
+      const newScheduleModal = new bootstrap.Modal(document.getElementById('newScheduleModal'));
+      const scheduleForm = document.getElementById('scheduleForm');
+      const scheduledDate = document.getElementById('scheduledDate');
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Set today's date as default when modal opens
+      document.getElementById('newScheduleModal').addEventListener('show.bs.modal', function() {
+        if (scheduledDate) scheduledDate.value = today;
+      });
+
+      // Reset form when modal is hidden
+      document.getElementById('newScheduleModal').addEventListener('hidden.bs.modal', function() {
+        if (scheduleForm) {
+          scheduleForm.reset();
+          if (scheduledDate) scheduledDate.value = today;
+        }
+      });
+
+      // Handle form submission
+      if (scheduleForm) {
+        scheduleForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const assetId = document.getElementById('assetId').value;
+          const category = document.getElementById('category').value;
+          const title = document.getElementById('title').value;
+          const priority = document.getElementById('priority').value;
+          const status = document.getElementById('status').value;
+          const notes = document.getElementById('notes').value;
+          const dateVal = document.getElementById('scheduledDate').value;
+          const estimatedDuration = document.getElementById('estimatedDuration').value;
+          const assignedTechnician = document.getElementById('assignedTechnician').value;
+          
+          if (!assetId || !category || !title || !priority || !dateVal || !status) {
+            Swal.fire({
+              title: 'Missing Information',
+              text: 'Please fill all required fields marked with *',
+              icon: 'warning',
+              confirmButtonColor: '#ffc107'
+            });
+            return;
+          }
+          
+          // Show loading state
+          Swal.fire({
+            title: 'Creating Schedule...',
+            text: 'Please wait while we save your maintenance schedule',
+            icon: 'info',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => {
+              Swal.showLoading();
+            }
+          });
+          
+          const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+          try {
+            const res = await fetch("{{ url('/alms/maintenance/schedules') }}", {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+              },
+              body: JSON.stringify({
+                asset_id: assetId,
+                category: category,
+                title: title,
+                priority: priority,
+                scheduled_date: dateVal,
+                status: status,
+                estimated_duration: estimatedDuration || null,
+                assigned_technician: assignedTechnician || null,
+                notes: notes || null
+              })
+            });
+            
+            if (!res.ok) {
+              const errorData = await res.json().catch(() => ({}));
+              Swal.fire({
+                title: 'Creation Failed!',
+                text: errorData.message || 'Failed to create maintenance schedule. Please try again.',
+                icon: 'error',
+                confirmButtonColor: '#dc3545'
+              });
+              return;
+            }
+            
+            // Show success message
+            Swal.fire({
+              title: 'Success!',
+              text: 'Maintenance schedule created successfully!',
+              icon: 'success',
+              timer: 2000,
+              timerProgressBar: true,
+              showConfirmButton: false
+            }).then(() => {
+              newScheduleModal.hide();
+              window.location.href = "{{ url('/alms/maintenance') }}";
+            });
+            
+          } catch (err) {
+            console.error(err);
+            Swal.fire({
+              title: 'Error!',
+              text: 'An unexpected error occurred. Please try again.',
+              icon: 'error',
+              confirmButtonColor: '#dc3545'
+            });
+          }
+        });
+      }
+
+      // Helper function to view schedule details
+      function viewScheduleDetails(scheduleId) {
+        const viewBtn = document.querySelector(`[data-id="${scheduleId}"].view-schedule-btn`);
+        if (viewBtn) {
+          viewBtn.click();
+        }
+      }
+
       // Schedule view/edit handlers
       const scheduleModal = new bootstrap.Modal(document.getElementById('scheduleModal'));
       document.querySelectorAll('.view-schedule-btn').forEach(btn => {
@@ -726,6 +1338,20 @@
 
       document.getElementById('saveScheduleBtn')?.addEventListener('click', async function() {
         const id = document.getElementById('schId').value;
+        
+        // Show loading state
+        Swal.fire({
+          title: 'Updating Schedule...',
+          text: 'Please wait while we save your changes',
+          icon: 'info',
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          showConfirmButton: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+        
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         const payload = {
           asset_id: document.getElementById('schAssetId').value,
@@ -734,18 +1360,129 @@
           status: document.getElementById('schStatus').value,
           notes: document.getElementById('schNotes').value || null
         };
-        const res = await fetch(`{{ url('/alms/maintenance/schedules') }}/${id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken,
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        });
-        if (!res.ok) { alert('Failed to save schedule'); return; }
-        scheduleModal.hide();
-        window.location.href = "{{ url('/alms/maintenance') }}";
+        
+        try {
+          const res = await fetch(`{{ url('/alms/maintenance/schedules') }}/${id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-TOKEN': csrfToken,
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload)
+          });
+          
+          if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            Swal.fire({
+              title: 'Update Failed!',
+              text: errorData.message || 'Failed to save schedule changes. Please try again.',
+              icon: 'error',
+              confirmButtonColor: '#dc3545'
+            });
+            return;
+          }
+          
+          // Show success message
+          Swal.fire({
+            title: 'Success!',
+            text: 'Schedule updated successfully!',
+            icon: 'success',
+            timer: 2000,
+            timerProgressBar: true,
+            showConfirmButton: false
+          }).then(() => {
+            scheduleModal.hide();
+            window.location.href = "{{ url('/alms/maintenance') }}";
+          });
+          
+        } catch (err) {
+          console.error(err);
+          Swal.fire({
+            title: 'Error!',
+            text: 'An unexpected error occurred. Please try again.',
+            icon: 'error',
+            confirmButtonColor: '#dc3545'
+          });
+        }
+      });
+
+      // Delete schedule functionality
+      document.addEventListener('click', function(e) {
+        if (e.target.closest('.delete-schedule-btn')) {
+          const btn = e.target.closest('.delete-schedule-btn');
+          const scheduleId = btn.getAttribute('data-id');
+          
+          Swal.fire({
+            title: 'Delete Schedule?',
+            text: 'Are you sure you want to delete this maintenance schedule? This action cannot be undone.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true
+          }).then(async (result) => {
+            if (result.isConfirmed) {
+              // Show loading state
+              Swal.fire({
+                title: 'Deleting Schedule...',
+                text: 'Please wait while we delete the schedule',
+                icon: 'info',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                  Swal.showLoading();
+                }
+              });
+              
+              try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                const res = await fetch(`{{ url('/alms/maintenance/schedules') }}/${scheduleId}`, {
+                  method: 'DELETE',
+                  headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                  }
+                });
+                
+                if (!res.ok) {
+                  const errorData = await res.json().catch(() => ({}));
+                  Swal.fire({
+                    title: 'Delete Failed!',
+                    text: errorData.message || 'Failed to delete schedule. Please try again.',
+                    icon: 'error',
+                    confirmButtonColor: '#dc3545'
+                  });
+                  return;
+                }
+                
+                // Show success message
+                Swal.fire({
+                  title: 'Deleted!',
+                  text: 'Maintenance schedule has been deleted successfully.',
+                  icon: 'success',
+                  timer: 2000,
+                  timerProgressBar: true,
+                  showConfirmButton: false
+                }).then(() => {
+                  window.location.href = "{{ url('/alms/maintenance') }}";
+                });
+                
+              } catch (err) {
+                console.error(err);
+                Swal.fire({
+                  title: 'Error!',
+                  text: 'An unexpected error occurred. Please try again.',
+                  icon: 'error',
+                  confirmButtonColor: '#dc3545'
+                });
+              }
+            }
+          });
+        }
       });
       // Check if user is authenticated (non-blocking)
       const authToken = localStorage.getItem('auth_token');

@@ -29,12 +29,12 @@
                <img src="{{ asset('assets/images/jetlouge_logo.png') }}" alt="Jetlouge Travels">
                 </div>
                 <h1 class="brand-text">Jetlouge Travels</h1>
-                <p class="brand-subtitle">Staff Portal</p>
+                <p class="brand-subtitle">Admin Portal</p>
               </div>
               
               <h2 class="welcome-text">Welcome Back!</h2>
               <p class="welcome-subtitle">
-                Access your staff dashboard to manage procurement, logistics, 
+                Access your admin dashboard to manage procurement, logistics, 
                 and administrative tasks for travel operations.
               </p>
               
@@ -121,18 +121,10 @@
                 </button>
                 
                 <div class="text-center">
-                  <a href="#" class="btn-forgot">Forgot your password?</a>
+                  <a href="{{ route('forgot.password') }}" class="btn-forgot">Forgot your password?</a>
                 </div>
 
                 <hr class="my-4">
-
-                <div class="text-center">
-                  <p class="mb-2">Don't have an account?</p>
-                  <a href="{{ url('/register') }}" class="btn btn-outline-primary">
-                    <i class="bi bi-person-plus me-2"></i>
-                    Create New Account
-                  </a>
-                </div>
               </form>
             </div>
     </div>
@@ -156,13 +148,26 @@
         icon.classList.toggle('bi-eye-slash');
       });
       
-      // Form submission is now handled by Laravel - no JavaScript needed
-
       // Add floating animation to shapes
       const shapes = document.querySelectorAll('.shape');
       shapes.forEach((shape, index) => {
         shape.style.animationDelay = `${index * 2}s`;
       });
+
+      // Show success message if password was reset
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('reset') === 'success') {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-success alert-dismissible fade show';
+        alertDiv.innerHTML = `
+          <i class="bi bi-check-circle me-2"></i>
+          Password reset successfully! You can now login with your new password.
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        const form = document.getElementById('loginForm');
+        form.parentNode.insertBefore(alertDiv, form);
+      }
     });
   </script>
 </body>

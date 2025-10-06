@@ -189,7 +189,7 @@
           <ul class="nav flex-column ms-3">
             <li class="nav-item">
               <a href="{{ url('/plt/toursetup') }}" class="nav-link text-dark small">
-                <i class="bi bi-flag me-2"></i> Tour Setup
+                <i class="bi bi-diagram-3 me-2"></i> Project Planning
               </a>
             </li>
             <li class="nav-item">
@@ -352,7 +352,7 @@
               <i class="bi bi-currency-dollar"></i>
             </div>
             <div>
-              <h3 class="fw-bold mb-0">${{ number_format($totalValue, 0) }}</h3>
+              <h3 class="fw-bold mb-0">₱{{ number_format($totalValue, 0) }}</h3>
               <p class="text-muted mb-0 small">Total Inventory Value</p>
               <small class="text-success"><i class="bi bi-graph-up"></i> Current worth</small>
             </div>
@@ -364,8 +364,8 @@
 
   <!-- Main Content Area -->
   <div class="row g-4">
-    <!-- Left Column -->
-    <div class="col-lg-8">
+    <!-- Full Width Receipt Form -->
+    <div class="col-12">
       <!-- Receipt Entry Form -->
       <div class="card shadow-sm border-0 mb-4">
         <div class="card-header border-bottom bg-primary text-white">
@@ -374,20 +374,32 @@
         <div class="card-body">
           <!-- Manual Inventory Receipt Entry -->
           <form id="receiptForm">
-            <div class="row g-3">
-              <!-- Receipt Information -->
-              <div class="col-md-6">
+            <!-- Receipt Header Information -->
+            <div class="row g-3 mb-4">
+              <div class="col-12">
+                <h6 class="text-primary mb-3"><i class="bi bi-info-circle me-2"></i>Receipt Information</h6>
+              </div>
+              <div class="col-md-4">
                 <label for="receiptNumber" class="form-label">Receipt Number</label>
                 <input type="text" class="form-control" id="receiptNumber" name="receiptNumber" placeholder="Auto-generated" readonly>
               </div>
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <label for="receiptDate" class="form-label">Receipt Date</label>
                 <input type="date" class="form-control" id="receiptDate" name="receiptDate" required>
               </div>
-              
-              <!-- Supplier Information -->
-              <div class="col-md-6">
-                <label for="supplier" class="form-label">Supplier</label>
+              <div class="col-md-4">
+                <label for="receivedBy" class="form-label">Received By</label>
+                <input type="text" class="form-control" id="receivedBy" name="receivedBy" placeholder="Enter receiver name" required>
+              </div>
+            </div>
+            
+            <!-- Supplier & Order Information -->
+            <div class="row g-3 mb-4">
+              <div class="col-12">
+                <h6 class="text-primary mb-3"><i class="bi bi-building me-2"></i>Supplier & Order Details</h6>
+              </div>
+              <div class="col-md-4">
+                <label for="supplier" class="form-label">Supplier *</label>
                 <select class="form-select" id="supplier" name="supplier" required>
                   <option value="">Select Supplier</option>
                   @foreach($suppliers as $supplier)
@@ -395,37 +407,32 @@
                   @endforeach
                 </select>
               </div>
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <label for="purchaseOrder" class="form-label">Purchase Order #</label>
                 <select class="form-select" id="purchaseOrder" name="purchaseOrder">
                   <option value="">Select Purchase Order (Optional)</option>
-                  <!-- Options will be populated by JavaScript based on supplier selection -->
                 </select>
-                <small class="text-muted">Select a supplier first to see available purchase orders</small>
+                <small class="text-muted">Select a supplier first</small>
               </div>
-              
-              <!-- Delivery Information -->
-              <div class="col-md-6">
-                <label for="deliveryDate" class="form-label">Delivery Date</label>
-                <input type="date" class="form-control" id="deliveryDate" name="deliveryDate" required>
-              </div>
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <label for="invoiceNumber" class="form-label">Invoice #</label>
                 <select class="form-select" id="invoiceNumber" name="invoiceNumber">
                   <option value="">Select Invoice (Optional)</option>
-                  <!-- Options will be populated by JavaScript based on supplier selection -->
                 </select>
-                <small class="text-muted">Select a supplier first to see available invoices</small>
+                <small class="text-muted">Select a supplier first</small>
               </div>
-              
-              <!-- Receiver Information -->
-              <div class="col-md-6">
-                <label for="receivedBy" class="form-label">Received By</label>
-                <input type="text" class="form-control" id="receivedBy" name="receivedBy" placeholder="Enter receiver name" required>
-              </div>
-              
-              <!-- Additional Information -->
+            </div>
+            
+            <!-- Delivery Information -->
+            <div class="row g-3 mb-4">
               <div class="col-12">
+                <h6 class="text-primary mb-3"><i class="bi bi-truck me-2"></i>Delivery Information</h6>
+              </div>
+              <div class="col-md-6">
+                <label for="deliveryDate" class="form-label">Delivery Date *</label>
+                <input type="date" class="form-control" id="deliveryDate" name="deliveryDate" required>
+              </div>
+              <div class="col-md-6">
                 <label for="notes" class="form-label">Notes</label>
                 <textarea class="form-control" id="notes" name="notes" rows="2" placeholder="Enter any special instructions or notes"></textarea>
               </div>
@@ -440,28 +447,25 @@
                 <thead>
                   <tr>
                     <th>Item Name</th>
-                    <th>Description</th>
-                    <th>Category</th>
-                    <th>Quantity</th>
+                    <th>Received Qty</th>
+                    <th>Damaged Qty</th>
+                    <th>Good Qty</th>
                     <th>Unit</th>
                     <th>Unit Price</th>
                     <th>Total Price</th>
-                    <th>Condition</th>
+                    <th>Status</th>
                     <th>Location</th>
-                    <th>Image</th>
-                    <th></th>
+                    <th>Item Image</th>
+                    <th>Damage Image</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody id="itemsTableBody">
-                  <!-- Items will be added here -->
+                  <!-- Items will be added here dynamically -->
                 </tbody>
               </table>
             </div>
             
-            <!-- Add Item Button -->
-            <button type="button" class="btn btn-outline-primary btn-sm mb-3" id="addItemBtn">
-              <i class="bi bi-plus-circle me-1"></i>Add Item
-            </button>
             
             <!-- Add Item Form (Initially Hidden) -->
             <div id="addItemForm" style="display: none;" class="border rounded p-3 mb-3 bg-light">
@@ -482,20 +486,6 @@
                 <div class="col-md-6">
                   <label for="itemName" class="form-label">Item Name</label>
                   <input type="text" class="form-control" id="itemName" name="itemName">
-                </div>
-                <div class="col-md-6">
-                  <label for="itemDesc" class="form-label">Description</label>
-                  <input type="text" class="form-control" id="itemDesc" name="itemDesc">
-                </div>
-                <div class="col-md-6">
-                  <label for="itemCategory" class="form-label">Category</label>
-                  <select class="form-select" id="itemCategory" name="itemCategory">
-                    <option value="Vehicle Parts">Vehicle Parts</option>
-                    <option value="Maintenance">Maintenance</option>
-                    <option value="Safety Equipment">Safety Equipment</option>
-                    <option value="Electronics">Electronics</option>
-                    <option value="Office Supplies">Office Supplies</option>
-                  </select>
                 </div>
                 <div class="col-md-3">
                   <label for="itemQty" class="form-label">Quantity</label>
@@ -581,12 +571,12 @@
                   <div class="col-md-3">
                     <div class="text-center">
                       <h6 class="text-muted mb-1">Total Value</h6>
-                      <h4 class="fw-bold text-info" id="totalValue">$0.00</h4>
+                      <h4 class="fw-bold text-info" id="totalValue">₱0.00</h4>
                     </div>
                   </div>
                   <div class="col-md-3">
                     <div class="text-center">
-                      <h6 class="text-muted mb-1">Damaged Items</h6>
+                      <h6 class="text-muted mb-1">Damaged Quantity</h6>
                       <h4 class="fw-bold text-danger" id="damagedItems">0</h4>
                     </div>
                   </div>
@@ -595,12 +585,17 @@
             </div>
             
             <!-- Form Actions -->
-            <div class="d-flex justify-content-between">
-              <button type="reset" class="btn btn-outline-secondary">
-                <i class="bi bi-x-circle me-1"></i>Cancel
-              </button>
-              <button type="submit" class="btn btn-primary" id="submitReceiptBtn">
-                <i class="bi bi-check-circle me-1"></i>Complete Receipt
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <button type="reset" class="btn btn-outline-secondary me-2">
+                  <i class="bi bi-x-circle me-1"></i>Clear Form
+                </button>
+                <button type="button" class="btn btn-outline-info" id="saveAsDraftBtn">
+                  <i class="bi bi-save me-1"></i>Save as Draft
+                </button>
+              </div>
+              <button type="submit" class="btn btn-primary btn-lg" id="submitReceiptBtn">
+                <i class="bi bi-check-circle me-2"></i>Complete Receipt
               </button>
             </div>
           </form>
@@ -692,9 +687,12 @@
             </div>
           </div>
 
-          <!-- Static JS for manual item entry -->
+          <!-- Enhanced JS for item management -->
           <script>
             document.addEventListener('DOMContentLoaded', function() {
+              // Item editing functionality
+              setupItemEditHandlers();
+              
               // Image upload preview functionality
               const itemImageInput = document.getElementById('itemImage');
               const imagePreview = document.getElementById('imagePreview');
@@ -806,18 +804,16 @@
                 
                 // Get values
                 const name = document.getElementById('itemName').value.trim();
-                const desc = document.getElementById('itemDesc').value.trim();
-                const category = document.getElementById('itemCategory').value;
                 const qty = document.getElementById('itemQty').value.trim();
                 const unit = document.getElementById('itemUnit').value;
                 const unitPrice = document.getElementById('itemUnitPrice').value.trim();
                 const condition = document.getElementById('itemCondition').value;
                 const location = document.getElementById('itemLocation').value;
 
-                console.log('Form values:', { name, desc, qty, unit, unitPrice, condition, location }); // Debug log
+                console.log('Form values:', { name, qty, unit, unitPrice, condition, location }); // Debug log
 
                 // Simple validation
-                if (!name || !desc || !category || !qty || !unit || !condition || !location) {
+                if (!name || !qty || !unit || !condition || !location) {
                   alert('Please fill in all required fields');
                   return;
                 }
@@ -828,8 +824,8 @@
                 // Use the reusable function to add item to table
                 addItemToTable({
                   item_name: name,
-                  description: desc,
-                  category: category,
+                  description: '', // Default empty description
+                  category: 'General', // Default category
                   quantity: parseInt(qty),
                   unit: unit,
                   unit_price: parseFloat(unitPrice || 0),
@@ -854,42 +850,70 @@
                 
                 console.log('Item saved successfully'); // Debug log
               });
-
               // Function to clear item input fields
               function clearItemFields() {
                 document.getElementById('itemName').value = '';
-                document.getElementById('itemDesc').value = '';
-                document.getElementById('itemCategory').value = 'Vehicle Parts';
                 document.getElementById('itemQty').value = '';
                 document.getElementById('itemUnit').value = '';
                 document.getElementById('itemUnitPrice').value = '';
                 document.getElementById('itemCondition').value = '';
                 document.getElementById('itemLocation').value = '';
-                document.getElementById('poItemSelect').value = '';
+                document.getElementById('poItemSelect').value = ''; // Clear PO item selection
               }
 
               function updateReceiptSummary() {
                 const rows = itemsTableBody.querySelectorAll('tr');
                 let totalItems = rows.length;
-                let totalQuantity = 0;
+                let totalReceivedQty = 0;
+                let totalDamagedQty = 0;
+                let totalGoodQty = 0;
                 let totalValue = 0;
-                let damagedItems = 0;
+                let itemsWithDamage = 0;
 
                 rows.forEach(row => {
                   const cells = row.querySelectorAll('td');
-                  if (cells.length >= 6) {
-                    totalQuantity += parseInt(cells[2].textContent) || 0;
-                    totalValue += parseFloat(cells[5].textContent.replace('$', '')) || 0;
-                    if (cells[6].textContent.includes('Damaged')) {
-                      damagedItems++;
+                  if (cells.length >= 8) {
+                    // New column structure: Name(0), ReceivedQty(1), DamagedQty(2), GoodQty(3), Unit(4), UnitPrice(5), TotalPrice(6), Status(7), Location(8)
+                    const receivedQty = parseInt(cells[1].textContent) || 0;
+                    const damagedQtyInput = row.querySelector('.damaged-qty-input');
+                    const damagedQty = parseInt(damagedQtyInput?.value) || 0;
+                    const goodQty = parseInt(cells[3].textContent) || 0;
+                    const totalPrice = parseFloat(cells[6].textContent.replace('₱', '')) || 0;
+                    
+                    totalReceivedQty += receivedQty;
+                    totalDamagedQty += damagedQty;
+                    totalGoodQty += goodQty;
+                    totalValue += totalPrice;
+                    
+                    if (damagedQty > 0) {
+                      itemsWithDamage++;
                     }
                   }
                 });
 
                 document.getElementById('totalItems').textContent = totalItems;
-                document.getElementById('totalQuantity').textContent = totalQuantity;
-                document.getElementById('totalValue').textContent = '$' + totalValue.toFixed(2);
-                document.getElementById('damagedItems').textContent = damagedItems;
+                document.getElementById('totalQuantity').textContent = totalGoodQty; // Show only good quantity for storage
+                document.getElementById('totalValue').textContent = '₱' + totalValue.toFixed(2);
+                document.getElementById('damagedItems').textContent = totalDamagedQty; // Show total damaged quantity
+                
+                // Update summary labels to be more descriptive
+                const summaryContainer = document.querySelector('.row.text-center');
+                if (summaryContainer && totalDamagedQty > 0) {
+                  // Add damage summary if not exists
+                  if (!document.getElementById('totalDamaged')) {
+                    const damageColumn = document.createElement('div');
+                    damageColumn.className = 'col-md-3';
+                    damageColumn.innerHTML = `
+                      <div class="border rounded p-3 bg-light">
+                        <h6 class="text-muted mb-1">Total Damaged</h6>
+                        <h3 class="text-danger mb-0" id="totalDamaged">${totalDamagedQty}</h3>
+                      </div>
+                    `;
+                    summaryContainer.appendChild(damageColumn);
+                  } else {
+                    document.getElementById('totalDamaged').textContent = totalDamagedQty;
+                  }
+                }
               }
 
               function getConditionBadgeColor(condition) {
@@ -963,7 +987,7 @@
                         data.purchase_orders.forEach(po => {
                           const option = document.createElement('option');
                           option.value = po.po_number;
-                          option.textContent = `${po.po_number} - ${po.title} ($${po.total_amount})`;
+                          option.textContent = `${po.po_number} - ${po.title} (₱${po.total_amount})`;
                           option.dataset.poData = JSON.stringify(po);
                           purchaseOrderSelect.appendChild(option);
                         });
@@ -974,7 +998,7 @@
                         data.invoices.forEach(invoice => {
                           const option = document.createElement('option');
                           option.value = invoice.invoice_no;
-                          option.textContent = `${invoice.invoice_no} - $${invoice.amount} (${invoice.status})`;
+                          option.textContent = `${invoice.invoice_no} - ₱${invoice.amount} (${invoice.status})`;
                           option.dataset.invoiceData = JSON.stringify(invoice);
                           invoiceNumberSelect.appendChild(option);
                         });
@@ -1039,7 +1063,7 @@
                   allInvoices.forEach(invoice => {
                     const option = document.createElement('option');
                     option.value = invoice.invoice_no;
-                    option.textContent = `${invoice.invoice_no} - $${invoice.amount} (${invoice.status})`;
+                    option.textContent = `${invoice.invoice_no} - ₱${invoice.amount} (${invoice.status})`;
                     option.dataset.invoiceData = JSON.stringify(invoice);
                     invoiceNumberSelect.appendChild(option);
                   });
@@ -1055,7 +1079,7 @@
                   filteredInvoices.forEach(invoice => {
                     const option = document.createElement('option');
                     option.value = invoice.invoice_no;
-                    option.textContent = `${invoice.invoice_no} - $${invoice.amount} (${invoice.status})`;
+                    option.textContent = `${invoice.invoice_no} - ₱${invoice.amount} (${invoice.status})`;
                     option.dataset.invoiceData = JSON.stringify(invoice);
                     invoiceNumberSelect.appendChild(option);
                   });
@@ -1230,17 +1254,57 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                   <td>${itemData.item_name}</td>
-                  <td>${itemData.description}</td>
-                  <td><span class="badge bg-secondary">${itemData.category || 'Vehicle Parts'}</span></td>
-                  <td>${quantity}</td>
+                  <td class="received-qty">${quantity}</td>
+                  <td class="damaged-qty">
+                    <div class="d-flex gap-1 align-items-center">
+                      <input type="number" class="form-control form-control-sm damaged-qty-input" value="0" min="0" max="${quantity}" style="width: 60px;">
+                      <select class="form-select form-select-sm damage-type-select" style="width: 100px; display: none;">
+                        <option value="">Type</option>
+                        <option value="Physical">Physical</option>
+                        <option value="Water">Water</option>
+                        <option value="Shipping">Shipping</option>
+                        <option value="Manufacturing">Manufacturing</option>
+                        <option value="Expired">Expired</option>
+                        <option value="Missing Parts">Missing Parts</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                  </td>
+                  <td class="good-qty text-success fw-bold">${quantity}</td>
                   <td>${itemData.unit}</td>
-                  <td>$${unitPrice.toFixed(2)}</td>
-                  <td>$${totalPrice}</td>
-                  <td><span class="badge bg-${getConditionBadgeColor(itemData.condition)}">${itemData.condition}</span></td>
+                  <td>₱${unitPrice.toFixed(2)}</td>
+                  <td>₱${totalPrice}</td>
+                  <td class="status-cell">
+                    <span class="badge bg-success status-display">All Good</span>
+                    <div class="damage-info" style="display: none;">
+                      <span class="badge bg-warning">Partial Damage</span>
+                      <small class="text-muted d-block">Return to vendor</small>
+                    </div>
+                  </td>
                   <td>${itemData.storage_location}</td>
-                  <td class="item-image">${imageHtml}</td>
+                  <td class="item-image">
+                    <div class="image-upload-container">
+                      <div class="current-image">${imageHtml}</div>
+                      <input type="file" class="form-control form-control-sm mt-1 item-image-input" accept="image/*" style="display: none;">
+                      <button type="button" class="btn btn-sm btn-outline-primary upload-item-image-btn mt-1">
+                        <i class="bi bi-camera"></i> Add Photo
+                      </button>
+                    </div>
+                  </td>
+                  <td class="damage-image">
+                    <div class="damage-image-container" style="display: none;">
+                      <div class="damage-image-preview text-muted">No damage image</div>
+                      <input type="file" class="form-control form-control-sm mt-1 damage-image-input" accept="image/*" style="display: none;">
+                      <button type="button" class="btn btn-sm btn-outline-warning upload-damage-image-btn mt-1">
+                        <i class="bi bi-exclamation-triangle"></i> Add Evidence
+                      </button>
+                    </div>
+                  </td>
                   <td>
-                    <button type="button" class="btn btn-sm btn-danger removeItemBtn"><i class="bi bi-trash"></i></button>
+                    <button type="button" class="btn btn-sm btn-primary editItemBtn me-1" title="Edit"><i class="bi bi-pencil"></i></button>
+                    <button type="button" class="btn btn-sm btn-success saveItemBtn me-1" style="display: none;" title="Save"><i class="bi bi-check"></i></button>
+                    <button type="button" class="btn btn-sm btn-secondary cancelEditBtn me-1" style="display: none;" title="Cancel"><i class="bi bi-x"></i></button>
+                    <button type="button" class="btn btn-sm btn-danger removeItemBtn" title="Remove"><i class="bi bi-trash"></i></button>
                   </td>
                 `;
                 itemsTableBody.appendChild(row);
@@ -1250,11 +1314,155 @@
                   row.imageFile = itemData.image_file;
                 }
 
+                // Edit item functionality
+                row.querySelector('.editItemBtn').addEventListener('click', function() {
+                  enterEditMode(row);
+                });
+
+                // Save item functionality
+                row.querySelector('.saveItemBtn').addEventListener('click', function() {
+                  saveItemChanges(row);
+                });
+
+                // Cancel edit functionality
+                row.querySelector('.cancelEditBtn').addEventListener('click', function() {
+                  exitEditMode(row);
+                });
+
                 // Remove item functionality
                 row.querySelector('.removeItemBtn').addEventListener('click', function() {
                   row.remove();
                   updateReceiptSummary();
                 });
+
+                // Damage quantity input functionality
+                const damagedQtyInput = row.querySelector('.damaged-qty-input');
+                const damageTypeSelect = row.querySelector('.damage-type-select');
+                const goodQtyCell = row.querySelector('.good-qty');
+                const statusCell = row.querySelector('.status-cell');
+                const damageImageContainer = row.querySelector('.damage-image-container');
+                const receivedQty = parseInt(row.querySelector('.received-qty').textContent);
+
+                damagedQtyInput.addEventListener('input', function() {
+                  const damagedQty = parseInt(this.value) || 0;
+                  const goodQty = receivedQty - damagedQty;
+                  
+                  // Show/hide damage type selector and damage image container
+                  if (damagedQty > 0) {
+                    damageTypeSelect.style.display = 'block';
+                    damageImageContainer.style.display = 'block';
+                  } else {
+                    damageTypeSelect.style.display = 'none';
+                    damageImageContainer.style.display = 'none';
+                    damageTypeSelect.value = '';
+                  }
+                  
+                  // Update good quantity
+                  goodQtyCell.textContent = goodQty;
+                  goodQtyCell.className = goodQty > 0 ? 'good-qty text-success fw-bold' : 'good-qty text-muted fw-bold';
+                  
+                  // Update status
+                  const statusDisplay = statusCell.querySelector('.status-display');
+                  const damageInfo = statusCell.querySelector('.damage-info');
+                  
+                  if (damagedQty === 0) {
+                    statusDisplay.textContent = 'All Good';
+                    statusDisplay.className = 'badge bg-success status-display';
+                    statusDisplay.style.display = 'inline';
+                    damageInfo.style.display = 'none';
+                  } else if (damagedQty === receivedQty) {
+                    statusDisplay.textContent = 'All Damaged';
+                    statusDisplay.className = 'badge bg-danger status-display';
+                    statusDisplay.style.display = 'inline';
+                    damageInfo.style.display = 'none';
+                  } else {
+                    statusDisplay.style.display = 'none';
+                    damageInfo.style.display = 'block';
+                    damageInfo.querySelector('.badge').textContent = `${damagedQty} Damaged`;
+                  }
+                  
+                  // Update summary
+                  updateReceiptSummary();
+                });
+
+                // Damage type selector functionality
+                damageTypeSelect.addEventListener('change', function() {
+                  const damageType = this.value;
+                  const damagedQty = parseInt(damagedQtyInput.value) || 0;
+                  
+                  if (damagedQty > 0 && damageType) {
+                    const damageInfo = statusCell.querySelector('.damage-info');
+                    const badgeText = `${damagedQty} ${damageType} Damage`;
+                    damageInfo.querySelector('.badge').textContent = badgeText;
+                  }
+                });
+
+                // Item image upload functionality
+                const itemImageInput = row.querySelector('.item-image-input');
+                const uploadItemImageBtn = row.querySelector('.upload-item-image-btn');
+                const currentImageDiv = row.querySelector('.current-image');
+
+                uploadItemImageBtn.addEventListener('click', function() {
+                  itemImageInput.click();
+                });
+
+                itemImageInput.addEventListener('change', function(e) {
+                  const file = e.target.files[0];
+                  if (file) {
+                    console.log('Item image selected:', file.name, file.size);
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                      currentImageDiv.innerHTML = `<img src="${e.target.result}" alt="Item Image" class="img-thumbnail" style="max-width: 60px; max-height: 60px;">`;
+                      uploadItemImageBtn.innerHTML = '<i class="bi bi-camera"></i> Change Photo';
+                      uploadItemImageBtn.className = 'btn btn-sm btn-success upload-item-image-btn mt-1';
+                    };
+                    reader.readAsDataURL(file);
+                    row.itemImageFile = file;
+                    console.log('Item image stored on row:', row.itemImageFile);
+                  }
+                });
+
+                // Damage image upload functionality
+                const damageImageInput = row.querySelector('.damage-image-input');
+                const uploadDamageImageBtn = row.querySelector('.upload-damage-image-btn');
+                const damageImagePreview = row.querySelector('.damage-image-preview');
+
+                uploadDamageImageBtn.addEventListener('click', function() {
+                  damageImageInput.click();
+                });
+
+                damageImageInput.addEventListener('change', function(e) {
+                  const file = e.target.files[0];
+                  if (file) {
+                    console.log('Damage image selected:', file.name, file.size);
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                      damageImagePreview.innerHTML = `<img src="${e.target.result}" alt="Damage Evidence" class="img-thumbnail" style="max-width: 60px; max-height: 60px;">`;
+                      uploadDamageImageBtn.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Change Evidence';
+                      uploadDamageImageBtn.className = 'btn btn-sm btn-warning upload-damage-image-btn mt-1';
+                    };
+                    reader.readAsDataURL(file);
+                    row.damageImageFile = file;
+                    console.log('Damage image stored on row:', row.damageImageFile);
+                  }
+                });
+              }
+
+              // Edit mode functions (simplified for new table structure)
+              function enterEditMode(row) {
+                // Note: Edit functionality removed as table structure changed
+                // Items can be removed and re-added if changes needed
+                console.log('Edit mode not available in current table structure');
+              }
+
+              function saveItemChanges(row) {
+                // Simplified - no edit mode in new structure
+                console.log('Save changes not available in current table structure');
+              }
+
+              function exitEditMode(row) {
+                // Simplified - no edit mode in new structure
+                console.log('Exit edit mode not available in current table structure');
               }
 
               // Handle receipt form submission
@@ -1274,19 +1482,30 @@
                   itemRows.forEach((row, index) => {
                     const cells = row.querySelectorAll('td');
                     if (cells.length >= 10) {
+                      const damagedQtyInput = row.querySelector('.damaged-qty-input');
+                      const damageTypeSelect = row.querySelector('.damage-type-select');
+                      const damagedQty = parseInt(damagedQtyInput?.value) || 0;
+                      const damageType = damageTypeSelect?.value || '';
+                      
                       const itemData = {
                         item_name: cells[0].textContent.trim(),
-                        description: cells[1].textContent.trim(),
-                        quantity: parseInt(cells[3].textContent.trim()) || 0,
+                        description: '', // Default empty description
+                        category: 'General', // Default category
+                        quantity: parseInt(cells[1].textContent.trim()) || 0, // Received quantity
+                        damaged_quantity: damagedQty,
+                        damage_reason: damagedQty > 0 && damageType ? `${damageType} damage` : (damagedQty > 0 ? 'Damaged on receipt' : ''),
                         unit: cells[4].textContent.trim(),
-                        unit_price: parseFloat(cells[5].textContent.replace('$', '').trim()) || 0,
-                        condition: cells[7].textContent.trim(),
+                        unit_price: parseFloat(cells[5].textContent.replace('₱', '').trim()) || 0,
+                        condition: 'Good', // Default condition
                         storage_location: cells[8].textContent.trim()
                       };
                       
-                      // Add image file if available
-                      if (row.imageFile) {
-                        formData.append(`items[${index}][image]`, row.imageFile);
+                      // Store image files for later appending to submitFormData
+                      if (row.itemImageFile) {
+                        row.itemImageFileForSubmission = row.itemImageFile;
+                      }
+                      if (row.damageImageFile) {
+                        row.damageImageFileForSubmission = row.damageImageFile;
                       }
                       
                       items.push(itemData);
@@ -1298,18 +1517,33 @@
                     return;
                   }
                   
-                  // Prepare data for submission
-                  const data = {
-                    receipt_date: formData.get('receiptDate'),
-                    supplier_name: formData.get('supplier'),
-                    purchase_order_number: formData.get('purchaseOrder'),
-                    delivery_date: formData.get('deliveryDate'),
-                    invoice_number: formData.get('invoiceNumber'),
-                    warehouse_location: 'Main Warehouse', // Default value since location is assigned in storage organization
-                    received_by: formData.get('receivedBy'),
-                    notes: formData.get('notes'),
-                    items: items
-                  };
+                  // Prepare FormData for submission (to handle file uploads)
+                  const submitFormData = new FormData();
+                  
+                  // Add basic form fields
+                  submitFormData.append('receipt_date', formData.get('receiptDate'));
+                  submitFormData.append('supplier_name', formData.get('supplier'));
+                  submitFormData.append('purchase_order_number', formData.get('purchaseOrder'));
+                  submitFormData.append('delivery_date', formData.get('deliveryDate'));
+                  submitFormData.append('invoice_number', formData.get('invoiceNumber'));
+                  submitFormData.append('warehouse_location', 'Main Warehouse');
+                  submitFormData.append('received_by', formData.get('receivedBy'));
+                  submitFormData.append('notes', formData.get('notes'));
+                  
+                  // Add items data as JSON
+                  submitFormData.append('items', JSON.stringify(items));
+                  
+                  // Add image files
+                  itemRows.forEach((row, index) => {
+                    if (row.itemImageFileForSubmission) {
+                      console.log(`Adding item image for index ${index}:`, row.itemImageFileForSubmission.name);
+                      submitFormData.append(`items[${index}][image]`, row.itemImageFileForSubmission);
+                    }
+                    if (row.damageImageFileForSubmission) {
+                      console.log(`Adding damage image for index ${index}:`, row.damageImageFileForSubmission.name);
+                      submitFormData.append(`items[${index}][damage_image]`, row.damageImageFileForSubmission);
+                    }
+                  });
                   
                   // Submit to server
                   submitReceiptBtn.disabled = true;
@@ -1318,30 +1552,63 @@
                   fetch('/api/inventory/store-receipt', {
                     method: 'POST',
                     headers: {
-                      'Content-Type': 'application/json',
                       'X-CSRF-TOKEN': csrfToken
                     },
-                    body: JSON.stringify(data)
+                    body: submitFormData
                   })
-                  .then(response => response.json())
+                  .then(response => {
+                    console.log('Response status:', response.status);
+                    console.log('Response headers:', response.headers);
+                    return response.text().then(text => {
+                      console.log('Raw response:', text);
+                      if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}, response: ${text}`);
+                      }
+                      return text;
+                    });
+                  })
+                  .then(text => {
+                    try {
+                      const result = JSON.parse(text);
+                      return result;
+                    } catch (e) {
+                      console.error('JSON parse error:', e);
+                      console.error('Response text:', text);
+                      throw new Error('Invalid JSON response from server');
+                    }
+                  })
                   .then(result => {
                     if (result.success) {
                       const itemCount = items.length;
                       const receiptNumber = result.receipt_number;
+                      const documentGenerated = result.document_generated;
                       
-                      // Show success message with next step
-                      const nextStepMsg = `Receipt created successfully! Receipt #: ${receiptNumber}
+                      // Show success message with document generation status
+                      let successMsg = `✅ Receipt created successfully! Receipt #: ${receiptNumber}
                       
-${itemCount} item(s) have been received and are currently in the receiving area.
+📦 ${itemCount} item(s) have been received and are currently in the receiving area.`;
+
+                      if (documentGenerated) {
+                        successMsg += `\n📄 Document automatically generated and stored in DTRS (Document Tracking & Records System)`;
+                      } else {
+                        successMsg += `\n⚠️ Document generation in progress...`;
+                      }
+
+                      successMsg += `
 
 Next steps:
 1. Items need to be organized and assigned proper storage locations
 2. Go to Storage Organization to assign zones and bins
-3. Once organized, items will be available for picking and dispatch`;
+3. Once organized, items will be available for picking and dispatch
+4. View the generated document in DTRS system`;
                       
-                      if (confirm(nextStepMsg + '\n\nWould you like to go to Storage Organization now?')) {
+                      if (confirm(successMsg + '\n\nWould you like to go to Storage Organization now?')) {
                         window.location.href = '/storage-organization';
                       } else {
+                        // Show additional option to view DTRS
+                        if (documentGenerated && confirm('Would you like to view the document in DTRS system?')) {
+                          window.open('/dtrs/document', '_blank');
+                        }
                         receiptForm.reset();
                         itemsTableBody.innerHTML = '';
                         updateReceiptSummary();
@@ -1378,103 +1645,211 @@ Next steps:
                 alert('Download receipt for ID: ' + receiptId);
               }
             });
+            
+            // Setup item edit handlers
+            function setupItemEditHandlers() {
+              // Edit button handlers
+              document.querySelectorAll('.edit-item-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                  const row = this.closest('tr');
+                  enterEditMode(row);
+                });
+              });
+              
+              // Save button handlers
+              document.querySelectorAll('.save-item-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                  const row = this.closest('tr');
+                  saveItemChanges(row);
+                });
+              });
+              
+              // Cancel button handlers
+              document.querySelectorAll('.cancel-edit-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                  const row = this.closest('tr');
+                  cancelEditMode(row);
+                });
+              });
+              
+              // Remove button handlers
+              document.querySelectorAll('.remove-item-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                  const row = this.closest('tr');
+                  if (confirm('Are you sure you want to remove this item?')) {
+                    row.remove();
+                    updateReceiptSummary();
+                  }
+                });
+              });
+              
+              // Image upload handlers for edit mode
+              document.querySelectorAll('.image-edit').forEach(input => {
+                input.addEventListener('change', function() {
+                  const file = this.files[0];
+                  const row = this.closest('tr');
+                  const preview = row.querySelector('.image-preview');
+                  const img = preview.querySelector('img');
+                  
+                  if (file) {
+                    // Validate file
+                    if (file.size > 2 * 1024 * 1024) {
+                      alert('File size must be less than 2MB');
+                      this.value = '';
+                      return;
+                    }
+                    
+                    if (!file.type.match('image.*')) {
+                      alert('Please select a valid image file');
+                      this.value = '';
+                      return;
+                    }
+                    
+                    // Show preview
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                      img.src = e.target.result;
+                      preview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                });
+              });
+            }
+            
+            function enterEditMode(row) {
+              // Hide display elements and show edit elements
+              const conditionDisplay = row.querySelector('.condition-display');
+              const conditionEdit = row.querySelector('.condition-edit');
+              const imageDisplay = row.querySelector('.image-display');
+              const imageEdit = row.querySelector('.image-edit');
+              
+              // Store original values
+              row.dataset.originalCondition = conditionDisplay.textContent;
+              
+              // Switch to edit mode
+              conditionDisplay.style.display = 'none';
+              conditionEdit.style.display = 'block';
+              conditionEdit.value = conditionDisplay.textContent;
+              
+              imageDisplay.style.display = 'none';
+              imageEdit.style.display = 'block';
+              
+              // Switch buttons
+              row.querySelector('.edit-item-btn').style.display = 'none';
+              row.querySelector('.save-item-btn').style.display = 'inline-block';
+              row.querySelector('.cancel-edit-btn').style.display = 'inline-block';
+              row.querySelector('.remove-item-btn').style.display = 'none';
+            }
+            
+            function saveItemChanges(row) {
+              const conditionDisplay = row.querySelector('.condition-display');
+              const conditionEdit = row.querySelector('.condition-edit');
+              const imageDisplay = row.querySelector('.image-display');
+              const imageEdit = row.querySelector('.image-edit');
+              const imagePreview = row.querySelector('.image-preview');
+              
+              // Update condition
+              conditionDisplay.textContent = conditionEdit.value;
+              
+              // Update image display
+              if (imageEdit.files[0]) {
+                imageDisplay.innerHTML = '<span class="text-success"><i class="bi bi-image"></i> Image uploaded</span>';
+              }
+              
+              // Exit edit mode
+              cancelEditMode(row);
+              
+              // Show success message
+              showAlert('Item updated successfully!', 'success');
+            }
+            
+            function cancelEditMode(row) {
+              const conditionDisplay = row.querySelector('.condition-display');
+              const conditionEdit = row.querySelector('.condition-edit');
+              const imageDisplay = row.querySelector('.image-display');
+              const imageEdit = row.querySelector('.image-edit');
+              const imagePreview = row.querySelector('.image-preview');
+              
+              // Restore original condition if cancelled
+              if (row.dataset.originalCondition) {
+                conditionEdit.value = row.dataset.originalCondition;
+              }
+              
+              // Reset image input
+              imageEdit.value = '';
+              imagePreview.style.display = 'none';
+              
+              // Switch back to display mode
+              conditionDisplay.style.display = 'inline';
+              conditionEdit.style.display = 'none';
+              imageDisplay.style.display = 'block';
+              imageEdit.style.display = 'none';
+              
+              // Switch buttons back
+              row.querySelector('.edit-item-btn').style.display = 'inline-block';
+              row.querySelector('.save-item-btn').style.display = 'none';
+              row.querySelector('.cancel-edit-btn').style.display = 'none';
+              row.querySelector('.remove-item-btn').style.display = 'inline-block';
+            }
+            
+            function updateReceiptSummary() {
+              const rows = document.querySelectorAll('#itemsTableBody tr');
+              let totalItems = rows.length;
+              let totalQuantity = 0;
+              let totalValue = 0;
+              let damagedItems = 0;
+              
+              rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 6) {
+                  const qty = parseInt(cells[1].textContent) || 0; // Quantity is now column 1
+                  const price = parseFloat(cells[4].textContent.replace('₱', '')) || 0; // Total Price is now column 4
+                  const condition = row.querySelector('.condition-display')?.textContent || '';
+                  
+                  totalQuantity += qty;
+                  totalValue += price;
+                  
+                  if (condition === 'Damaged') {
+                    damagedItems++;
+                  }
+                }
+              });
+              
+              document.getElementById('totalItems').textContent = totalItems;
+              document.getElementById('totalQuantity').textContent = totalQuantity;
+              document.getElementById('totalValue').textContent = '₱' + totalValue.toFixed(2);
+              document.getElementById('damagedItems').textContent = damagedItems;
+            }
+            
+            function showAlert(message, type = 'info') {
+              const alertDiv = document.createElement('div');
+              alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+              alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              `;
+              
+              const container = document.querySelector('.card-body');
+              container.insertBefore(alertDiv, container.firstChild);
+              
+              // Auto dismiss after 3 seconds
+              setTimeout(() => {
+                if (alertDiv.parentNode) {
+                  alertDiv.remove();
+                }
+              }, 3000);
+            }
+            
+            // Initialize summary on page load
+            updateReceiptSummary();
           </script>
-        </div>
-      </div>
-      
-      <!-- Recent Receipts -->
-      <div class="card shadow-sm border-0">
-        <div class="card-header border-bottom d-flex justify-content-between align-items-center">
-          <h5 class="card-title mb-0">Recent Receipts</h5>
-          <button class="btn btn-sm btn-outline-primary">View All</button>
-        </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-hover">
-              <thead class="table-light">
-                <tr>
-                  <th>Receipt ID</th>
-                  <th>Date</th>
-                  <th>Supplier</th>
-                  <th>Items</th>
-                  <th>PO #</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                @forelse($recentReceipts as $receipt)
-                  <tr>
-                    <td><strong>#{{ $receipt->receipt_number }}</strong></td>
-                    <td>{{ $receipt->receipt_date->format('M j, Y g:i A') }}</td>
-                    <td>{{ $receipt->supplier_name }}</td>
-                    <td>{{ $receipt->total_items }} items</td>
-                    <td>{{ $receipt->purchase_order_number ?? 'N/A' }}</td>
-                    <td>
-                      @if($receipt->status === 'Completed')
-                        <span class="badge bg-success">{{ $receipt->status }}</span>
-                      @elseif($receipt->status === 'Pending')
-                        <span class="badge bg-warning">{{ $receipt->status }}</span>
-                      @elseif($receipt->status === 'Quality Issue')
-                        <span class="badge bg-danger">{{ $receipt->status }}</span>
-                      @else
-                        <span class="badge bg-secondary">{{ $receipt->status }}</span>
-                      @endif
-                    </td>
-                    <td>
-                      <button class="btn btn-sm btn-outline-primary" title="View Details" onclick="viewReceiptDetails({{ $receipt->id }})">
-                        <i class="bi bi-eye"></i>
-                      </button>
-                      <button class="btn btn-sm btn-outline-secondary" title="Print Receipt" onclick="printReceipt({{ $receipt->id }})">
-                        <i class="bi bi-printer"></i>
-                      </button>
-                      <button class="btn btn-sm btn-outline-info" title="Download PDF" onclick="downloadReceipt({{ $receipt->id }})">
-                        <i class="bi bi-download"></i>
-                      </button>
-                    </td>
-                  </tr>
-                @empty
-                  <tr>
-                    <td colspan="7" class="text-center text-muted">No recent receipts found</td>
-                  </tr>
-                @endforelse
-              </tbody>
-            </table>
-          </div>
         </div>
       </div>
     </div>
     
     <!-- Right Column -->
     <div class="col-lg-4">
-      <!-- Quick Actions -->
-      <div class="card shadow-sm border-0">
-        <div class="card-header border-bottom">
-          <h5 class="card-title mb-0">Quick Actions</h5>
-        </div>
-        <div class="card-body">
-          <div class="d-grid gap-2">
-            <button class="btn btn-primary" id="newReceiptBtn">
-              <i class="bi bi-plus-circle me-2"></i>New Receipt
-            </button>
-            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addItemModal">
-              <i class="bi bi-box-seam me-2"></i>Add Item to Inventory
-            </button>
-            <button class="btn btn-outline-primary" id="importCSVBtn">
-              <i class="bi bi-file-earmark-excel me-2"></i>Import from CSV
-            </button>
-            <button class="btn btn-outline-success" id="viewInventoryBtn">
-              <i class="bi bi-box-seam me-2"></i>View Inventory
-            </button>
-            <button class="btn btn-outline-info" id="generateReportBtn">
-              <i class="bi bi-graph-up me-2"></i>Generate Report
-            </button>
-            <button class="btn btn-outline-secondary" id="printReceiptBtn">
-              <i class="bi bi-printer me-2"></i>Print Receipt
-            </button>
-          </div>
-        </div>
-      </div>
       
       <!-- PO Preview (Hidden by default, shown when viewing PO) -->
       <div class="card shadow-sm border-0 mt-4 d-none" id="poPreviewCard">
@@ -1484,66 +1859,6 @@ Next steps:
         </div>
         <div class="card-body" id="poPreviewContent">
           <!-- PO details will be loaded dynamically -->
-        </div>
-      </div>
-      
-      <!-- Receipt Summary -->
-      <div class="card shadow-sm border-0 mt-4">
-        <div class="card-header border-bottom">
-          <h5 class="card-title mb-0">Today's Summary</h5>
-        </div>
-        <div class="card-body">
-          <div class="mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small">Receipts Completed</span>
-              <span class="small fw-bold" id="receiptsCompletedToday">0</span>
-            </div>
-            <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-success" style="width: 0%" id="receiptsCompletedProgress"></div>
-            </div>
-          </div>
-          <div class="mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small">Items Received</span>
-              <span class="small fw-bold" id="itemsReceivedTodaySummary">0</span>
-            </div>
-            <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-primary" style="width: 0%" id="itemsReceivedProgress"></div>
-            </div>
-          </div>
-          <div class="mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small">Damaged Items</span>
-              <span class="small fw-bold" id="damagedItemsToday">0</span>
-            </div>
-            <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-danger" style="width: 0%" id="damagedItemsProgress"></div>
-            </div>
-          </div>
-          <div>
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small">Pending Receipts</span>
-              <span class="small fw-bold" id="pendingReceipts">0</span>
-            </div>
-            <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-warning" style="width: 0%" id="pendingReceiptsProgress"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Alerts -->
-      <div class="card shadow-sm border-0 mt-4">
-        <div class="card-header border-bottom">
-          <h5 class="card-title mb-0">Alerts</h5>
-        </div>
-        <div class="card-body">
-          <div id="alertsContainer">
-            <div class="text-center text-muted py-3">
-              <i class="bi bi-info-circle me-2"></i>
-              No alerts at this time
-            </div>
-          </div>
         </div>
       </div>
     </div>

@@ -12,6 +12,9 @@
   <link rel="stylesheet" href="{{ asset('assets/css/dash-style-fixed.css') }}">
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <meta name="csrf-token" content="{{ csrf_token() }}" />
 
 </head>
 <body style="background-color: #f8f9fa !important;">
@@ -136,7 +139,7 @@
       <ul class="nav flex-column ms-3">
         <li class="nav-item">
           <a href="{{ url('/plt/toursetup') }}" class="nav-link text-dark small ">
-            <i class="bi bi-flag me-2"></i> Tour Setup
+            <i class="bi bi-diagram-3 me-2"></i> Project Planning
           </a>
         </li>
         <li class="nav-item">
@@ -243,13 +246,13 @@
       <div class="card stat-card shadow-sm border-0">
         <div class="card-body">
           <div class="d-flex align-items-center">
-            <div class="stat-icon bg-primary bg-opacity-10 text-primary me-3">
-              <i class="bi bi-box-arrow-in-down"></i>
+            <div class="stat-icon bg-warning bg-opacity-10 text-warning me-3">
+              <i class="bi bi-exclamation-triangle"></i>
             </div>
             <div>
-              <h3 class="fw-bold mb-0">24</h3>
-              <p class="text-muted mb-0 small">Pending Receipts</p>
-              <small class="text-success"><i class="bi bi-arrow-up"></i> +3 today</small>
+              <h3 class="fw-bold mb-0">12</h3>
+              <p class="text-muted mb-0 small">Pending Disposals</p>
+              <small class="text-warning"><i class="bi bi-arrow-up"></i> +2 today</small>
             </div>
           </div>
         </div>
@@ -263,25 +266,9 @@
               <i class="bi bi-check-circle"></i>
             </div>
             <div>
-              <h3 class="fw-bold mb-0">156</h3>
-              <p class="text-muted mb-0 small">Completed Today</p>
-              <small class="text-success"><i class="bi bi-arrow-up"></i> +12%</small>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="card stat-card shadow-sm border-0">
-        <div class="card-body">
-          <div class="d-flex align-items-center">
-            <div class="stat-icon bg-warning bg-opacity-10 text-warning me-3">
-              <i class="bi bi-exclamation-triangle"></i>
-            </div>
-            <div>
-              <h3 class="fw-bold mb-0">8</h3>
-              <p class="text-muted mb-0 small">Quality Issues</p>
-              <small class="text-warning"><i class="bi bi-arrow-up"></i> +2</small>
+              <h3 class="fw-bold mb-0">45</h3>
+              <p class="text-muted mb-0 small">Assets Retired</p>
+              <small class="text-success"><i class="bi bi-arrow-up"></i> +8 this month</small>
             </div>
           </div>
         </div>
@@ -292,12 +279,28 @@
         <div class="card-body">
           <div class="d-flex align-items-center">
             <div class="stat-icon bg-info bg-opacity-10 text-info me-3">
-              <i class="bi bi-clock"></i>
+              <i class="bi bi-recycle"></i>
             </div>
             <div>
-              <h3 class="fw-bold mb-0">45min</h3>
-              <p class="text-muted mb-0 small">Avg Process Time</p>
-              <small class="text-success"><i class="bi bi-arrow-down"></i> -5min</small>
+              <h3 class="fw-bold mb-0">$24,500</h3>
+              <p class="text-muted mb-0 small">Recovery Value</p>
+              <small class="text-success"><i class="bi bi-arrow-up"></i> +15%</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card stat-card shadow-sm border-0">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="stat-icon bg-danger bg-opacity-10 text-danger me-3">
+              <i class="bi bi-clock-history"></i>
+            </div>
+            <div>
+              <h3 class="fw-bold mb-0">18</h3>
+              <p class="text-muted mb-0 small">Overdue Reviews</p>
+              <small class="text-danger"><i class="bi bi-arrow-up"></i> +3</small>
             </div>
           </div>
         </div>
@@ -309,247 +312,372 @@
   <div class="row g-4">
     <!-- Left Column -->
     <div class="col-lg-8">
-      <!-- Receipt Entry Form -->
+      <!-- Asset Disposal Request Form -->
       <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header border-bottom bg-primary text-white">
-          <h5 class="card-title mb-0">New Inventory Receipt</h5>
+        <div class="card-header border-bottom bg-danger text-white">
+          <h5 class="card-title mb-0">New Asset Disposal Request</h5>
         </div>
         <div class="card-body">
-          <!-- Manual Inventory Receipt Entry -->
-          <form id="receiptForm">
+          <!-- Asset Disposal Form -->
+          <form id="disposalForm">
             <div class="row g-3">
-              <!-- Supplier Information -->
+              <!-- Asset Information -->
               <div class="col-md-6">
-                <label for="supplier" class="form-label">Supplier</label>
-                <input type="text" class="form-control" id="supplier" placeholder="Enter supplier name" required>
+                <label for="assetId" class="form-label">Select Asset <span class="text-danger">*</span></label>
+                <select class="form-select" id="assetId" required>
+                  <option value="">Choose an asset...</option>
+                  <!-- Assets will be loaded dynamically -->
+                </select>
               </div>
               <div class="col-md-6">
-                <label for="category" class="form-label">Category</label>
-                <input type="text" class="form-control" id="category" placeholder="Enter category" required>
+                <label for="assetName" class="form-label">Asset Name</label>
+                <input type="text" class="form-control" id="assetName" placeholder="Asset name will appear here" readonly>
               </div>
               <div class="col-md-6">
-                <label for="deliveryDate" class="form-label">Delivery Date</label>
-                <input type="date" class="form-control" id="deliveryDate" required>
+                <label for="disposalReason" class="form-label">Disposal Reason</label>
+                <select class="form-select" id="disposalReason" required>
+                  <option value="">Select reason</option>
+                  <option value="end_of_life">End of Useful Life</option>
+                  <option value="damaged">Damaged Beyond Repair</option>
+                  <option value="obsolete">Obsolete Technology</option>
+                  <option value="cost_ineffective">Cost Ineffective to Maintain</option>
+                  <option value="regulatory">Regulatory Compliance</option>
+                  <option value="other">Other</option>
+                </select>
               </div>
               <div class="col-md-6">
-                <label for="invoiceNumber" class="form-label">Invoice #</label>
-                <input type="text" class="form-control" id="invoiceNumber" required>
+                <label for="disposalMethod" class="form-label">Disposal Method</label>
+                <select class="form-select" id="disposalMethod" required>
+                  <option value="">Select method</option>
+                  <option value="sale">Sale</option>
+                  <option value="donation">Donation</option>
+                  <option value="recycle">Recycling</option>
+                  <option value="scrap">Scrap</option>
+                  <option value="destroy">Secure Destruction</option>
+                  <option value="return">Return to Vendor</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="requestedBy" class="form-label">Requested By</label>
+                <input type="text" class="form-control" id="requestedBy" value="{{ Auth::user()->name }}" readonly>
+              </div>
+              <div class="col-md-6">
+                <label for="department" class="form-label">Department</label>
+                <input type="text" class="form-control" id="department" placeholder="Department" required>
+              </div>
+              <div class="col-md-6">
+                <label for="estimatedValue" class="form-label">Estimated Recovery Value</label>
+                <input type="number" class="form-control" id="estimatedValue" placeholder="0.00" step="0.01">
+              </div>
+              <div class="col-md-6">
+                <label for="urgency" class="form-label">Urgency Level</label>
+                <select class="form-select" id="urgency" required>
+                  <option value="low">Low</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="high">High</option>
+                  <option value="critical">Critical</option>
+                </select>
               </div>
               <div class="col-12">
-                <label for="notes" class="form-label">Notes</label>
-                <textarea class="form-control" id="notes" rows="2"></textarea>
+                <label for="justification" class="form-label">Justification</label>
+                <textarea class="form-control" id="justification" rows="3" placeholder="Provide detailed justification for disposal..." required></textarea>
+              </div>
+              <div class="col-12">
+                <label for="additionalNotes" class="form-label">Additional Notes</label>
+                <textarea class="form-control" id="additionalNotes" rows="2" placeholder="Any additional information..."></textarea>
               </div>
             </div>
-            
-            <hr class="my-4">
-            
-            <!-- Item Entry Section -->
-            <h6 class="mb-3">Items Received</h6>
-            <div class="table-responsive mb-3">
-              <table class="table table-sm" id="itemsTable">
-                <thead>
-                  <tr>
-                    <th>Item Name</th>
-                    <th>Description</th>
-                    <th>Quantity</th>
-                    <th>Unit</th>
-                    <th>Supplier</th>
-                    <th>Category</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody id="itemsTableBody">
-                  <!-- Items will be added here -->
-                </tbody>
-              </table>
-            </div>
-            
-            <!-- Add Item Form (hidden by default) -->
-            <div id="addItemForm" class="mb-3" style="display:none;">
-              <div class="row g-2">
-                <div class="col-md-2">
-                  <input type="text" class="form-control" id="itemName" placeholder="Item Name" required>
-                </div>
-                <div class="col-md-2">
-                  <input type="text" class="form-control" id="itemDesc" placeholder="Description" required>
-                </div>
-                <div class="col-md-2">
-                  <input type="number" class="form-control" id="itemQty" placeholder="Qty" min="1" required>
-                </div>
-                <div class="col-md-2">
-                  <input type="text" class="form-control" id="itemUnit" placeholder="Unit" required>
-                </div>
-                <div class="col-md-2">
-                  <input type="text" class="form-control" id="itemSupplier" placeholder="Supplier" required>
-                </div>
-                <div class="col-md-2">
-                  <input type="text" class="form-control" id="itemCategory" placeholder="Category" required>
-                </div>
-                <div class="col-md-12 mt-2">
-                  <button type="button" class="btn btn-success btn-sm" id="saveItemBtn">
-                    <i class="bi bi-check-circle me-1"></i>Save Item
-                  </button>
-                  <button type="button" class="btn btn-outline-secondary btn-sm" id="cancelItemBtn">
-                    <i class="bi bi-x-circle me-1"></i>Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Add Item Button -->
-            <button type="button" class="btn btn-outline-primary btn-sm mb-3" id="addItemBtn">
-              <i class="bi bi-plus-circle me-1"></i>Add Item
-            </button>
             
             <!-- Form Actions -->
-            <div class="d-flex justify-content-between">
+            <div class="d-flex justify-content-between mt-4">
               <button type="reset" class="btn btn-outline-secondary">
                 <i class="bi bi-x-circle me-1"></i>Cancel
               </button>
-              <button type="submit" class="btn btn-primary">
-                <i class="bi bi-check-circle me-1"></i>Complete Receipt
-              </button>
+              <div>
+                <button type="button" class="btn btn-outline-primary me-2">
+                  <i class="bi bi-file-earmark me-1"></i>Save as Draft
+                </button>
+                <button type="submit" class="btn btn-danger">
+                  <i class="bi bi-trash me-1"></i>Submit Disposal Request
+                </button>
+              </div>
             </div>
           </form>
 
-          <!-- Static JS for manual item entry -->
+          <!-- Asset Disposal Form JavaScript -->
           <script>
             document.addEventListener('DOMContentLoaded', function() {
-              const addItemBtn = document.getElementById('addItemBtn');
-              const addItemForm = document.getElementById('addItemForm');
-              const saveItemBtn = document.getElementById('saveItemBtn');
-              const cancelItemBtn = document.getElementById('cancelItemBtn');
-              const itemsTableBody = document.getElementById('itemsTableBody');
+              const assetIdSelect = document.getElementById('assetId');
+              const assetNameInput = document.getElementById('assetName');
+              const disposalForm = document.getElementById('disposalForm');
+              let assetsData = {};
 
-              addItemBtn.addEventListener('click', function() {
-                addItemForm.style.display = 'block';
-                addItemBtn.style.display = 'none';
-              });
+              // Load assets on page load
+              loadAssets();
 
-              cancelItemBtn.addEventListener('click', function() {
-                addItemForm.style.display = 'none';
-                addItemBtn.style.display = 'inline-block';
-                clearItemFields();
-              });
-
-              saveItemBtn.addEventListener('click', function() {
-                // Get values
-                const name = document.getElementById('itemName').value;
-                const desc = document.getElementById('itemDesc').value;
-                const qty = document.getElementById('itemQty').value;
-                const unit = document.getElementById('itemUnit').value;
-                const supplier = document.getElementById('itemSupplier').value;
-                const category = document.getElementById('itemCategory').value;
-
-                if (name && desc && qty && unit && supplier && category) {
-                  // Add row to table
-                  const row = document.createElement('tr');
-                  row.innerHTML = `
-                    <td>${name}</td>
-                    <td>${desc}</td>
-                    <td>${qty}</td>
-                    <td>${unit}</td>
-                    <td>${supplier}</td>
-                    <td>${category}</td>
-                    <td>
-                      <button type="button" class="btn btn-sm btn-danger removeItemBtn"><i class="bi bi-trash"></i></button>
-                    </td>
-                  `;
-                  itemsTableBody.appendChild(row);
-
-                  // Remove item functionality
-                  row.querySelector('.removeItemBtn').addEventListener('click', function() {
-                    row.remove();
+              async function loadAssets() {
+                try {
+                  const response = await fetch("{{ url('/api/assets') }}", {
+                    headers: {
+                      'Accept': 'application/json',
+                      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
                   });
 
-                  addItemForm.style.display = 'none';
-                  addItemBtn.style.display = 'inline-block';
-                  clearItemFields();
+                  if (!response.ok) {
+                    throw new Error('Failed to load assets');
+                  }
+
+                  const assets = await response.json();
+                  
+                  // Clear existing options except the first one
+                  assetIdSelect.innerHTML = '<option value="">Choose an asset...</option>';
+                  
+                  // Populate dropdown and store asset data
+                  assets.forEach(asset => {
+                    const option = document.createElement('option');
+                    option.value = asset.id;
+                    option.textContent = `${asset.asset_id || '#ASSET-' + asset.id} - ${getAssetDisplayName(asset)}`;
+                    assetIdSelect.appendChild(option);
+                    
+                    // Store full asset data for later use
+                    assetsData[asset.id] = asset;
+                  });
+
+                } catch (error) {
+                  console.error('Error loading assets:', error);
+                  Swal.fire({
+                    title: 'Error',
+                    text: 'Failed to load assets. Please refresh the page.',
+                    icon: 'error',
+                    confirmButtonColor: '#dc3545'
+                  });
+                }
+              }
+
+              function getAssetDisplayName(asset) {
+                // Return appropriate name based on asset type
+                return asset.plate_number || 
+                       asset.building_name || 
+                       asset.equipment_name || 
+                       asset.item_name || 
+                       asset.tool_name || 
+                       asset.item_description || 
+                       'Asset';
+              }
+
+              // Asset selection change handler
+              assetIdSelect.addEventListener('change', function() {
+                const selectedAssetId = this.value;
+                
+                if (selectedAssetId && assetsData[selectedAssetId]) {
+                  const asset = assetsData[selectedAssetId];
+                  const displayName = getAssetDisplayName(asset);
+                  
+                  assetNameInput.value = displayName;
+                  assetNameInput.classList.remove('is-invalid');
+                  assetNameInput.classList.add('is-valid');
+                  
+                  // Auto-fill department if available
+                  const departmentField = document.getElementById('department');
+                  if (asset.department && departmentField) {
+                    departmentField.value = asset.department || asset.responsible_department || '';
+                  }
+                } else {
+                  assetNameInput.value = '';
+                  assetNameInput.classList.remove('is-valid', 'is-invalid');
                 }
               });
 
-              function clearItemFields() {
-                document.getElementById('itemName').value = '';
-                document.getElementById('itemDesc').value = '';
-                document.getElementById('itemQty').value = '';
-                document.getElementById('itemUnit').value = '';
-                document.getElementById('itemSupplier').value = '';
-                document.getElementById('itemCategory').value = '';
-              }
+              // Form submission with SweetAlert
+              disposalForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Validate required fields
+                const requiredFields = ['assetId', 'disposalReason', 'disposalMethod', 'department', 'urgency', 'justification'];
+                let isValid = true;
+                
+                requiredFields.forEach(fieldId => {
+                  const field = document.getElementById(fieldId);
+                  if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                  } else {
+                    field.classList.remove('is-invalid');
+                  }
+                });
+
+                if (!isValid) {
+                  Swal.fire({
+                    title: 'Missing Information',
+                    text: 'Please fill in all required fields.',
+                    icon: 'warning',
+                    confirmButtonColor: '#ffc107'
+                  });
+                  return;
+                }
+
+                // Show loading
+                Swal.fire({
+                  title: 'Submitting Request...',
+                  text: 'Please wait while we process your disposal request',
+                  icon: 'info',
+                  allowOutsideClick: false,
+                  allowEscapeKey: false,
+                  showConfirmButton: false,
+                  didOpen: () => {
+                    Swal.showLoading();
+                  }
+                });
+
+                try {
+                  // Prepare form data
+                  const formData = {
+                    asset_id: document.getElementById('assetId').value,
+                    disposal_reason: document.getElementById('disposalReason').value,
+                    disposal_method: document.getElementById('disposalMethod').value,
+                    department: document.getElementById('department').value,
+                    estimated_value: document.getElementById('estimatedValue').value || 0,
+                    urgency: document.getElementById('urgency').value,
+                    justification: document.getElementById('justification').value,
+                    additional_notes: document.getElementById('additionalNotes').value,
+                    requested_by: "{{ Auth::user()->name }}"
+                  };
+
+                  const response = await fetch("{{ url('/alms/disposal-requests') }}", {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                      'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                  });
+
+                  if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || 'Failed to submit disposal request');
+                  }
+
+                  const result = await response.json();
+
+                  // Show success message
+                  Swal.fire({
+                    title: 'Success!',
+                    text: `Disposal request submitted successfully! Request ID: ${result.request_id || 'DR-' + Date.now()}`,
+                    icon: 'success',
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                  }).then(() => {
+                    // Reset form
+                    disposalForm.reset();
+                    assetNameInput.value = '';
+                    assetNameInput.classList.remove('is-valid', 'is-invalid');
+                    
+                    // Reload page to show updated data
+                    window.location.reload();
+                  });
+
+                } catch (error) {
+                  console.error('Disposal request error:', error);
+                  Swal.fire({
+                    title: 'Submission Failed!',
+                    text: error.message || 'Failed to submit disposal request. Please try again.',
+                    icon: 'error',
+                    confirmButtonColor: '#dc3545'
+                  });
+                }
+              });
             });
           </script>
         </div>
       </div>
       
-      <!-- Recent Receipts -->
+      <!-- Recent Disposal Requests -->
       <div class="card shadow-sm border-0">
         <div class="card-header border-bottom d-flex justify-content-between align-items-center">
-          <h5 class="card-title mb-0">Recent Receipts</h5>
-          <button class="btn btn-sm btn-outline-primary">View All</button>
+          <h5 class="card-title mb-0">Recent Disposal Requests</h5>
+          <button class="btn btn-sm btn-outline-primary" onclick="window.location.reload()">
+            <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+          </button>
         </div>
         <div class="card-body">
           <div class="table-responsive">
             <table class="table table-hover">
               <thead class="table-light">
                 <tr>
-                  <th>Receipt ID</th>
+                  <th>Request ID</th>
                   <th>Date</th>
-                  <th>Supplier</th>
-                  <th>Items</th>
-                  <th>PO #</th>
+                  <th>Asset ID</th>
+                  <th>Asset Name</th>
+                  <th>Reason</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td><strong>#REC-2024-105</strong></td>
-                  <td>Today, 10:45 AM</td>
-                  <td>TechCorp Inc.</td>
-                  <td>12 items</td>
-                  <td>PO-2024-012</td>
-                  <td><span class="badge bg-success">Completed</span></td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-primary">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary">
-                      <i class="bi bi-printer"></i>
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>#REC-2024-104</strong></td>
-                  <td>Today, 9:30 AM</td>
-                  <td>Global Electronics</td>
-                  <td>8 items</td>
-                  <td>PO-2024-011</td>
-                  <td><span class="badge bg-success">Completed</span></td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-primary">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary">
-                      <i class="bi bi-printer"></i>
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>#REC-2024-103</strong></td>
-                  <td>Yesterday, 3:15 PM</td>
-                  <td>Smart Parts Co.</td>
-                  <td>15 items</td>
-                  <td>PO-2024-010</td>
-                  <td><span class="badge bg-success">Completed</span></td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-primary">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary">
-                      <i class="bi bi-printer"></i>
-                    </button>
-                  </td>
-                </tr>
+                @if($disposalRequests && $disposalRequests->count() > 0)
+                  @foreach($disposalRequests as $request)
+                  <tr>
+                    <td><strong>{{ $request->request_id }}</strong></td>
+                    <td>{{ $request->created_at->format('M d, Y') }}<br>
+                        <small class="text-muted">{{ $request->created_at->format('g:i A') }}</small>
+                    </td>
+                    <td>{{ $request->asset->asset_id ?? '#ASSET-' . $request->asset_id }}</td>
+                    <td>
+                      @if($request->asset)
+                        {{ $request->asset->plate_number ?? $request->asset->building_name ?? $request->asset->equipment_name ?? $request->asset->item_name ?? $request->asset->tool_name ?? 'Asset' }}
+                      @else
+                        <span class="text-muted">Asset not found</span>
+                      @endif
+                    </td>
+                    <td>{{ ucfirst(str_replace('_', ' ', $request->disposal_reason)) }}</td>
+                    <td>
+                      @php
+                        $statusClass = match($request->status) {
+                          'pending' => 'bg-warning',
+                          'approved' => 'bg-success',
+                          'rejected' => 'bg-danger',
+                          'in_progress' => 'bg-info',
+                          'completed' => 'bg-dark',
+                          default => 'bg-secondary'
+                        };
+                      @endphp
+                      <span class="badge {{ $statusClass }}">{{ ucfirst($request->status) }}</span>
+                    </td>
+                    <td>
+                      <div class="btn-group btn-group-sm" role="group">
+                        <button class="btn btn-outline-primary view-request-btn" data-id="{{ $request->id }}" title="View Details">
+                          <i class="bi bi-eye"></i>
+                        </button>
+                        @if($request->status === 'pending')
+                        <button class="btn btn-outline-success approve-request-btn" data-id="{{ $request->id }}" title="Approve">
+                          <i class="bi bi-check"></i>
+                        </button>
+                        <button class="btn btn-outline-danger reject-request-btn" data-id="{{ $request->id }}" title="Reject">
+                          <i class="bi bi-x"></i>
+                        </button>
+                        @elseif($request->status === 'completed')
+                        <button class="btn btn-outline-secondary" title="Download Certificate">
+                          <i class="bi bi-file-earmark-pdf"></i>
+                        </button>
+                        @endif
+                      </div>
+                    </td>
+                  </tr>
+                  @endforeach
+                @else
+                  <tr>
+                    <td colspan="7" class="text-center py-4">
+                      <div class="empty-state">
+                        <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                        <h6 class="text-muted mt-2">No disposal requests yet</h6>
+                        <p class="text-muted small">Submit your first disposal request using the form above</p>
+                      </div>
+                    </td>
+                  </tr>
+                @endif
               </tbody>
             </table>
           </div>
@@ -559,132 +687,52 @@
     
     <!-- Right Column -->
     <div class="col-lg-4">
-      <!-- Quick Actions -->
-      <div class="card shadow-sm border-0">
-        <div class="card-header border-bottom">
-          <h5 class="card-title mb-0">Quick Actions</h5>
-        </div>
-        <div class="card-body">
-          <div class="d-grid gap-2">
-            <button class="btn btn-primary" id="newReceiptBtn">
-              <i class="bi bi-plus-circle me-2"></i>New Receipt
-            </button>
-            <button class="btn btn-outline-primary" id="scanBarcodeBtn">
-              <i class="bi bi-upc-scan me-2"></i>Scan Barcode
-            </button>
-            <button class="btn btn-outline-primary" id="importCSVBtn">
-              <i class="bi bi-file-earmark-excel me-2"></i>Import from CSV
-            </button>
-            <button class="btn btn-outline-secondary" id="printReceiptBtn">
-              <i class="bi bi-printer me-2"></i>Print Receipt
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- PO Preview (Hidden by default, shown when viewing PO) -->
-      <div class="card shadow-sm border-0 mt-4 d-none" id="poPreviewCard">
+      <!-- Asset Details Preview (Hidden by default, shown when viewing asset) -->
+      <div class="card shadow-sm border-0 d-none" id="assetPreviewCard">
         <div class="card-header border-bottom d-flex justify-content-between align-items-center">
-          <h5 class="card-title mb-0">PO Preview</h5>
-          <button class="btn btn-sm btn-close" id="closePOPreview"></button>
+          <h5 class="card-title mb-0">Asset Details</h5>
+          <button class="btn btn-sm btn-close" id="closeAssetPreview"></button>
         </div>
         <div class="card-body">
-          <h6 class="fw-bold">PO-2024-001</h6>
-          <p class="small text-muted">Issued: 15 Jan 2024 | Expected: 20 Jan 2024</p>
+          <h6 class="fw-bold">AST-001</h6>
+          <p class="small text-muted">Acquired: 15 Jan 2022 | Last Maintenance: 20 Dec 2024</p>
           
-          <div class="table-responsive">
-            <table class="table table-sm">
-              <thead>
-                <tr>
-                  <th>Item</th>
-                  <th>Qty</th>
-                  <th>Unit</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Laptop Pro 15"</td>
-                  <td>10</td>
-                  <td>pcs</td>
-                </tr>
-                <tr>
-                  <td>Wireless Mouse</td>
-                  <td>25</td>
-                  <td>pcs</td>
-                </tr>
-                <tr>
-                  <td>USB-C Hub</td>
-                  <td>15</td>
-                  <td>pcs</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Receipt Summary -->
-      <div class="card shadow-sm border-0 mt-4">
-        <div class="card-header border-bottom">
-          <h5 class="card-title mb-0">Today's Summary</h5>
-        </div>
-        <div class="card-body">
-          <div class="mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small">Receipts Completed</span>
-              <span class="small fw-bold">12</span>
+          <div class="row g-2">
+            <div class="col-6">
+              <small class="text-muted">Asset Name</small>
+              <p class="mb-1 fw-semibold">Dell Laptop OptiPlex 7090</p>
             </div>
-            <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-success" style="width: 80%"></div>
+            <div class="col-6">
+              <small class="text-muted">Category</small>
+              <p class="mb-1">IT Equipment</p>
+            </div>
+            <div class="col-6">
+              <small class="text-muted">Current Value</small>
+              <p class="mb-1">$1,200</p>
+            </div>
+            <div class="col-6">
+              <small class="text-muted">Condition</small>
+              <p class="mb-1"><span class="badge bg-warning">Fair</span></p>
+            </div>
+            <div class="col-6">
+              <small class="text-muted">Location</small>
+              <p class="mb-1">Office Floor 2</p>
+            </div>
+            <div class="col-6">
+              <small class="text-muted">Assigned To</small>
+              <p class="mb-1">John Doe</p>
             </div>
           </div>
-          <div class="mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small">Items Received</span>
-              <span class="small fw-bold">187</span>
-            </div>
-            <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-primary" style="width: 65%"></div>
-            </div>
-          </div>
-          <div class="mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small">Damaged Items</span>
-              <span class="small fw-bold">3</span>
-            </div>
-            <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-danger" style="width: 5%"></div>
-            </div>
-          </div>
-          <div>
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small">Avg. Time per Receipt</span>
-              <span class="small fw-bold">32min</span>
-            </div>
-            <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-info" style="width: 75%"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Alerts -->
-      <div class="card shadow-sm border-0 mt-4">
-        <div class="card-header border-bottom">
-          <h5 class="card-title mb-0">Alerts</h5>
-        </div>
-        <div class="card-body">
-          <div class="alert alert-danger alert-sm mb-2">
-            <i class="bi bi-exclamation-triangle me-2"></i>
-            Low stock: Laptop batteries (5 units)
-          </div>
-          <div class="alert alert-warning alert-sm mb-2">
-            <i class="bi bi-clock me-2"></i>
-            Order #ORD-2024-001 delayed
-          </div>
-          <div class="alert alert-info alert-sm">
-            <i class="bi bi-info-circle me-2"></i>
-            New shipment arriving in 2 hours
+          
+          <hr class="my-3">
+          
+          <div class="d-grid gap-2">
+            <button class="btn btn-sm btn-outline-danger">
+              <i class="bi bi-trash me-1"></i>Request Disposal
+            </button>
+            <button class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-pencil me-1"></i>Update Details
+            </button>
           </div>
         </div>
       </div>

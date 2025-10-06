@@ -11,8 +11,321 @@
   <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('assets/css/dash-style-fixed.css') }}">
+  <!-- PSM Animations -->
+  <link rel="stylesheet" href="{{ asset('assets/css/psm-animations.css') }}">
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- SweetAlert2 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css" rel="stylesheet">
+  
+  <style>
+    /* Enhanced table styles */
+    .table-enhanced {
+      border: none;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      background: white;
+    }
+    
+    .table-enhanced thead th {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border: none;
+      font-weight: 600;
+      font-size: 0.875rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #495057;
+      padding: 1rem 0.75rem;
+      vertical-align: middle;
+      position: relative;
+      text-align: center;
+    }
+    
+    .table-enhanced tbody td {
+      border: none;
+      border-bottom: 1px solid #f1f3f4;
+      padding: 1rem 0.75rem;
+      vertical-align: middle;
+      font-size: 0.9rem;
+      color: #495057;
+      transition: all 0.2s ease;
+    }
+    
+    .table-enhanced tbody tr {
+      transition: all 0.3s ease;
+      background-color: #ffffff;
+      cursor: pointer;
+    }
+    
+    .table-enhanced tbody tr:hover {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      border-radius: 8px;
+    }
+    
+    .table-enhanced tbody tr:last-child td {
+      border-bottom: none;
+    }
+    
+    /* Contract ID styling */
+    .contract-id {
+      font-family: 'Courier New', monospace;
+      font-weight: 700;
+      color: #6f42c1;
+      background: linear-gradient(135deg, #f8f4ff 0%, #ede4ff 100%);
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+      display: inline-block;
+      min-width: 120px;
+      text-align: center;
+    }
+    
+    /* Vendor name styling */
+    .vendor-name {
+      font-weight: 600;
+      color: #212529;
+      font-size: 0.95rem;
+    }
+    
+    /* Value styling */
+    .contract-value {
+      font-family: 'Courier New', monospace;
+      font-weight: 700;
+      color: #28a745;
+      font-size: 1rem;
+      text-align: right;
+    }
+    
+    /* Date styling */
+    .contract-date {
+      color: #6c757d;
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-align: center;
+    }
+    
+    /* Enhanced badges */
+    .badge-enhanced {
+      padding: 0.5rem 1rem;
+      border-radius: 25px;
+      font-weight: 600;
+      font-size: 0.75rem;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      min-width: 80px;
+      text-align: center;
+      display: inline-block;
+    }
+    
+    .badge-status-active {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+    }
+    
+    .badge-status-pending {
+      background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+      color: white;
+    }
+    
+    .badge-status-expired {
+      background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
+      color: white;
+    }
+    
+    /* Enhanced action buttons */
+    .btn-action-group {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .btn-action {
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      font-size: 0.875rem;
+      font-weight: 500;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn-action::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+    
+    .btn-action:hover::before {
+      left: 100%;
+    }
+    
+    .btn-action:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .btn-action-view {
+      background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+      color: white;
+      border-color: #0d6efd;
+    }
+    
+    .btn-action-view:hover {
+      background: linear-gradient(135deg, #0b5ed7 0%, #520dc2 100%);
+      color: white;
+      border-color: #0b5ed7;
+    }
+    
+    .btn-action-download {
+      background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+      color: white;
+      border-color: #17a2b8;
+    }
+    
+    .btn-action-download:hover {
+      background: linear-gradient(135deg, #138496 0%, #1aa085 100%);
+      color: white;
+      border-color: #138496;
+    }
+    
+    /* Text alignment classes */
+    .text-center-custom {
+      text-align: center !important;
+      vertical-align: middle !important;
+    }
+    
+    .text-left-custom {
+      text-align: left !important;
+      vertical-align: middle !important;
+    }
+    
+    .text-right-custom {
+      text-align: right !important;
+      vertical-align: middle !important;
+    }
+    
+    /* Card enhancements */
+    .card-enhanced {
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+    
+    .card-enhanced:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .card-header-enhanced {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-bottom: 1px solid #dee2e6;
+      padding: 1.25rem 1.5rem;
+      font-weight: 600;
+      color: #495057;
+    }
+    
+    /* Quick action buttons */
+    .btn-quick-action {
+      border-radius: 10px;
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn-quick-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Progress bars enhancement */
+    .progress-enhanced {
+      height: 8px;
+      border-radius: 10px;
+      background-color: #e9ecef;
+      overflow: hidden;
+    }
+    
+    .progress-enhanced .progress-bar {
+      border-radius: 10px;
+      transition: width 0.6s ease;
+    }
+    
+    /* Alert enhancements */
+    .alert-enhanced {
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      border-left: 4px solid;
+    }
+    
+    .alert-enhanced.alert-danger {
+      border-left-color: #dc3545;
+      background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    }
+    
+    .alert-enhanced.alert-warning {
+      border-left-color: #ffc107;
+      background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    }
+    
+    .alert-enhanced.alert-info {
+      border-left-color: #17a2b8;
+      background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+    }
+    
+    /* Modal enhancements */
+    .modal-content-enhanced {
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+    
+    .modal-header-enhanced {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-bottom: 1px solid #dee2e6;
+      border-radius: 15px 15px 0 0;
+    }
+    
+    /* Responsive improvements */
+    @media (max-width: 768px) {
+      .table-enhanced {
+        font-size: 0.8rem;
+      }
+      
+      .contract-id {
+        min-width: 100px;
+        font-size: 0.75rem;
+        padding: 0.3rem 0.6rem;
+      }
+      
+      .btn-action {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.8rem;
+      }
+      
+      .btn-action-group {
+        flex-direction: column;
+        gap: 0.3rem;
+      }
+    }
+  </style>
 
 </head>
 <body style="background-color: #f8f9fa !important;">
@@ -100,7 +413,7 @@
             </li>
             <li class="nav-item">
               <a href="{{ url('/psm/bidding') }}" class="nav-link text-dark small">
-                <i class="bi bi-gavel me-2"></i> Bidding & RFQ
+                <i class="bi bi-clipboard-check me-2"></i> Bidding & RFQ
               </a>
             </li>
             <li class="nav-item">
@@ -136,7 +449,7 @@
       <ul class="nav flex-column ms-3">
         <li class="nav-item">
           <a href="{{ url('/plt/toursetup') }}" class="nav-link text-dark small">
-            <i class="bi bi-flag me-2"></i> Tour Setup
+            <i class="bi bi-diagram-3 me-2"></i> Project Planning
           </a>
         </li>
         <li class="nav-item">
@@ -146,7 +459,7 @@
         </li>
         <li class="nav-item">
           <a href="{{ url('/plt/closure') }}" class="nav-link text-dark small">
-            <i class="bi bi-check2-circle me-2"></i> Post-Tour Closure
+            <i class="bi bi-check2-circle me-2"></i> Closure
           </a>
         </li>
       </ul>
@@ -307,10 +620,10 @@
       </div>
     </div>
 
-    <!-- Contract Management Overview & Quick Actions -->
-    <div class="row g-4">
-      <div class="col-lg-8">
-        <div class="card shadow-sm border-0">
+    <!-- Contract Management -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card card-enhanced shadow-sm border-0">
           <div class="card-header border-bottom d-flex justify-content-between align-items-center">
             <h5 class="card-title mb-0">Contract Management</h5>
             <div class="d-flex gap-2">
@@ -325,46 +638,56 @@
           </div>
           <div class="card-body">
             <div class="table-responsive">
-              <table class="table table-hover">
-                <thead class="table-light">
+              <table class="table table-enhanced">
+                <thead>
                   <tr>
-                    <th>Contract ID</th>
-                    <th>Vendor</th>
-                    <th>Value</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                    <th class="text-center-custom">Contract ID</th>
+                    <th class="text-left-custom">Vendor</th>
+                    <th class="text-right-custom">Value</th>
+                    <th class="text-center-custom">Start Date</th>
+                    <th class="text-center-custom">End Date</th>
+                    <th class="text-center-custom">Status</th>
+                    <th class="text-center-custom">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   @forelse($contracts ?? [] as $contract)
                   <tr>
-                    <td><strong>{{ $contract->contract_number }}</strong></td>
-                    <td>{{ optional($contract->vendor)->company_name ?? optional($contract->vendor)->name ?? '—' }}</td>
-                    <td><strong>₱{{ number_format($contract->value, 2) }}</strong></td>
-                    <td>{{ optional($contract->start_date)->format('M d, Y') }}</td>
-                    <td>{{ optional($contract->end_date)->format('M d, Y') }}</td>
-                    <td>
+                    <td class="text-center-custom">
+                      <span class="contract-id">{{ $contract->contract_number }}</span>
+                    </td>
+                    <td class="text-left-custom">
+                      <span class="vendor-name">{{ optional($contract->vendor)->company_name ?? optional($contract->vendor)->name ?? '—' }}</span>
+                    </td>
+                    <td class="text-right-custom">
+                      <span class="contract-value">₱{{ number_format($contract->value, 2) }}</span>
+                    </td>
+                    <td class="text-center-custom">
+                      <span class="contract-date">{{ optional($contract->start_date)->format('M d, Y') ?? '—' }}</span>
+                    </td>
+                    <td class="text-center-custom">
+                      <span class="contract-date">{{ optional($contract->end_date)->format('M d, Y') ?? '—' }}</span>
+                    </td>
+                    <td class="text-center-custom">
                       @php
-                        $badge = match ($contract->status) {
-                          'Active' => 'bg-success',
-                          'Pending' => 'bg-warning',
-                          'Expired' => 'bg-danger',
-                          default => 'bg-secondary',
+                        $statusClass = match ($contract->status) {
+                          'Active' => 'badge-status-active',
+                          'Pending' => 'badge-status-pending',
+                          'Expired' => 'badge-status-expired',
+                          default => 'badge-status-pending',
                         };
                       @endphp
-                      <span class="badge {{ $badge }}">{{ $contract->status }}</span>
+                      <span class="badge-enhanced {{ $statusClass }}">{{ $contract->status }}</span>
                     </td>
-                    <td>
-                      <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-primary view-contract-btn" 
+                    <td class="text-center-custom">
+                      <div class="btn-action-group">
+                        <button class="btn btn-action btn-action-view view-contract-btn" 
                                 data-contract-id="{{ $contract->id }}" 
                                 data-contract-number="{{ $contract->contract_number }}"
                                 title="View Contract">
                           <i class="bi bi-eye"></i>
                         </button>
-                        <button class="btn btn-outline-info download-contract-btn" 
+                        <button class="btn btn-action btn-action-download download-contract-btn" 
                                 data-contract-id="{{ $contract->id }}" 
                                 data-contract-number="{{ $contract->contract_number }}"
                                 title="Download">
@@ -387,104 +710,6 @@
           </div>
         </div>
 
-        <!-- Contract Value Chart -->
-        <div class="card shadow-sm border-0 mt-4">
-          <div class="card-header border-bottom">
-            <h5 class="card-title mb-0">Contract Value Trends</h5>
-          </div>
-          <div class="card-body">
-            <canvas id="contractChart" height="100"></canvas>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-lg-4">
-        <div class="card shadow-sm border-0">
-          <div class="card-header border-bottom">
-            <h5 class="card-title mb-0">Quick Actions</h5>
-          </div>
-          <div class="card-body">
-            <div class="d-grid gap-2">
-              <button class="btn btn-primary">
-                <i class="bi bi-plus-circle me-2"></i>New Contract
-              </button>
-              <button class="btn btn-outline-primary">
-                <i class="bi bi-file-earmark-check me-2"></i>Approve Pending
-              </button>
-              <button class="btn btn-outline-primary">
-                <i class="bi bi-arrow-repeat me-2"></i>Bulk Renewal
-              </button>
-              <button class="btn btn-outline-secondary">
-                <i class="bi bi-file-earmark-text me-2"></i>Generate Report
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card shadow-sm border-0 mt-4">
-          <div class="card-header border-bottom">
-            <h5 class="card-title mb-0">Contract Expiration Timeline</h5>
-          </div>
-          <div class="card-body">
-            <div class="mb-3">
-              <div class="d-flex justify-content-between align-items-center mb-1">
-                <span class="small">TechCorp Inc. - CON-2024-001</span>
-                <span class="small text-muted">30 days</span>
-              </div>
-              <div class="progress" style="height: 6px;">
-                <div class="progress-bar bg-warning" style="width: 75%"></div>
-              </div>
-            </div>
-            <div class="mb-3">
-              <div class="d-flex justify-content-between align-items-center mb-1">
-                <span class="small">Global Electronics - CON-2024-002</span>
-                <span class="small text-muted">45 days</span>
-              </div>
-              <div class="progress" style="height: 6px;">
-                <div class="progress-bar bg-success" style="width: 60%"></div>
-              </div>
-            </div>
-            <div class="mb-3">
-              <div class="d-flex justify-content-between align-items-center mb-1">
-                <span class="small">Smart Parts Co. - CON-2024-003</span>
-                <span class="small text-muted">90 days</span>
-              </div>
-              <div class="progress" style="height: 6px;">
-                <div class="progress-bar bg-info" style="width: 40%"></div>
-              </div>
-            </div>
-            <div>
-              <div class="d-flex justify-content-between align-items-center mb-1">
-                <span class="small">Fast Logistics - CON-2024-004</span>
-                <span class="small text-muted">Expired</span>
-              </div>
-              <div class="progress" style="height: 6px;">
-                <div class="progress-bar bg-danger" style="width: 100%"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Alerts -->
-        <div class="card shadow-sm border-0 mt-4">
-          <div class="card-header border-bottom">
-            <h5 class="card-title mb-0">Alerts</h5>
-          </div>
-          <div class="card-body">
-            <div class="alert alert-danger alert-sm mb-2">
-              <i class="bi bi-exclamation-triangle me-2"></i>
-              Contract CON-2024-004 expired - renewal required
-            </div>
-            <div class="alert alert-warning alert-sm mb-2">
-              <i class="bi bi-clock me-2"></i>
-              5 contracts pending approval for over 48 hours
-            </div>
-            <div class="alert alert-info alert-sm">
-              <i class="bi bi-info-circle me-2"></i>
-              New contract generated from winning bid
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </main>
@@ -510,6 +735,9 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-success" id="signFromModal" style="display: none;">
+            <i class="bi bi-pen me-2"></i>Sign Contract
+          </button>
           <button type="button" class="btn btn-primary" id="downloadFromModal">
             <i class="bi bi-download me-2"></i>Download PDF
           </button>
@@ -518,8 +746,63 @@
     </div>
   </div>
 
+  <!-- Contract Signing Modal -->
+  <div class="modal fade" id="psmSigningModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Digital Contract Signing - Procurement</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="psmContractPreview" class="mb-4">
+            <!-- Contract preview will be loaded here -->
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <h6 class="fw-semibold mb-3">Contract Terms Agreement</h6>
+              <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="psmAgreeTerms" required>
+                <label class="form-check-label" for="psmAgreeTerms">
+                  I have read and agree to all contract terms and conditions
+                </label>
+              </div>
+              <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="psmAgreeNegotiatedTerms" required>
+                <label class="form-check-label" for="psmAgreeNegotiatedTerms">
+                  I approve the negotiated price and terms on behalf of procurement
+                </label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <h6 class="fw-semibold mb-3">Digital Signature</h6>
+              <div class="border rounded p-3 mb-3" style="height: 200px;">
+                <canvas id="psmSignaturePad" class="w-100 h-100"></canvas>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearPsmSignature()">
+                  <i class="bi bi-arrow-clockwise me-1"></i>Clear
+                </button>
+                <button type="button" class="btn btn-sm btn-success" onclick="submitPsmSignature()" disabled id="psmSubmitSignBtn">
+                  <i class="bi bi-pen me-1"></i>Sign Contract
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- SweetAlert2 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.all.min.js"></script>
+  <!-- Signature Pad -->
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
 
   <!-- Sidebar toggle functionality -->
   <script>
@@ -535,7 +818,7 @@
           // Use Laravel's session-based logout
           const form = document.createElement('form');
           form.method = 'POST';
-          form.action = '{{ route('logout') }}';
+          form.action = '/logout';
           
           const csrfToken = document.createElement('input');
           csrfToken.type = 'hidden';
@@ -731,6 +1014,161 @@
         }
       });
 
+      // Sign from modal
+      document.getElementById('signFromModal').addEventListener('click', function() {
+        const contractId = this.getAttribute('data-contract-id');
+        if (contractId) {
+          signContractPSM(contractId);
+        }
+      });
+
+      // PSM Signing functionality
+      let psmSignaturePad;
+      let currentPsmContractId;
+
+      function signContractPSM(contractId) {
+        currentPsmContractId = contractId;
+        
+        // Load contract preview
+        fetch(`/api/contracts/${contractId}/signing-status`)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+          })
+          .then(data => {
+            if (data.success) {
+              const contract = data.contract;
+              document.getElementById('psmContractPreview').innerHTML = `
+                <div class="bg-light p-3 rounded">
+                  <h6 class="fw-semibold">Contract ${contract.contract_number || 'N/A'}</h6>
+                  <p class="mb-2"><strong>Contract Number:</strong> ${contract.contract_number || 'N/A'}</p>
+                  <p class="mb-2"><strong>Contract Value:</strong> ${numberFormat(contract.negotiated_value || contract.value || 0)}</p>
+                  <p class="mb-2"><strong>Status:</strong> <span class="badge bg-${getStatusBadgeClass(contract.workflow_status || 'draft')}">${(contract.workflow_status || 'draft').replace('_', ' ').toUpperCase()}</span></p>
+                  <p class="mb-0"><strong>Terms:</strong> Please review all terms and conditions before signing.</p>
+                </div>
+              `;
+              
+              new bootstrap.Modal(document.getElementById('psmSigningModal')).show();
+            } else {
+              alert('Error loading contract: ' + (data.error || 'Contract not found'));
+            }
+          })
+          .catch(error => {
+            console.error('Error loading contract for signing:', error);
+            alert('Failed to load contract for signing. Error: ' + error.message);
+          });
+      }
+
+      // Initialize PSM signature pad when signing modal is shown
+      document.getElementById('psmSigningModal').addEventListener('shown.bs.modal', function () {
+        const canvas = document.getElementById('psmSignaturePad');
+        psmSignaturePad = new SignaturePad(canvas, {
+          backgroundColor: 'rgba(255, 255, 255, 0)',
+          penColor: 'rgb(0, 0, 0)'
+        });
+        
+        // Enable submit button when signature is drawn
+        psmSignaturePad.addEventListener('endStroke', function () {
+          checkPsmFormValidity();
+        });
+        
+        // Resize canvas
+        resizePsmCanvas();
+      });
+
+      function resizePsmCanvas() {
+        const canvas = document.getElementById('psmSignaturePad');
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        canvas.width = canvas.offsetWidth * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        canvas.getContext('2d').scale(ratio, ratio);
+        psmSignaturePad.clear();
+      }
+
+      // Make function globally accessible
+      window.clearPsmSignature = function() {
+        psmSignaturePad.clear();
+        checkPsmFormValidity();
+      }
+
+      function checkPsmFormValidity() {
+        const agreeTerms = document.getElementById('psmAgreeTerms').checked;
+        const agreeNegotiatedTerms = document.getElementById('psmAgreeNegotiatedTerms').checked;
+        const hasSignature = psmSignaturePad && !psmSignaturePad.isEmpty();
+        
+        document.getElementById('psmSubmitSignBtn').disabled = !(agreeTerms && agreeNegotiatedTerms && hasSignature);
+      }
+
+      // Add event listeners for PSM checkboxes
+      document.getElementById('psmAgreeTerms').addEventListener('change', checkPsmFormValidity);
+      document.getElementById('psmAgreeNegotiatedTerms').addEventListener('change', checkPsmFormValidity);
+
+      // Make function globally accessible
+      window.submitPsmSignature = function() {
+        if (psmSignaturePad.isEmpty()) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Signature Required',
+            text: 'Please provide your signature before proceeding.',
+            confirmButtonColor: '#0d6efd'
+          });
+          return;
+        }
+
+        const signatureData = psmSignaturePad.toDataURL().split(',')[1]; // Remove data URL prefix
+        
+        fetch(`/api/contracts/${currentPsmContractId}/procurement-sign`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+          },
+          body: JSON.stringify({
+            signature_data: signatureData,
+            final_approval: true
+          })
+        })
+        .then(response => {
+          if (!response.ok) {
+            return response.json().then(err => Promise.reject(err));
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Contract Signed!',
+              text: 'The contract has been signed successfully.',
+              confirmButtonColor: '#28a745',
+              timer: 3000,
+              timerProgressBar: true
+            }).then(() => {
+              bootstrap.Modal.getInstance(document.getElementById('psmSigningModal')).hide();
+              location.reload();
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Signing Failed',
+              text: 'Error signing contract: ' + (data.error || data.message || 'Unknown error'),
+              confirmButtonColor: '#dc3545'
+            });
+          }
+        })
+        .catch(error => {
+          console.error('Error signing contract:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Network Error',
+            text: 'Error signing contract: ' + (error.error || error.message || 'Network error occurred'),
+            confirmButtonColor: '#dc3545'
+          });
+        });
+      }
+
       // Load contract details function
       function loadContractDetails(contractId) {
         const contentDiv = document.getElementById('contractContent');
@@ -798,7 +1236,7 @@
                   </tr>
                   <tr>
                     <td class="fw-semibold">Contract Value:</td>
-                    <td class="fw-bold text-success">₱${numberFormat(contract.value)}</td>
+                    <td class="fw-bold text-success">${numberFormat(contract.value)}</td>
                   </tr>
                 </table>
               </div>
@@ -851,7 +1289,55 @@
                 <div class="card">
                   <div class="card-body">
                     <div class="contract-terms" style="max-height: 300px; overflow-y: auto;">
-                      ${contract.terms || 'No terms specified'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Digital Signatures Section -->
+            <div class="row mb-4" id="signaturesSection" style="display: none;">
+              <div class="col-12">
+                <h6 class="text-muted mb-2">Digital Signatures</h6>
+                <div class="card">
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="signature-block">
+                          <h6 class="fw-semibold mb-2">Vendor Signature</h6>
+                          <div id="vendorSignatureStatus" class="signature-status">
+                            <span class="badge bg-secondary">Not Signed</span>
+                          </div>
+                          <div id="vendorSignatureDate" class="text-muted small mt-1" style="display: none;"></div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="signature-block">
+                          <h6 class="fw-semibold mb-2">Procurement Signature</h6>
+                          <div id="procurementSignatureStatus" class="signature-status">
+                            <span class="badge bg-secondary">Not Signed</span>
+                          </div>
+                          <div id="procurementSignatureDate" class="text-muted small mt-1" style="display: none;"></div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Contract Status Summary -->
+                    <div class="mt-3 pt-3 border-top">
+                      <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                          <h6 class="fw-semibold mb-1">Contract Status</h6>
+                          <div id="contractStatusBadge">
+                            <span class="badge bg-warning">Pending Signatures</span>
+                          </div>
+                        </div>
+                        <div class="text-end">
+                          <div id="signingProgress" class="progress" style="width: 200px; height: 8px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+                          </div>
+                          <small class="text-muted mt-1 d-block" id="progressText">0% Complete</small>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -882,36 +1368,209 @@
             </div>
           </div>
         `;
+        
+        // Set the HTML content for contract terms
+        const termsDiv = contentDiv.querySelector('.contract-terms');
+        if (termsDiv && contract.terms) {
+          // Filter out IP address and signature hash from terms
+          let filteredTerms = contract.terms;
+          
+          // Remove IP Address lines
+          filteredTerms = filteredTerms.replace(/IP Address:\s*\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/gi, '');
+          
+          // Remove Signature Hash lines
+          filteredTerms = filteredTerms.replace(/Signature Hash:\s*\$2y\$[^\s\n\r<]*/gi, '');
+          
+          // Clean up any extra whitespace or empty lines left behind
+          filteredTerms = filteredTerms.replace(/\n\s*\n/g, '\n');
+          filteredTerms = filteredTerms.replace(/<p>\s*<\/p>/g, '');
+          filteredTerms = filteredTerms.replace(/<br\s*\/?>\s*<br\s*\/?>/g, '<br>');
+          
+          termsDiv.innerHTML = filteredTerms;
+        } else if (termsDiv) {
+          termsDiv.innerHTML = '<p class="text-muted">No terms specified</p>';
+        }
+
+        // Update signature display
+        updateSignatureDisplay(contract);
+
+        // Show/hide sign button based on contract status
+        const signBtn = document.getElementById('signFromModal');
+        if (contract.status === 'Pending' || contract.workflow_status === 'pending_procurement_signature') {
+          signBtn.style.display = 'inline-block';
+          signBtn.setAttribute('data-contract-id', contract.id);
+        } else {
+          signBtn.style.display = 'none';
+        }
       }
 
-      // Download contract function
+      // Enhanced notification function using SweetAlert
+      function showNotification(message, type = 'info') {
+        const config = {
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+          }
+        };
+        
+        switch(type) {
+          case 'success':
+            Swal.fire({
+              ...config,
+              icon: 'success',
+              title: message,
+              background: '#d4edda',
+              color: '#155724'
+            });
+            break;
+          case 'error':
+            Swal.fire({
+              ...config,
+              icon: 'error',
+              title: message,
+              background: '#f8d7da',
+              color: '#721c24',
+              timer: 6000
+            });
+            break;
+          case 'warning':
+            Swal.fire({
+              ...config,
+              icon: 'warning',
+              title: message,
+              background: '#fff3cd',
+              color: '#856404'
+            });
+            break;
+          default:
+            Swal.fire({
+              ...config,
+              icon: 'info',
+              title: message,
+              background: '#d1ecf1',
+              color: '#0c5460'
+            });
+        }
+      }
+
+      // Enhanced download contract function with SweetAlert
       function downloadContract(contractId, contractNumber) {
-        // Show loading state
-        const btn = event.target.closest('button');
-        const originalContent = btn.innerHTML;
-        btn.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i>Downloading...';
-        btn.disabled = true;
+        Swal.fire({
+          title: 'Download Contract',
+          text: `Download contract ${contractNumber}?`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonColor: '#17a2b8',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: '<i class="bi bi-download"></i> Download',
+          cancelButtonText: 'Cancel'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Show loading state
+            const btn = event.target.closest('button');
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i>Downloading...';
+            btn.disabled = true;
 
-        // Create download link
-        const downloadUrl = `/api/contracts/${contractId}/download`;
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = `Contract_${contractNumber}.pdf`;
-        
-        // Add CSRF token as parameter
-        const url = new URL(link.href, window.location.origin);
-        url.searchParams.append('_token', csrfToken);
-        link.href = url.toString();
-        
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+            // Create download link
+            const downloadUrl = `/psm/contract/${contractId}/download`;
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = `Contract_${contractNumber}.pdf`;
+            
+            // Add CSRF token as parameter
+            const url = new URL(link.href, window.location.origin);
+            url.searchParams.append('_token', csrfToken);
+            link.href = url.toString();
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
 
-        // Reset button after delay
-        setTimeout(() => {
-          btn.innerHTML = originalContent;
-          btn.disabled = false;
-        }, 2000);
+            // Show success notification
+            showNotification(`Contract ${contractNumber} download started`, 'success');
+
+            // Reset button after delay
+            setTimeout(() => {
+              btn.innerHTML = originalContent;
+              btn.disabled = false;
+            }, 2000);
+          }
+        });
+      }
+
+      // Update signature display function
+      function updateSignatureDisplay(contract) {
+        const signaturesSection = document.getElementById('signaturesSection');
+        const vendorSignatureStatus = document.getElementById('vendorSignatureStatus');
+        const vendorSignatureDate = document.getElementById('vendorSignatureDate');
+        const procurementSignatureStatus = document.getElementById('procurementSignatureStatus');
+        const procurementSignatureDate = document.getElementById('procurementSignatureDate');
+        const contractStatusBadge = document.getElementById('contractStatusBadge');
+        const signingProgress = document.getElementById('signingProgress');
+        const progressText = document.getElementById('progressText');
+
+        // Show signatures section
+        if (signaturesSection) {
+          signaturesSection.style.display = 'block';
+        }
+
+        // Update vendor signature status
+        if (contract.vendor_signed) {
+          vendorSignatureStatus.innerHTML = '<span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Signed</span>';
+          if (contract.vendor_signed_at) {
+            vendorSignatureDate.textContent = `Signed on: ${formatDate(contract.vendor_signed_at)}`;
+            vendorSignatureDate.style.display = 'block';
+          }
+        } else {
+          vendorSignatureStatus.innerHTML = '<span class="badge bg-secondary"><i class="bi bi-clock me-1"></i>Not Signed</span>';
+          vendorSignatureDate.style.display = 'none';
+        }
+
+        // Update procurement signature status
+        if (contract.procurement_signed) {
+          procurementSignatureStatus.innerHTML = '<span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Signed</span>';
+          if (contract.procurement_signed_at) {
+            procurementSignatureDate.textContent = `Signed on: ${formatDate(contract.procurement_signed_at)}`;
+            procurementSignatureDate.style.display = 'block';
+          }
+        } else {
+          procurementSignatureStatus.innerHTML = '<span class="badge bg-secondary"><i class="bi bi-clock me-1"></i>Not Signed</span>';
+          procurementSignatureDate.style.display = 'none';
+        }
+
+        // Update contract status and progress
+        let progress = 0;
+        let statusText = 'Pending Signatures';
+        let statusClass = 'bg-warning';
+
+        if (contract.vendor_signed && contract.procurement_signed) {
+          progress = 100;
+          statusText = 'Fully Signed';
+          statusClass = 'bg-success';
+        } else if (contract.vendor_signed || contract.procurement_signed) {
+          progress = 50;
+          statusText = 'Partially Signed';
+          statusClass = 'bg-info';
+        }
+
+        // Update status badge
+        contractStatusBadge.innerHTML = `<span class="badge ${statusClass}"><i class="bi bi-file-earmark-check me-1"></i>${statusText}</span>`;
+
+        // Update progress bar
+        const progressBar = signingProgress.querySelector('.progress-bar');
+        if (progressBar) {
+          progressBar.style.width = `${progress}%`;
+          progressBar.setAttribute('aria-valuenow', progress);
+        }
+
+        // Update progress text
+        progressText.textContent = `${progress}% Complete`;
       }
 
       // Helper functions
@@ -942,20 +1601,51 @@
 
       function calculateDuration(startDate, endDate) {
         if (!startDate || !endDate) return 'N/A';
+        
+        // Ensure we have valid dates
         const start = new Date(startDate);
         const end = new Date(endDate);
+        
+        // Check if dates are valid
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+          return 'Invalid dates';
+        }
+        
+        // Calculate difference in milliseconds
         const diffTime = Math.abs(end - start);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        // Convert to days and ensure it's a whole number
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+        
+        // Handle edge case where difference is less than 1 day
+        if (diffDays === 0) {
+          return 'Same day';
+        }
         
         if (diffDays < 30) {
-          return `${diffDays} days`;
+          return `${diffDays} calendar day${diffDays > 1 ? 's' : ''}`;
         } else if (diffDays < 365) {
           const months = Math.floor(diffDays / 30);
-          return `${months} month${months > 1 ? 's' : ''}`;
+          const remainingDays = diffDays % 30;
+          if (remainingDays === 0) {
+            return `${months} month${months > 1 ? 's' : ''}`;
+          } else {
+            return `${months} month${months > 1 ? 's' : ''} ${remainingDays} day${remainingDays > 1 ? 's' : ''}`;
+          }
         } else {
           const years = Math.floor(diffDays / 365);
-          const remainingMonths = Math.floor((diffDays % 365) / 30);
-          return `${years} year${years > 1 ? 's' : ''}${remainingMonths > 0 ? ` ${remainingMonths} month${remainingMonths > 1 ? 's' : ''}` : ''}`;
+          const remainingDays = diffDays % 365;
+          const remainingMonths = Math.floor(remainingDays / 30);
+          const finalDays = remainingDays % 30;
+          
+          let result = `${years} year${years > 1 ? 's' : ''}`;
+          if (remainingMonths > 0) {
+            result += ` ${remainingMonths} month${remainingMonths > 1 ? 's' : ''}`;
+          }
+          if (finalDays > 0) {
+            result += ` ${finalDays} day${finalDays > 1 ? 's' : ''}`;
+          }
+          return result;
         }
       }
 
@@ -1167,4 +1857,36 @@ document.addEventListener('DOMContentLoaded', function() {
   // Contracts are now persisted in DB and rendered server-side.
   // Client-only mock insertion has been removed.
   </script>
-  </script>
+
+  <style>
+    #psmSignaturePad {
+      border: 1px dashed #dee2e6;
+      cursor: crosshair;
+    }
+    
+    .signature-block {
+      padding: 15px;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      background-color: #f8f9fa;
+      margin-bottom: 15px;
+    }
+    
+    .signature-status .badge {
+      font-size: 0.875rem;
+      padding: 0.5rem 0.75rem;
+    }
+    
+    #signaturesSection .progress {
+      background-color: #e9ecef;
+    }
+    
+    #signaturesSection .progress-bar {
+      transition: width 0.6s ease;
+    }
+    
+    .signature-block h6 {
+      color: #495057;
+      margin-bottom: 10px;
+    }
+  </style>

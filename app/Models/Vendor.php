@@ -36,6 +36,10 @@ class Vendor extends Authenticatable
         'approved_at',
         'suspended_at',
         'activated_at',
+        'two_factor_enabled',
+        'two_factor_secret',
+        'two_factor_backup_codes',
+        'two_factor_confirmed_at',
     ];
 
     /**
@@ -46,6 +50,8 @@ class Vendor extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
+        'two_factor_backup_codes',
     ];
 
     /**
@@ -65,6 +71,9 @@ class Vendor extends Authenticatable
             'approved_at' => 'datetime',
             'suspended_at' => 'datetime',
             'activated_at' => 'datetime',
+            'two_factor_enabled' => 'boolean',
+            'two_factor_backup_codes' => 'array',
+            'two_factor_confirmed_at' => 'datetime',
         ];
     }
 

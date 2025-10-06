@@ -32,6 +32,40 @@ class Opportunity extends Model
     {
         return $this->hasMany(Bid::class);
     }
+
+    /**
+     * Get the computed status based on dates and current status
+     */
+    public function getComputedStatusAttribute()
+    {
+        // If manually set to Ended or Closed, respect that
+        if (in_array($this->current_status, ['Ended', 'Closed'])) {
+            return $this->current_status;
+        }
+
+        // Check if opportunity has started and ended based on dates
+        $now = now();
+        
+        if ($this->start_date && $now->lt($this->start_date)) {
+            return 'Not Started';
+        }
+        
+        if ($this->end_date && $now->gt($this->end_date)) {
+            return 'Ended';
+        }
+        
+        // If we're between start and end dates (or no dates set), use current_status
+        return $this->current_status ?? 'Open';
+    }
+
+    /**
+     * Check if opportunity is currently active for bidding
+     */
+    public function isActive()
+    {
+        $status = $this->getComputedStatusAttribute();
+        return $status === 'Open';
+    }
 }
 
 

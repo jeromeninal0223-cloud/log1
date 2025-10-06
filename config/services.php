@@ -14,6 +14,11 @@ return [
     |
     */
 
+    'bid_analysis' => [
+        'url' => env('BID_ANALYSIS_URL', 'http://localhost:5000'),
+        'timeout' => env('BID_ANALYSIS_TIMEOUT', 30),
+    ],
+
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],

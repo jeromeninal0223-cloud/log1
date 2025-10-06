@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Smart Warehousing Dashboard</title>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>Asset Movement Tracking - Project Logistics Tracker</title>
 
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -12,6 +13,8 @@
   <link rel="stylesheet" href="{{ asset('assets/css/dash-style-fixed.css') }}">
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 </head>
 <body style="background-color: #f8f9fa !important;">
@@ -136,7 +139,7 @@
       <ul class="nav flex-column ms-3">
         <li class="nav-item">
           <a href="{{ url('/plt/toursetup') }}" class="nav-link text-dark small ">
-            <i class="bi bi-flag me-2"></i> Tour Setup
+            <i class="bi bi-truck me-2"></i> Planning
           </a>
         </li>
         <li class="nav-item">
@@ -146,7 +149,7 @@
         </li>
         <li class="nav-item">
           <a href="{{ url('/plt/closure') }}" class="nav-link text-dark small">
-            <i class="bi bi-check2-circle me-2"></i> Closure
+            <i class="bi bi-file-earmark-bar-graph me-2"></i> Closure
           </a>
         </li>
       </ul>
@@ -220,18 +223,18 @@
     <div class="d-flex justify-content-between align-items-center page-header">
       <div class="d-flex align-items-center">
         <div class="dashboard-logo me-3">
-          <i class="bi bi-box-seam fs-1 text-primary"></i>
+          <i class="bi bi-bar-chart-steps fs-1 text-primary"></i>
         </div>
         <div>
-          <h2 class="fw-bold mb-1">Tour Execution</h2>
-          <p class="text-muted mb-0">Welcome back, Sarah! Manage tour execution and monitoring.</p>
+          <h2 class="fw-bold mb-1">Asset Movement Tracking</h2>
+          <p class="text-muted mb-0">Welcome back, {{ Auth::user()->name }}! Track asset movements, monitor progress, and manage logistics operations.</p>
         </div>
       </div>
               <nav aria-label="breadcrumb">
           <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}" class="text-decoration-none">Home</a></li>
-            <li class="breadcrumb-item"><a href="{{ url('/plt') }}" class="text-decoration-none">Planning & Logistics</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Tour Execution</li>
+            <li class="breadcrumb-item"><a href="{{ url('/plt') }}" class="text-decoration-none">Project Logistics</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Asset Movement Tracking</li>
           </ol>
         </nav>
     </div>
@@ -244,12 +247,12 @@
         <div class="card-body">
           <div class="d-flex align-items-center">
             <div class="stat-icon bg-primary bg-opacity-10 text-primary me-3">
-              <i class="bi bi-box-arrow-in-down"></i>
+              <i class="bi bi-play-circle"></i>
             </div>
             <div>
-              <h3 class="fw-bold mb-0">24</h3>
-              <p class="text-muted mb-0 small">Pending Receipts</p>
-              <small class="text-success"><i class="bi bi-arrow-up"></i> +3 today</small>
+              <h3 class="fw-bold mb-0" id="activeMovementsCount">{{ $stats['active_movements'] ?? 0 }}</h3>
+              <p class="text-muted mb-0 small">Active Movements</p>
+              <small class="text-success"><i class="bi bi-arrow-up"></i> {{ $stats['active_change'] ?? '0' }} this week</small>
             </div>
           </div>
         </div>
@@ -263,9 +266,9 @@
               <i class="bi bi-check-circle"></i>
             </div>
             <div>
-              <h3 class="fw-bold mb-0">156</h3>
-              <p class="text-muted mb-0 small">Completed Today</p>
-              <small class="text-success"><i class="bi bi-arrow-up"></i> +12%</small>
+              <h3 class="fw-bold mb-0" id="completedMovementsCount">{{ $stats['completed_movements'] ?? 0 }}</h3>
+              <p class="text-muted mb-0 small">Completed Movements</p>
+              <small class="text-success"><i class="bi bi-arrow-up"></i> {{ $stats['completed_change'] ?? '0' }} this month</small>
             </div>
           </div>
         </div>
@@ -279,9 +282,9 @@
               <i class="bi bi-exclamation-triangle"></i>
             </div>
             <div>
-              <h3 class="fw-bold mb-0">8</h3>
-              <p class="text-muted mb-0 small">Quality Issues</p>
-              <small class="text-warning"><i class="bi bi-arrow-up"></i> +2</small>
+              <h3 class="fw-bold mb-0" id="delayedMovementsCount">{{ $stats['delayed_movements'] ?? 0 }}</h3>
+              <p class="text-muted mb-0 small">Delayed Movements</p>
+              <small class="text-warning"><i class="bi bi-arrow-up"></i> {{ $stats['delayed_change'] ?? '0' }} alert</small>
             </div>
           </div>
         </div>
@@ -292,12 +295,12 @@
         <div class="card-body">
           <div class="d-flex align-items-center">
             <div class="stat-icon bg-info bg-opacity-10 text-info me-3">
-              <i class="bi bi-clock"></i>
+              <i class="bi bi-graph-up"></i>
             </div>
             <div>
-              <h3 class="fw-bold mb-0">45min</h3>
-              <p class="text-muted mb-0 small">Avg Process Time</p>
-              <small class="text-success"><i class="bi bi-arrow-down"></i> -5min</small>
+              <h3 class="fw-bold mb-0" id="avgProgressCount">{{ $stats['avg_progress'] ?? 0 }}%</h3>
+              <p class="text-muted mb-0 small">Average Completion</p>
+              <small class="text-success"><i class="bi bi-arrow-up"></i> {{ $stats['progress_change'] ?? '0%' }} improvement</small>
             </div>
           </div>
         </div>
@@ -309,249 +312,149 @@
   <div class="row g-4">
     <!-- Left Column -->
     <div class="col-lg-8">
-      <!-- Receipt Entry Form -->
+      <!-- Asset Movement Progress Overview -->
       <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header border-bottom bg-primary text-white">
-          <h5 class="card-title mb-0">New Inventory Receipt</h5>
+        <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-truck me-2"></i>Asset Movement Progress Overview
+          </h5>
+          <div class="dropdown">
+            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+              <i class="bi bi-funnel me-1"></i>Filter
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#" data-filter="all">All Movements</a></li>
+              <li><a class="dropdown-item" href="#" data-filter="scheduled">Scheduled</a></li>
+              <li><a class="dropdown-item" href="#" data-filter="in_progress">In Progress</a></li>
+              <li><a class="dropdown-item" href="#" data-filter="delayed">Delayed</a></li>
+              <li><a class="dropdown-item" href="#" data-filter="completed">Completed</a></li>
+            </ul>
+          </div>
         </div>
         <div class="card-body">
-          <!-- Manual Inventory Receipt Entry -->
-          <form id="receiptForm">
-            <div class="row g-3">
-              <!-- Supplier Information -->
-              <div class="col-md-6">
-                <label for="supplier" class="form-label">Supplier</label>
-                <input type="text" class="form-control" id="supplier" placeholder="Enter supplier name" required>
-              </div>
-              <div class="col-md-6">
-                <label for="category" class="form-label">Category</label>
-                <input type="text" class="form-control" id="category" placeholder="Enter category" required>
-              </div>
-              <div class="col-md-6">
-                <label for="deliveryDate" class="form-label">Delivery Date</label>
-                <input type="date" class="form-control" id="deliveryDate" required>
-              </div>
-              <div class="col-md-6">
-                <label for="invoiceNumber" class="form-label">Invoice #</label>
-                <input type="text" class="form-control" id="invoiceNumber" required>
-              </div>
-              <div class="col-12">
-                <label for="notes" class="form-label">Notes</label>
-                <textarea class="form-control" id="notes" rows="2"></textarea>
-              </div>
-            </div>
-            
-            <hr class="my-4">
-            
-            <!-- Item Entry Section -->
-            <h6 class="mb-3">Items Received</h6>
-            <div class="table-responsive mb-3">
-              <table class="table table-sm" id="itemsTable">
-                <thead>
-                  <tr>
-                    <th>Item Name</th>
-                    <th>Description</th>
-                    <th>Quantity</th>
-                    <th>Unit</th>
-                    <th>Supplier</th>
-                    <th>Category</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody id="itemsTableBody">
-                  <!-- Items will be added here -->
-                </tbody>
-              </table>
-            </div>
-            
-            <!-- Add Item Form (hidden by default) -->
-            <div id="addItemForm" class="mb-3" style="display:none;">
-              <div class="row g-2">
-                <div class="col-md-2">
-                  <input type="text" class="form-control" id="itemName" placeholder="Item Name" required>
-                </div>
-                <div class="col-md-2">
-                  <input type="text" class="form-control" id="itemDesc" placeholder="Description" required>
-                </div>
-                <div class="col-md-2">
-                  <input type="number" class="form-control" id="itemQty" placeholder="Qty" min="1" required>
-                </div>
-                <div class="col-md-2">
-                  <input type="text" class="form-control" id="itemUnit" placeholder="Unit" required>
-                </div>
-                <div class="col-md-2">
-                  <input type="text" class="form-control" id="itemSupplier" placeholder="Supplier" required>
-                </div>
-                <div class="col-md-2">
-                  <input type="text" class="form-control" id="itemCategory" placeholder="Category" required>
-                </div>
-                <div class="col-md-12 mt-2">
-                  <button type="button" class="btn btn-success btn-sm" id="saveItemBtn">
-                    <i class="bi bi-check-circle me-1"></i>Save Item
-                  </button>
-                  <button type="button" class="btn btn-outline-secondary btn-sm" id="cancelItemBtn">
-                    <i class="bi bi-x-circle me-1"></i>Cancel
-                  </button>
+          <div class="row g-3" id="movementProgressContainer">
+            @forelse($movements ?? [] as $movement)
+            <div class="col-12 movement-item" data-status="{{ strtolower($movement->status ?? 'scheduled') }}">
+              <div class="card border-start border-4 border-{{ $movement->getStatusColor() ?? 'info' }}">
+                <div class="card-body">
+                  <div class="row align-items-center">
+                    <div class="col-md-4">
+                      <h6 class="fw-bold mb-1">{{ $movement->movement_code ?? 'MOV-001' }}</h6>
+                      <p class="text-muted mb-0 small">{{ $movement->movement_title ?? 'Office Equipment Relocation' }}</p>
+                      <small class="text-muted">
+                        <i class="bi bi-person me-1"></i>{{ $movement->supervisor ?? 'John Doe' }}
+                      </small>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="d-flex align-items-center mb-2">
+                        <span class="badge bg-{{ $movement->getStatusColor() ?? 'info' }} me-2">{{ $movement->status ?? 'In Progress' }}</span>
+                        @if(($movement->is_delayed ?? false))
+                        <span class="badge bg-danger">
+                          <i class="bi bi-exclamation-triangle me-1"></i>Delayed
+                        </span>
+                        @endif
+                      </div>
+                      <small class="text-muted">
+                        <i class="bi bi-geo-alt me-1"></i>
+                        {{ $movement->origin_location ?? 'Building A' }} → {{ $movement->destination_location ?? 'Building B' }}
+                      </small>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="mb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <span class="small">Progress</span>
+                          <span class="small fw-bold">{{ $movement->progress_percentage ?? '65' }}%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                          <div class="progress-bar bg-{{ ($movement->progress_percentage ?? 65) >= 100 ? 'success' : (($movement->progress_percentage ?? 65) >= 75 ? 'info' : (($movement->progress_percentage ?? 65) >= 50 ? 'warning' : 'danger')) }}" 
+                               style="width: {{ $movement->progress_percentage ?? '65' }}%"></div>
+                        </div>
+                      </div>
+                      <small class="text-muted">
+                        <i class="bi bi-box me-1"></i>{{ $movement->total_assets ?? '15' }} assets
+                      </small>
+                    </div>
+                    <div class="col-md-2 text-end">
+                      <div class="btn-group" role="group">
+                        <button class="btn btn-sm btn-outline-primary view-movement-details" 
+                                data-movement-id="{{ $movement->id ?? 1 }}" 
+                                title="View Details">
+                          <i class="bi bi-eye"></i>
+                        </button>
+                        @if(($movement->status ?? 'In Progress') === 'In Progress')
+                        <button class="btn btn-sm btn-outline-success update-movement-progress-btn" 
+                                data-movement-id="{{ $movement->id ?? 1 }}" 
+                                title="Update Progress">
+                          <i class="bi bi-arrow-up-circle"></i>
+                        </button>
+                        @endif
+                        @if(($movement->status ?? 'In Progress') !== 'Completed' && ($movement->status ?? 'In Progress') !== 'Cancelled')
+                        <button class="btn btn-sm btn-outline-warning track-location-btn" 
+                                data-movement-id="{{ $movement->id ?? 1 }}" 
+                                title="Track Location">
+                          <i class="bi bi-geo-alt"></i>
+                        </button>
+                        @endif
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            
-            <!-- Add Item Button -->
-            <button type="button" class="btn btn-outline-primary btn-sm mb-3" id="addItemBtn">
-              <i class="bi bi-plus-circle me-1"></i>Add Item
-            </button>
-            
-            <!-- Form Actions -->
-            <div class="d-flex justify-content-between">
-              <button type="reset" class="btn btn-outline-secondary">
-                <i class="bi bi-x-circle me-1"></i>Cancel
-              </button>
-              <button type="submit" class="btn btn-primary">
-                <i class="bi bi-check-circle me-1"></i>Complete Receipt
-              </button>
+            @empty
+            <div class="col-12 text-center py-4">
+              <i class="bi bi-inbox text-muted fs-1 mb-2"></i>
+              <h6 class="text-muted">No active movements found</h6>
+              <p class="text-muted small mb-0">Asset movements will appear here when they are scheduled or in progress.</p>
             </div>
-          </form>
-
-          <!-- Static JS for manual item entry -->
-          <script>
-            document.addEventListener('DOMContentLoaded', function() {
-              const addItemBtn = document.getElementById('addItemBtn');
-              const addItemForm = document.getElementById('addItemForm');
-              const saveItemBtn = document.getElementById('saveItemBtn');
-              const cancelItemBtn = document.getElementById('cancelItemBtn');
-              const itemsTableBody = document.getElementById('itemsTableBody');
-
-              addItemBtn.addEventListener('click', function() {
-                addItemForm.style.display = 'block';
-                addItemBtn.style.display = 'none';
-              });
-
-              cancelItemBtn.addEventListener('click', function() {
-                addItemForm.style.display = 'none';
-                addItemBtn.style.display = 'inline-block';
-                clearItemFields();
-              });
-
-              saveItemBtn.addEventListener('click', function() {
-                // Get values
-                const name = document.getElementById('itemName').value;
-                const desc = document.getElementById('itemDesc').value;
-                const qty = document.getElementById('itemQty').value;
-                const unit = document.getElementById('itemUnit').value;
-                const supplier = document.getElementById('itemSupplier').value;
-                const category = document.getElementById('itemCategory').value;
-
-                if (name && desc && qty && unit && supplier && category) {
-                  // Add row to table
-                  const row = document.createElement('tr');
-                  row.innerHTML = `
-                    <td>${name}</td>
-                    <td>${desc}</td>
-                    <td>${qty}</td>
-                    <td>${unit}</td>
-                    <td>${supplier}</td>
-                    <td>${category}</td>
-                    <td>
-                      <button type="button" class="btn btn-sm btn-danger removeItemBtn"><i class="bi bi-trash"></i></button>
-                    </td>
-                  `;
-                  itemsTableBody.appendChild(row);
-
-                  // Remove item functionality
-                  row.querySelector('.removeItemBtn').addEventListener('click', function() {
-                    row.remove();
-                  });
-
-                  addItemForm.style.display = 'none';
-                  addItemBtn.style.display = 'inline-block';
-                  clearItemFields();
-                }
-              });
-
-              function clearItemFields() {
-                document.getElementById('itemName').value = '';
-                document.getElementById('itemDesc').value = '';
-                document.getElementById('itemQty').value = '';
-                document.getElementById('itemUnit').value = '';
-                document.getElementById('itemSupplier').value = '';
-                document.getElementById('itemCategory').value = '';
-              }
-            });
-          </script>
+            @endforelse
+          </div>
         </div>
       </div>
       
-      <!-- Recent Receipts -->
+      <!-- Movement Timeline & Activities -->
       <div class="card shadow-sm border-0">
         <div class="card-header border-bottom d-flex justify-content-between align-items-center">
-          <h5 class="card-title mb-0">Recent Receipts</h5>
-          <button class="btn btn-sm btn-outline-primary">View All</button>
+          <h5 class="card-title mb-0">
+            <i class="bi bi-clock-history me-2"></i>Movement Timeline & Activities
+          </h5>
+          <button class="btn btn-sm btn-outline-primary" id="refreshTimelineBtn">
+            <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+          </button>
         </div>
         <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-hover">
-              <thead class="table-light">
-                <tr>
-                  <th>Receipt ID</th>
-                  <th>Date</th>
-                  <th>Supplier</th>
-                  <th>Items</th>
-                  <th>PO #</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>#REC-2024-105</strong></td>
-                  <td>Today, 10:45 AM</td>
-                  <td>TechCorp Inc.</td>
-                  <td>12 items</td>
-                  <td>PO-2024-012</td>
-                  <td><span class="badge bg-success">Completed</span></td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-primary">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary">
-                      <i class="bi bi-printer"></i>
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>#REC-2024-104</strong></td>
-                  <td>Today, 9:30 AM</td>
-                  <td>Global Electronics</td>
-                  <td>8 items</td>
-                  <td>PO-2024-011</td>
-                  <td><span class="badge bg-success">Completed</span></td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-primary">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary">
-                      <i class="bi bi-printer"></i>
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>#REC-2024-103</strong></td>
-                  <td>Yesterday, 3:15 PM</td>
-                  <td>Smart Parts Co.</td>
-                  <td>15 items</td>
-                  <td>PO-2024-010</td>
-                  <td><span class="badge bg-success">Completed</span></td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-primary">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary">
-                      <i class="bi bi-printer"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="timeline" id="movementTimeline">
+            @forelse($recentActivities ?? [
+              ['type' => 'start', 'title' => 'Movement Started', 'description' => 'Office Equipment Relocation has begun', 'user' => 'John Doe', 'time' => '2 hours ago', 'status_color' => 'success', 'movement_code' => 'MOV-001'],
+              ['type' => 'checkpoint', 'title' => 'Checkpoint Reached', 'description' => 'Assets loaded and secured in transport vehicle', 'user' => 'Jane Smith', 'time' => '1 hour ago', 'status_color' => 'info', 'movement_code' => 'MOV-001'],
+              ['type' => 'delay', 'title' => 'Delay Reported', 'description' => 'Traffic congestion causing 30-minute delay', 'user' => 'Mike Johnson', 'time' => '30 minutes ago', 'status_color' => 'warning', 'movement_code' => 'MOV-002'],
+              ['type' => 'complete', 'title' => 'Movement Completed', 'description' => 'IT Equipment relocation successfully completed', 'user' => 'Sarah Wilson', 'time' => '15 minutes ago', 'status_color' => 'success', 'movement_code' => 'MOV-003']
+            ] as $activity)
+            <div class="timeline-item">
+              <div class="timeline-marker bg-{{ $activity['type'] === 'start' ? 'success' : ($activity['type'] === 'checkpoint' ? 'info' : ($activity['type'] === 'delay' ? 'warning' : ($activity['type'] === 'complete' ? 'success' : 'secondary'))) }}">
+                <i class="bi bi-{{ $activity['type'] === 'start' ? 'play-circle' : ($activity['type'] === 'checkpoint' ? 'geo-alt' : ($activity['type'] === 'delay' ? 'exclamation-triangle' : ($activity['type'] === 'complete' ? 'check-circle' : 'arrow-right'))) }}"></i>
+              </div>
+              <div class="timeline-content">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <h6 class="mb-1">{{ $activity['title'] }}</h6>
+                    <p class="text-muted mb-1 small">{{ $activity['description'] }}</p>
+                    <small class="text-muted">
+                      <i class="bi bi-person me-1"></i>{{ $activity['user'] }}
+                      <i class="bi bi-clock ms-2 me-1"></i>{{ $activity['time'] }}
+                    </small>
+                  </div>
+                  <span class="badge bg-{{ $activity['status_color'] }}">{{ $activity['movement_code'] }}</span>
+                </div>
+              </div>
+            </div>
+            @empty
+            <div class="text-center py-4">
+              <i class="bi bi-clock-history text-muted fs-1 mb-2"></i>
+              <h6 class="text-muted">No recent activities</h6>
+              <p class="text-muted small mb-0">Movement activities will appear here when they occur.</p>
+            </div>
+            @endforelse
           </div>
         </div>
       </div>
@@ -562,130 +465,130 @@
       <!-- Quick Actions -->
       <div class="card shadow-sm border-0">
         <div class="card-header border-bottom">
-          <h5 class="card-title mb-0">Quick Actions</h5>
+          <h5 class="card-title mb-0">
+            <i class="bi bi-lightning me-2"></i>Quick Actions
+          </h5>
         </div>
         <div class="card-body">
           <div class="d-grid gap-2">
-            <button class="btn btn-primary" id="newReceiptBtn">
-              <i class="bi bi-plus-circle me-2"></i>New Receipt
+            <button class="btn btn-primary" id="createMovementBtn">
+              <i class="bi bi-plus-circle me-2"></i>New Movement Plan
             </button>
-            <button class="btn btn-outline-primary" id="scanBarcodeBtn">
-              <i class="bi bi-upc-scan me-2"></i>Scan Barcode
+            <button class="btn btn-outline-primary" id="trackAllMovementsBtn">
+              <i class="bi bi-geo-alt me-2"></i>Track All Movements
             </button>
-            <button class="btn btn-outline-primary" id="importCSVBtn">
-              <i class="bi bi-file-earmark-excel me-2"></i>Import from CSV
+            <button class="btn btn-outline-primary" id="updateProgressBtn">
+              <i class="bi bi-arrow-up-circle me-2"></i>Update Progress
             </button>
-            <button class="btn btn-outline-secondary" id="printReceiptBtn">
-              <i class="bi bi-printer me-2"></i>Print Receipt
+            <button class="btn btn-outline-primary" id="generateMovementReportBtn">
+              <i class="bi bi-file-earmark-bar-graph me-2"></i>Generate Report
+            </button>
+            <button class="btn btn-outline-secondary" id="exportMovementDataBtn">
+              <i class="bi bi-download me-2"></i>Export Data
             </button>
           </div>
         </div>
       </div>
       
-      <!-- PO Preview (Hidden by default, shown when viewing PO) -->
-      <div class="card shadow-sm border-0 mt-4 d-none" id="poPreviewCard">
-        <div class="card-header border-bottom d-flex justify-content-between align-items-center">
-          <h5 class="card-title mb-0">PO Preview</h5>
-          <button class="btn btn-sm btn-close" id="closePOPreview"></button>
-        </div>
-        <div class="card-body">
-          <h6 class="fw-bold">PO-2024-001</h6>
-          <p class="small text-muted">Issued: 15 Jan 2024 | Expected: 20 Jan 2024</p>
-          
-          <div class="table-responsive">
-            <table class="table table-sm">
-              <thead>
-                <tr>
-                  <th>Item</th>
-                  <th>Qty</th>
-                  <th>Unit</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Laptop Pro 15"</td>
-                  <td>10</td>
-                  <td>pcs</td>
-                </tr>
-                <tr>
-                  <td>Wireless Mouse</td>
-                  <td>25</td>
-                  <td>pcs</td>
-                </tr>
-                <tr>
-                  <td>USB-C Hub</td>
-                  <td>15</td>
-                  <td>pcs</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Receipt Summary -->
+      <!-- Movement Performance Chart -->
       <div class="card shadow-sm border-0 mt-4">
         <div class="card-header border-bottom">
-          <h5 class="card-title mb-0">Today's Summary</h5>
+          <h5 class="card-title mb-0">
+            <i class="bi bi-graph-up me-2"></i>Movement Performance
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <canvas id="movementPerformanceChart" width="400" height="200"></canvas>
+          </div>
+          <div class="row g-2">
+            <div class="col-6">
+              <div class="text-center p-2 bg-light rounded">
+                <small class="text-muted d-block">On Schedule</small>
+                <strong class="text-success">{{ $stats['on_time_percentage'] ?? 85 }}%</strong>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="text-center p-2 bg-light rounded">
+                <small class="text-muted d-block">Cost Efficiency</small>
+                <strong class="text-info">{{ $stats['cost_efficiency'] ?? 92 }}%</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Movement Summary -->
+      <div class="card shadow-sm border-0 mt-4">
+        <div class="card-header border-bottom">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-clipboard-data me-2"></i>Today's Movement Summary
+          </h5>
         </div>
         <div class="card-body">
           <div class="mb-3">
             <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small">Receipts Completed</span>
-              <span class="small fw-bold">12</span>
+              <span class="small">Movements Started</span>
+              <span class="small fw-bold">{{ $stats['movements_started_today'] ?? 3 }}</span>
             </div>
             <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-success" style="width: 80%"></div>
+              <div class="progress-bar bg-success" style="width: {{ ($stats['movements_started_today'] ?? 3) * 20 }}%"></div>
             </div>
           </div>
           <div class="mb-3">
             <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small">Items Received</span>
-              <span class="small fw-bold">187</span>
+              <span class="small">Assets Moved</span>
+              <span class="small fw-bold">{{ $stats['assets_moved_today'] ?? 47 }}</span>
             </div>
             <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-primary" style="width: 65%"></div>
+              <div class="progress-bar bg-warning" style="width: {{ ($stats['assets_moved_today'] ?? 47) * 2 }}%"></div>
             </div>
           </div>
           <div class="mb-3">
             <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small">Damaged Items</span>
-              <span class="small fw-bold">3</span>
+              <span class="small">Movements Completed</span>
+              <span class="small fw-bold">{{ $stats['movements_completed_today'] ?? 2 }}</span>
             </div>
             <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-danger" style="width: 5%"></div>
+              <div class="progress-bar bg-info" style="width: {{ ($stats['movements_completed_today'] ?? 2) * 25 }}%"></div>
             </div>
           </div>
           <div>
             <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="small">Avg. Time per Receipt</span>
-              <span class="small fw-bold">32min</span>
+              <span class="small">Avg. Completion Time</span>
+              <span class="small fw-bold">{{ $stats['avg_completion_time'] ?? '3.2' }}hrs</span>
             </div>
             <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-info" style="width: 75%"></div>
+              <div class="progress-bar bg-primary" style="width: 80%"></div>
             </div>
           </div>
         </div>
       </div>
       
-      <!-- Alerts -->
+      <!-- Movement Alerts -->
       <div class="card shadow-sm border-0 mt-4">
         <div class="card-header border-bottom">
-          <h5 class="card-title mb-0">Alerts</h5>
+          <h5 class="card-title mb-0">
+            <i class="bi bi-bell me-2"></i>Movement Alerts
+          </h5>
         </div>
         <div class="card-body">
-          <div class="alert alert-danger alert-sm mb-2">
-            <i class="bi bi-exclamation-triangle me-2"></i>
-            Low stock: Laptop batteries (5 units)
+          @forelse($alerts ?? [
+            ['type' => 'warning', 'icon' => 'exclamation-triangle', 'message' => 'MOV-002: Traffic delay reported - ETA extended by 30 minutes'],
+            ['type' => 'info', 'icon' => 'info-circle', 'message' => 'MOV-001: Asset loading completed, transport in progress'],
+            ['type' => 'success', 'icon' => 'check-circle', 'message' => 'MOV-003: IT Equipment movement completed successfully']
+          ] as $alert)
+          <div class="alert alert-{{ $alert['type'] }} alert-sm mb-2">
+            <i class="bi bi-{{ $alert['icon'] }} me-2"></i>
+            {{ $alert['message'] }}
           </div>
-          <div class="alert alert-warning alert-sm mb-2">
-            <i class="bi bi-clock me-2"></i>
-            Order #ORD-2024-001 delayed
+          @empty
+          <div class="text-center py-3">
+            <i class="bi bi-bell text-muted fs-1 mb-2"></i>
+            <h6 class="text-muted">No alerts</h6>
+            <p class="text-muted small mb-0">Movement alerts will appear here when needed.</p>
           </div>
-          <div class="alert alert-info alert-sm">
-            <i class="bi bi-info-circle me-2"></i>
-            New shipment arriving in 2 hours
-          </div>
+          @endforelse
         </div>
       </div>
     </div>
@@ -710,10 +613,68 @@
     </div>
   </div>
 
+  <!-- Custom CSS for Timeline -->
+  <style>
+    .timeline {
+      position: relative;
+      padding-left: 30px;
+    }
+    
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #dee2e6;
+    }
+    
+    .timeline-item {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    
+    .timeline-marker {
+      position: absolute;
+      left: -22px;
+      top: 0;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 12px;
+      border: 3px solid white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .timeline-content {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 3px solid #dee2e6;
+    }
+    
+    .project-item {
+      transition: all 0.3s ease;
+    }
+    
+    .project-item:hover {
+      transform: translateY(-2px);
+    }
+    
+    .project-item.filtered-out {
+      display: none;
+    }
+  </style>
+
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Sidebar toggle functionality -->
+  <!-- Project Execution JavaScript -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // Check if user is authenticated
@@ -840,6 +801,9 @@
           document.body.style.overflow = '';
         });
       }
+
+      // Initialize Project Execution Features
+      initializeProjectExecution();
 
       // Handle Smart Warehousing dropdown active states
       const warehouseDropdown = document.querySelector('[data-bs-target="#warehouseSubmenu"]');
@@ -1038,6 +1002,461 @@
       }
     }
   }
+
+  // Project Execution Functions
+  function initializeProjectExecution() {
+    console.log('Initializing Project Execution features...');
+    
+    // Initialize Chart
+    initializePerformanceChart();
+    
+    // Initialize Event Listeners
+    initializeEventListeners();
+    
+    // Initialize Filters
+    initializeFilters();
+  }
+
+  // Initialize Performance Chart
+  function initializePerformanceChart() {
+    const ctx = document.getElementById('performanceChart');
+    if (ctx) {
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Completed', 'Active', 'Overdue', 'Draft'],
+          datasets: [{
+            data: [{{ $stats['completed_projects'] ?? 0 }}, {{ $stats['active_projects'] ?? 0 }}, {{ $stats['overdue_projects'] ?? 0 }}, {{ $stats['draft_projects'] ?? 0 }}],
+            backgroundColor: ['#28a745', '#007bff', '#dc3545', '#6c757d'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                usePointStyle: true,
+                padding: 15,
+                font: {
+                  size: 11
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+  }
+
+  // Initialize Event Listeners
+  function initializeEventListeners() {
+    // Project Details View
+    document.addEventListener('click', function(e) {
+      if (e.target.closest('.view-project-details')) {
+        const btn = e.target.closest('.view-project-details');
+        const projectId = btn.dataset.projectId;
+        viewProjectDetails(projectId);
+      }
+    });
+
+    // Update Progress
+    document.addEventListener('click', function(e) {
+      if (e.target.closest('.update-progress-btn')) {
+        const btn = e.target.closest('.update-progress-btn');
+        const projectId = btn.dataset.projectId;
+        updateProjectProgress(projectId);
+      }
+    });
+
+    // Add Milestone
+    document.addEventListener('click', function(e) {
+      if (e.target.closest('.add-milestone-btn')) {
+        const btn = e.target.closest('.add-milestone-btn');
+        const projectId = btn.dataset.projectId;
+        addProjectMilestone(projectId);
+      }
+    });
+
+    // Quick Actions
+    document.getElementById('createProjectBtn')?.addEventListener('click', () => {
+      window.location.href = '{{ url("/plt/toursetup") }}';
+    });
+
+    document.getElementById('generateReportBtn')?.addEventListener('click', generateProjectReport);
+    document.getElementById('exportDataBtn')?.addEventListener('click', exportProjectData);
+    document.getElementById('refreshTimelineBtn')?.addEventListener('click', refreshTimeline);
+  }
+
+  // Initialize Filters
+  function initializeFilters() {
+    document.querySelectorAll('[data-filter]').forEach(filter => {
+      filter.addEventListener('click', function(e) {
+        e.preventDefault();
+        const filterType = this.dataset.filter;
+        filterProjects(filterType);
+      });
+    });
+  }
+
+  // Filter Projects
+  function filterProjects(filterType) {
+    const projectItems = document.querySelectorAll('.project-item');
+    
+    projectItems.forEach(item => {
+      const status = item.dataset.status;
+      let shouldShow = true;
+      
+      switch(filterType) {
+        case 'active':
+          shouldShow = status === 'active';
+          break;
+        case 'overdue':
+          shouldShow = item.querySelector('.badge.bg-danger') !== null;
+          break;
+        case 'completed':
+          shouldShow = status === 'completed';
+          break;
+        case 'all':
+        default:
+          shouldShow = true;
+          break;
+      }
+      
+      if (shouldShow) {
+        item.classList.remove('filtered-out');
+      } else {
+        item.classList.add('filtered-out');
+      }
+    });
+  }
+
+  // View Project Details
+  function viewProjectDetails(projectId) {
+    Swal.fire({
+      title: 'Loading Project Details...',
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    fetch(`{{ url('/plt/projects') }}/${projectId}`, {
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRF-TOKEN': getCsrfToken()
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const project = data.project;
+        Swal.fire({
+          title: `${project.project_code}`,
+          html: `
+            <div class="text-start">
+              <h6 class="fw-bold">${project.project_title}</h6>
+              <p class="text-muted mb-3">${project.project_description}</p>
+              
+              <div class="row g-3">
+                <div class="col-6">
+                  <small class="text-muted d-block">Timeline</small>
+                  <strong>${new Date(project.start_date).toLocaleDateString()} - ${new Date(project.expected_end_date).toLocaleDateString()}</strong>
+                </div>
+                <div class="col-6">
+                  <small class="text-muted d-block">Budget</small>
+                  <strong>₱${parseFloat(project.estimated_budget).toLocaleString()}</strong>
+                </div>
+                <div class="col-6">
+                  <small class="text-muted d-block">Status</small>
+                  <span class="badge bg-${getStatusColor(project.status)}">${project.status}</span>
+                </div>
+                <div class="col-6">
+                  <small class="text-muted d-block">Progress</small>
+                  <div class="progress mt-1" style="height: 6px;">
+                    <div class="progress-bar bg-primary" style="width: ${project.progress || 0}%"></div>
+                  </div>
+                  <small>${project.progress || 0}%</small>
+                </div>
+              </div>
+              
+              ${project.notes ? `<div class="mt-3"><small class="text-muted d-block">Notes</small><p class="mb-0">${project.notes}</p></div>` : ''}
+            </div>
+          `,
+          width: 600,
+          confirmButtonText: 'Close'
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to load project details'
+        });
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to load project details'
+      });
+    });
+  }
+
+  // Update Project Progress
+  function updateProjectProgress(projectId) {
+    Swal.fire({
+      title: 'Update Project Progress',
+      html: `
+        <div class="mb-3">
+          <label for="progressValue" class="form-label">Progress Percentage</label>
+          <input type="range" class="form-range" id="progressValue" min="0" max="100" value="0">
+          <div class="d-flex justify-content-between">
+            <small>0%</small>
+            <small id="progressDisplay">0%</small>
+            <small>100%</small>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="progressNotes" class="form-label">Progress Notes</label>
+          <textarea class="form-control" id="progressNotes" rows="3" placeholder="Describe the progress made..."></textarea>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Update Progress',
+      cancelButtonText: 'Cancel',
+      didOpen: () => {
+        const slider = document.getElementById('progressValue');
+        const display = document.getElementById('progressDisplay');
+        slider.addEventListener('input', function() {
+          display.textContent = this.value + '%';
+        });
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const progress = document.getElementById('progressValue').value;
+        const notes = document.getElementById('progressNotes').value;
+        
+        // Submit progress update
+        fetch(`{{ url('/plt/projects') }}/${projectId}/progress`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': getCsrfToken()
+          },
+          body: JSON.stringify({
+            progress: progress,
+            notes: notes
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Progress Updated!',
+              text: data.message
+            }).then(() => {
+              window.location.reload();
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: data.message || 'Failed to update progress'
+            });
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to update progress'
+          });
+        });
+      }
+    });
+  }
+
+  // Add Project Milestone
+  function addProjectMilestone(projectId) {
+    Swal.fire({
+      title: 'Add Project Milestone',
+      html: `
+        <div class="mb-3">
+          <label for="milestoneTitle" class="form-label">Milestone Title</label>
+          <input type="text" class="form-control" id="milestoneTitle" placeholder="Enter milestone title">
+        </div>
+        <div class="mb-3">
+          <label for="milestoneDate" class="form-label">Target Date</label>
+          <input type="date" class="form-control" id="milestoneDate">
+        </div>
+        <div class="mb-3">
+          <label for="milestoneDescription" class="form-label">Description</label>
+          <textarea class="form-control" id="milestoneDescription" rows="3" placeholder="Describe the milestone..."></textarea>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Add Milestone',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const title = document.getElementById('milestoneTitle').value;
+        const date = document.getElementById('milestoneDate').value;
+        const description = document.getElementById('milestoneDescription').value;
+        
+        if (!title || !date) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Missing Information',
+            text: 'Please fill in the milestone title and date'
+          });
+          return;
+        }
+        
+        // Submit milestone
+        fetch(`{{ url('/plt/projects') }}/${projectId}/milestones`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': getCsrfToken()
+          },
+          body: JSON.stringify({
+            title: title,
+            target_date: date,
+            description: description
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Milestone Added!',
+              text: data.message
+            }).then(() => {
+              refreshTimeline();
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: data.message || 'Failed to add milestone'
+            });
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to add milestone'
+          });
+        });
+      }
+    });
+  }
+
+  // Generate Project Report
+  function generateProjectReport() {
+    Swal.fire({
+      title: 'Generate Project Report',
+      html: `
+        <div class="mb-3">
+          <label class="form-label">Report Type</label>
+          <select class="form-select" id="reportType">
+            <option value="summary">Project Summary</option>
+            <option value="progress">Progress Report</option>
+            <option value="timeline">Timeline Report</option>
+            <option value="budget">Budget Analysis</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Date Range</label>
+          <div class="row">
+            <div class="col-6">
+              <input type="date" class="form-control" id="reportStartDate">
+            </div>
+            <div class="col-6">
+              <input type="date" class="form-control" id="reportEndDate">
+            </div>
+          </div>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Generate Report',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Report Generated!',
+          text: 'Your project report has been generated and will be downloaded shortly.'
+        });
+      }
+    });
+  }
+
+  // Export Project Data
+  function exportProjectData() {
+    Swal.fire({
+      title: 'Export Project Data',
+      text: 'Choose export format:',
+      showCancelButton: true,
+      showDenyButton: true,
+      confirmButtonText: 'Excel (.xlsx)',
+      denyButtonText: 'CSV (.csv)',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = '{{ url("/plt/projects/export") }}?format=xlsx';
+      } else if (result.isDenied) {
+        window.location.href = '{{ url("/plt/projects/export") }}?format=csv';
+      }
+    });
+  }
+
+  // Refresh Timeline
+  function refreshTimeline() {
+    const timeline = document.getElementById('projectTimeline');
+    if (timeline) {
+      // Add loading state
+      timeline.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-primary" role="status"></div></div>';
+      
+      // Simulate refresh (in real app, this would fetch new data)
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    }
+  }
+
+  // Helper function to get CSRF token
+  function getCsrfToken() {
+    const metaToken = document.querySelector('meta[name="csrf-token"]');
+    return metaToken ? metaToken.getAttribute('content') : '';
+  }
+
+  // Helper function to get status color
+  function getStatusColor(status) {
+    const colors = {
+      'Draft': 'secondary',
+      'Planning': 'warning',
+      'Active': 'success',
+      'On Hold': 'warning',
+      'Completed': 'success',
+      'Cancelled': 'danger'
+    };
+    return colors[status] || 'secondary';
+  }
+
+  console.log('Project Execution Monitoring loaded successfully!');
   </script>
 </body>
 </html>

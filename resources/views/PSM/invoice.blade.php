@@ -10,8 +10,258 @@
   <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('assets/css/dash-style-fixed.css') }}">
+  <!-- PSM Animations -->
+  <link rel="stylesheet" href="{{ asset('assets/css/psm-animations.css') }}">
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    /* Enhanced table styles */
+    .table-enhanced {
+      border: none;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    .table-enhanced thead th {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border: none;
+      font-weight: 600;
+      font-size: 0.875rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #495057;
+      padding: 1rem 0.75rem;
+      vertical-align: middle;
+      position: relative;
+    }
+    
+    .table-enhanced tbody td {
+      border: none;
+      border-bottom: 1px solid #f1f3f4;
+      padding: 1rem 0.75rem;
+      vertical-align: middle;
+      font-size: 0.9rem;
+      color: #495057;
+    }
+    
+    .table-enhanced tbody tr {
+      transition: all 0.2s ease;
+      background-color: #ffffff;
+    }
+    
+    .table-enhanced tbody tr:hover {
+      background-color: #f8f9fa;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .table-enhanced tbody tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .sortable {
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    
+    .sortable:hover {
+      background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+      color: #212529;
+    }
+    
+    .sortable i {
+      opacity: 0.5;
+      transition: opacity 0.2s ease;
+    }
+    
+    .sortable:hover i {
+      opacity: 1;
+    }
+    
+    /* Enhanced badges */
+    .badge-enhanced {
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-weight: 500;
+      font-size: 0.75rem;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      white-space: nowrap;
+      min-width: fit-content;
+      display: inline-block;
+    }
+    
+    .badge-status-draft {
+      background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+      color: white;
+    }
+    
+    .badge-status-pending {
+      background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+      color: white;
+    }
+    
+    .badge-status-approved {
+      background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+      color: white;
+    }
+    
+    .badge-status-rejected {
+      background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
+      color: white;
+    }
+    
+    .badge-status-paid {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+    }
+    
+    .badge-status-partially-paid {
+      background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+      color: white;
+    }
+    
+    .badge-status-overdue {
+      background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+      color: white;
+    }
+    
+    .badge-payment-unpaid {
+      background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+      color: white;
+    }
+    
+    .badge-payment-partial {
+      background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+      color: white;
+    }
+    
+    .badge-payment-paid {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+    }
+    
+    /* Enhanced action buttons */
+    .btn-action {
+      padding: 0.4rem 0.6rem;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      transition: all 0.2s ease;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin: 0 2px;
+    }
+    
+    .btn-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-action-view {
+      background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+      color: white;
+      border-color: #0d6efd;
+    }
+    
+    .btn-action-view:hover {
+      background: linear-gradient(135deg, #0b5ed7 0%, #520dc2 100%);
+      color: white;
+    }
+    
+    .btn-action-download {
+      background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+      color: white;
+      border-color: #6c757d;
+    }
+    
+    .btn-action-download:hover {
+      background: linear-gradient(135deg, #5a6268 0%, #3d4142 100%);
+      color: white;
+    }
+    
+    .btn-action-payment {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      border-color: #28a745;
+    }
+    
+    .btn-action-payment:hover {
+      background: linear-gradient(135deg, #218838 0%, #1aa085 100%);
+      color: white;
+    }
+    
+    /* Text alignment improvements */
+    .text-center-custom {
+      text-align: center !important;
+      vertical-align: middle !important;
+    }
+    
+    .text-left-custom {
+      text-align: left !important;
+      vertical-align: middle !important;
+    }
+    
+    .text-right-custom {
+      text-align: right !important;
+      vertical-align: middle !important;
+    }
+    
+    /* Invoice number styling */
+    .invoice-number {
+      font-family: 'Courier New', monospace;
+      font-weight: 700;
+      color: #6f42c1;
+      background: linear-gradient(135deg, #f8f4ff 0%, #ede4ff 100%);
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+    }
+    
+    /* PO number styling */
+    .po-number {
+      font-family: 'Courier New', monospace;
+      font-weight: 600;
+      color: #495057;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+    }
+    
+    /* Vendor styling */
+    .vendor-text {
+      font-weight: 600;
+      color: #212529;
+    }
+    
+    /* Amount styling */
+    .amount-text {
+      font-family: 'Courier New', monospace;
+      font-weight: 600;
+      color: #28a745;
+    }
+    
+    /* Date styling */
+    .date-text {
+      color: #6c757d;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    
+    .table-container {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+  </style>
 
 </head>
 <body style="background-color: #f8f9fa !important;">
@@ -100,7 +350,7 @@
             </li>
             <li class="nav-item">
               <a href="{{ url('/psm/bidding') }}" class="nav-link text-dark small">
-                <i class="bi bi-gavel me-2"></i> Bidding & RFQ
+                <i class="bi bi-clipboard-check me-2"></i> Bidding & RFQ
               </a>
             </li>
             <li class="nav-item">
@@ -136,7 +386,7 @@
       <ul class="nav flex-column ms-3">
         <li class="nav-item">
           <a href="{{ url('/plt/toursetup') }}" class="nav-link text-dark small">
-            <i class="bi bi-flag me-2"></i> Tour Setup
+            <i class="bi bi-diagram-3 me-2"></i> Project Planning
           </a>
         </li>
         <li class="nav-item">
@@ -146,7 +396,7 @@
         </li>
         <li class="nav-item">
           <a href="{{ url('/plt/closure') }}" class="nav-link text-dark small">
-            <i class="bi bi-check2-circle me-2"></i> Post-Tour Closure
+            <i class="bi bi-check2-circle me-2"></i> Closure
           </a>
         </li>
       </ul>
@@ -308,9 +558,9 @@
       </div>
     </div>
 
-    <!-- Invoice List & Filters -->
+    <!-- Invoice List -->
     <div class="row g-4">
-      <div class="col-lg-8">
+      <div class="col-12">
         <div class="card shadow-sm border-0">
           <div class="card-header border-bottom d-flex flex-wrap gap-2 justify-content-between align-items-center">
             <h5 class="card-title mb-0">Vendor Invoices</h5>
@@ -333,70 +583,100 @@
             </form>
           </div>
           <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-hover align-middle">
-                <thead class="table-light">
+            <div class="table-responsive table-container">
+              <table class="table table-enhanced">
+                <thead>
                   <tr>
-                    <th>Invoice #</th>
-                    <th>Vendor</th>
-                    <th>PO #</th>
-                    <th class="text-end">Amount</th>
-                    <th>Due Date</th>
-                    <th>Status</th>
-                    <th>Payment</th>
-                    <th></th>
+                    <th class="text-center-custom sortable">Invoice # <i class="bi bi-arrow-down-up ms-1"></i></th>
+                    <th class="text-left-custom sortable">Vendor <i class="bi bi-arrow-down-up ms-1"></i></th>
+                    <th class="text-center-custom sortable">PO # <i class="bi bi-arrow-down-up ms-1"></i></th>
+                    <th class="text-right-custom sortable">Amount <i class="bi bi-arrow-down-up ms-1"></i></th>
+                    <th class="text-center-custom sortable">Due Date <i class="bi bi-arrow-down-up ms-1"></i></th>
+                    <th class="text-center-custom sortable">Status <i class="bi bi-arrow-down-up ms-1"></i></th>
+                    <th class="text-center-custom sortable">Payment <i class="bi bi-arrow-down-up ms-1"></i></th>
+                    <th class="text-center-custom">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   @php
-                    $badgeFor = function($status) {
-                      return match($status) {
-                        'Draft' => 'secondary',
-                        'Submitted' => 'warning',
-                        'Approved' => 'primary',
-                        'Rejected' => 'danger',
-                        'Partially Paid' => 'info',
-                        'Paid' => 'success',
-                        'Overdue' => 'danger',
-                        default => 'secondary',
+                    $getStatusBadgeClass = function($status) {
+                      return match(strtolower($status)) {
+                        'draft' => 'badge-status-draft',
+                        'pending' => 'badge-status-pending',
+                        'approved' => 'badge-status-approved', 
+                        'rejected' => 'badge-status-rejected',
+                        'partially-paid' => 'badge-status-partially-paid',
+                        'paid' => 'badge-status-paid',
+                        'overdue' => 'badge-status-overdue',
+                        default => 'badge-status-draft',
                       };
                     };
-                    $payBadge = fn($p)=> match($p){ 'Unpaid'=>'secondary','Partial'=>'info','Paid'=>'success', default=>'secondary'};
+                    $getPaymentBadgeClass = function($payment) {
+                      return match(strtolower($payment)) {
+                        'unpaid' => 'badge-payment-unpaid',
+                        'partial' => 'badge-payment-partial',
+                        'paid' => 'badge-payment-paid',
+                        default => 'badge-payment-unpaid',
+                      };
+                    };
                   @endphp
 
                   @php $list = $invoices ?? []; @endphp
                   @forelse($list as $inv)
                     <tr>
-                      <td><strong>{{ $inv->invoice_no }}</strong></td>
-                      <td>{{ $inv->vendor_name ?? ($inv->vendor->name ?? '—') }}</td>
-                      <td>{{ $inv->po_number ?? '—' }}</td>
-                      <td class="text-end">{{ number_format($inv->amount, 2) }}</td>
-                      <td>
+                      <td class="text-center-custom">
+                        <span class="invoice-number">{{ $inv->invoice_no }}</span>
+                      </td>
+                      <td class="text-left-custom">
+                        <span class="vendor-text">{{ $inv->vendor_name ?? ($inv->vendor->name ?? '—') }}</span>
+                      </td>
+                      <td class="text-center-custom">
+                        @if($inv->po_number)
+                          <span class="po-number">{{ $inv->po_number }}</span>
+                        @else
+                          <span class="text-muted">—</span>
+                        @endif
+                      </td>
+                      <td class="text-right-custom">
+                        <span class="amount-text">₱{{ number_format($inv->amount, 2) }}</span>
+                      </td>
+                      <td class="text-center-custom">
                         @php
                           $due = isset($inv->due_date) ? \Carbon\Carbon::parse($inv->due_date) : null;
                         @endphp
-                        {{ $due ? $due->format('Y-m-d') : '—' }}
+                        @if($due)
+                          <span class="date-text">{{ $due->format('M d, Y') }}</span>
+                        @else
+                          <span class="text-muted">—</span>
+                        @endif
                       </td>
-                      <td>
-                        <span class="badge bg-{{ $badgeFor($inv->status ?? 'Draft') }}">{{ $inv->status ?? 'Draft' }}</span>
+                      <td class="text-center-custom">
+                        <span class="badge-enhanced {{ $getStatusBadgeClass($inv->status ?? 'Draft') }}">{{ $inv->status ?? 'Draft' }}</span>
                       </td>
-                      <td>
-                        <span class="badge bg-{{ $payBadge($inv->payment_status ?? 'Unpaid') }}">{{ $inv->payment_status ?? 'Unpaid' }}</span>
+                      <td class="text-center-custom">
+                        <span class="badge-enhanced {{ $getPaymentBadgeClass($inv->payment_status ?? 'Unpaid') }}">{{ $inv->payment_status ?? 'Unpaid' }}</span>
                       </td>
-                      <td class="text-end">
-                        <div class="btn-group btn-group-sm" role="group">
-                          <a href="{{ \Illuminate\Support\Facades\Route::has('psm.invoice.show') ? route('psm.invoice.show', $inv->id) : '#' }}" class="btn btn-outline-secondary"><i class="bi bi-eye"></i></a>
-                          <a href="{{ \Illuminate\Support\Facades\Route::has('psm.invoice.download') ? route('psm.invoice.download', $inv->id) : '#' }}" class="btn btn-outline-secondary"><i class="bi bi-download"></i></a>
+                      <td class="text-center-custom">
+                        <div class="d-flex justify-content-center align-items-center gap-1">
+                          <button type="button" class="btn btn-action btn-action-view" onclick="viewInvoiceDetails({{ json_encode($inv) }})" title="View Invoice">
+                            <i class="bi bi-eye"></i>
+                          </button>
+                          <button type="button" class="btn btn-action btn-action-download" onclick="downloadInvoice({{ $inv->id }})" title="Download Invoice">
+                            <i class="bi bi-download"></i>
+                          </button>
                           @if(($inv->payment_status ?? 'Unpaid') !== 'Paid')
-                            <a href="{{ \Illuminate\Support\Facades\Route::has('psm.invoice.recordPayment') ? route('psm.invoice.recordPayment', $inv->id) : '#' }}" class="btn btn-outline-success"><i class="bi bi-cash"></i></a>
+                            <a href="{{ \Illuminate\Support\Facades\Route::has('psm.invoice.recordPayment') ? route('psm.invoice.recordPayment', $inv->id) : '#' }}" class="btn btn-action btn-action-payment" title="Record Payment">
+                              <i class="bi bi-cash"></i>
+                            </a>
                           @endif
                         </div>
                       </td>
                     </tr>
                   @empty
                     <tr>
-                      <td colspan="8" class="text-center text-muted py-5">
-                        No invoices found.
+                      <td colspan="8" class="text-center text-muted py-4">
+                        <i class="bi bi-receipt fs-1 d-block mb-2"></i>
+                        No invoices found
                       </td>
                     </tr>
                   @endforelse
@@ -407,59 +687,42 @@
         </div>
       </div>
       
-      <div class="col-lg-4">
-        <div class="card shadow-sm border-0">
-          <div class="card-header border-bottom d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">Filters</h5>
-            <a href="{{ url()->current() }}" class="small">Reset</a>
-          </div>
-          <div class="card-body">
-            <form method="GET" action="{{ url()->current() }}" class="vstack gap-3">
-              <div>
-                <label class="form-label small">Date Range</label>
-                <div class="d-flex gap-2">
-                  <input type="date" class="form-control" name="from" value="{{ request('from') }}">
-                  <input type="date" class="form-control" name="to" value="{{ request('to') }}">
-                </div>
-              </div>
-              <div>
-                <label class="form-label small">Vendor</label>
-                <input type="text" class="form-control" name="vendor" value="{{ request('vendor') }}" placeholder="Vendor name">
-              </div>
-              <div>
-                <label class="form-label small">Minimum Amount</label>
-                <input type="number" step="0.01" class="form-control" name="min" value="{{ request('min') }}" placeholder="0.00">
-              </div>
-              <div>
-                <label class="form-label small">Maximum Amount</label>
-                <input type="number" step="0.01" class="form-control" name="max" value="{{ request('max') }}" placeholder="0.00">
-              </div>
-              <div class="d-grid">
-                <button class="btn btn-primary"><i class="bi bi-funnel me-1"></i> Apply Filters</button>
-              </div>
-            </form>
-          </div>
-        </div>
+    </div>
+  </main>
 
-        <div class="card shadow-sm border-0 mt-4">
-          <div class="card-header border-bottom d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">Quick Actions</h5>
-            <span class="text-muted small">Vendor created</span>
-          </div>
-          <div class="card-body">
-            <div class="d-grid gap-2">
-              <a class="btn btn-outline-secondary" href="{{ \Illuminate\Support\Facades\Route::has('psm.invoice.export') ? route('psm.invoice.export') : '#' }}">
-                <i class="bi bi-download me-2"></i>Export CSV
-              </a>
-              <a class="btn btn-outline-secondary" href="{{ \Illuminate\Support\Facades\Route::has('psm.invoice.report') ? route('psm.invoice.report') : '#' }}">
-                <i class="bi bi-file-earmark-text me-2"></i>Generate Report
-              </a>
+  <!-- Invoice Details Modal -->
+  <div class="modal fade" id="invoiceDetailsModal" tabindex="-1" aria-labelledby="invoiceDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="invoiceDetailsModalLabel">
+            <i class="bi bi-receipt me-2"></i>Invoice Details
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3" id="invoiceDetailsContent">
+            <!-- Content will be populated by JavaScript -->
+            <div class="text-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-2 text-muted">Loading invoice details...</p>
             </div>
           </div>
         </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="downloadInvoiceFromModal">
+            <i class="bi bi-download me-2"></i>Download PDF
+          </button>
+          <button type="button" class="btn btn-success" id="recordPaymentFromModal" style="display: none;">
+            <i class="bi bi-cash me-2"></i>Record Payment
+          </button>
+        </div>
       </div>
     </div>
-  </main>
+  </div>
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -835,5 +1098,200 @@ document.addEventListener('DOMContentLoaded', function() {
         pltSubmenu.classList.add('show');
       });
     });
+  }
+
+  // Global variables for invoice management
+  let currentInvoiceId = null;
+  let invoiceDetailsModal = null;
+
+  // View invoice details in modal
+  function viewInvoiceDetails(invoiceData) {
+    currentInvoiceId = invoiceData.id;
+    
+    // Initialize modal if not already done
+    if (!invoiceDetailsModal) {
+      invoiceDetailsModal = new bootstrap.Modal(document.getElementById('invoiceDetailsModal'));
+    }
+    
+    // Show modal with loading state
+    invoiceDetailsModal.show();
+    
+    // Reset content to loading state
+    document.getElementById('invoiceDetailsContent').innerHTML = `
+      <div class="text-center py-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2 text-muted">Loading invoice details...</p>
+      </div>
+    `;
+    
+    // Use the real invoice data passed from the template
+    setTimeout(() => {
+      const invoice = invoiceData;
+          
+          // Format dates
+          let issuedDate = 'Not set';
+          if (invoice.created_at) {
+            const date = new Date(invoice.created_at);
+            issuedDate = date.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
+            });
+          }
+          
+          let dueDate = 'Not set';
+          if (invoice.due_date) {
+            const date = new Date(invoice.due_date);
+            dueDate = date.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
+            });
+          }
+          
+          // Get status badge classes
+          const statusClass = getInvoiceStatusBadgeClass(invoice.status);
+          const paymentClass = getPaymentStatusBadgeClass(invoice.payment_status);
+          
+          // Populate modal content
+          document.getElementById('invoiceDetailsContent').innerHTML = `
+            <div class="col-md-6">
+              <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                  <h6 class="card-title text-primary mb-3">
+                    <i class="bi bi-receipt me-2"></i>Invoice Information
+                  </h6>
+                  <div class="row g-2">
+                    <div class="col-4"><strong>Invoice #:</strong></div>
+                    <div class="col-8"><span class="invoice-number">${invoice.invoice_no || 'N/A'}</span></div>
+                    <div class="col-4"><strong>PO Number:</strong></div>
+                    <div class="col-8">${invoice.po_number ? '<span class="po-number">' + invoice.po_number + '</span>' : 'N/A'}</div>
+                    <div class="col-4"><strong>Amount:</strong></div>
+                    <div class="col-8"><span class="amount-text">₱${parseFloat(invoice.amount || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}</span></div>
+                    <div class="col-4"><strong>Status:</strong></div>
+                    <div class="col-8"><span class="badge-enhanced ${statusClass}">${invoice.status || 'Draft'}</span></div>
+                    <div class="col-4"><strong>Vendor ID:</strong></div>
+                    <div class="col-8">${invoice.vendor_id || 'N/A'}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                  <h6 class="card-title text-success mb-3">
+                    <i class="bi bi-building me-2"></i>Vendor Information
+                  </h6>
+                  <div class="row g-2">
+                    <div class="col-4"><strong>Vendor:</strong></div>
+                    <div class="col-8"><span class="vendor-text">${invoice.vendor_name || 'N/A'}</span></div>
+                    <div class="col-4"><strong>Vendor ID:</strong></div>
+                    <div class="col-8">${invoice.vendor_id || 'N/A'}</div>
+                    <div class="col-4"><strong>Created:</strong></div>
+                    <div class="col-8">${issuedDate}</div>
+                    <div class="col-4"><strong>Updated:</strong></div>
+                    <div class="col-8">${invoice.updated_at ? new Date(invoice.updated_at).toLocaleDateString('en-US', {year: 'numeric', month: 'short', day: 'numeric'}) : 'N/A'}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                  <h6 class="card-title text-info mb-3">
+                    <i class="bi bi-calendar-check me-2"></i>Payment Information
+                  </h6>
+                  <div class="row g-3">
+                    <div class="col-md-3">
+                      <div class="text-center">
+                        <div class="small text-muted">Payment Status</div>
+                        <span class="badge-enhanced ${paymentClass}">${invoice.payment_status || 'Unpaid'}</span>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="text-center">
+                        <div class="small text-muted">Issued Date</div>
+                        <div class="fw-semibold date-text">${issuedDate}</div>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="text-center">
+                        <div class="small text-muted">Due Date</div>
+                        <div class="fw-semibold date-text">${dueDate}</div>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="text-center">
+                        <div class="small text-muted">Amount Due</div>
+                        <div class="fw-semibold amount-text">₱${parseFloat(invoice.amount || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+          
+          // Show/hide payment button based on payment status
+          const paymentBtn = document.getElementById('recordPaymentFromModal');
+          if ((invoice.payment_status || 'Unpaid') === 'Paid') {
+            paymentBtn.style.display = 'none';
+          } else {
+            paymentBtn.style.display = 'inline-block';
+          }
+          
+          // Update download button with invoice ID
+          const downloadBtn = document.getElementById('downloadInvoiceFromModal');
+          downloadBtn.onclick = () => downloadInvoice(currentInvoiceId);
+          
+          // Update payment button with invoice ID
+          paymentBtn.onclick = () => recordPayment(currentInvoiceId);
+          
+    }, 500); // Small delay to show loading animation
+  }
+  
+  // Helper functions for badge classes
+  function getInvoiceStatusBadgeClass(status) {
+    const statusMap = {
+      'Draft': 'badge-status-draft',
+      'Submitted': 'badge-status-pending',
+      'Approved': 'badge-status-approved',
+      'Rejected': 'badge-status-rejected',
+      'Partially Paid': 'badge-status-pending',
+      'Paid': 'badge-status-paid',
+      'Overdue': 'badge-status-overdue'
+    };
+    return statusMap[status] || 'badge-status-draft';
+  }
+  
+  function getPaymentStatusBadgeClass(payment) {
+    const paymentMap = {
+      'Unpaid': 'badge-payment-unpaid',
+      'Partial': 'badge-payment-partial',
+      'Paid': 'badge-payment-paid'
+    };
+    return paymentMap[payment] || 'badge-payment-unpaid';
+  }
+  
+  // Download invoice function
+  function downloadInvoice(invoiceId) {
+    Swal.fire({
+      icon: 'info',
+      title: 'Feature Not Available',
+      text: 'Invoice download functionality is not yet implemented.',
+      confirmButtonText: 'OK',
+      confirmButtonColor: '#0d6efd'
+    });
+  }
+  
+  // Record payment function
+  function recordPayment(invoiceId) {
+    // Hide details modal and redirect to payment page
+    if (invoiceDetailsModal) {
+      invoiceDetailsModal.hide();
+    }
+    window.location.href = `/psm/invoice/${invoiceId}/record-payment`;
   }
 </script>

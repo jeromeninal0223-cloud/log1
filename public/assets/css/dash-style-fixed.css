@@ -151,9 +151,10 @@ body {
     background-color: #ffffff !important;
     overflow-y: auto;
     overflow-x: hidden;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    padding: 1rem;
-    padding-bottom: 2rem;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15);
+    padding: 0;
+    border: none;
+    border-radius: 0;
   }
 
   #sidebar.active {
@@ -230,17 +231,36 @@ body {
   }
 
   #sidebar .profile-section {
-    padding-bottom: 1rem;
+    padding: 1.5rem 1rem 1rem 1rem;
     border-bottom: 1px solid #e5e7eb;
-    margin-bottom: 1rem;
+    margin-bottom: 0;
+    background-color: #ffffff;
   }
 
   #sidebar .nav {
-    padding-bottom: 1rem;
+    padding: 1rem;
+    padding-bottom: 2rem;
+    background-color: #ffffff;
   }
 
   #sidebar .nav-item:last-child {
     margin-bottom: 1rem;
+  }
+
+  /* Ensure sidebar content has proper padding on mobile */
+  @media (max-width: 767px) {
+    #sidebar {
+      border-right: none !important;
+    }
+    
+    #sidebar .profile-section {
+      margin: 0;
+      padding: 1.5rem 1rem 1rem 1rem;
+    }
+    
+    #sidebar .nav {
+      padding: 0 1rem 2rem 1rem;
+    }
   }
 }
 

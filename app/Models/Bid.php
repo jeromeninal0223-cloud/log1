@@ -19,6 +19,10 @@ class Bid extends Model
         'amount',
         'status',
         'completion_date',
+        'warranty_period',
+        'custom_warranty',
+        'payment_terms_type',
+        'payment_terms_details',
         'attachments',
         'submitted_at',
     ];

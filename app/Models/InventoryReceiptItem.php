@@ -15,6 +15,12 @@ class InventoryReceiptItem extends Model
         'item_name',
         'description',
         'quantity',
+        'damaged_quantity',
+        'damage_reason',
+        'damage_image_path',
+        'damage_image_name',
+        'damage_image_size',
+        'return_to_vendor',
         'unit',
         'unit_price',
         'total_price',
@@ -40,27 +46,36 @@ class InventoryReceiptItem extends Model
         return $this->belongsTo(InventoryReceipt::class, 'inventory_receipt_id');
     }
 
-    // Scopes
-    public function scopeDamaged($query)
+    public function scopeWithDamage($query)
     {
-        return $query->where('condition', 'Damaged');
+        return $query->where('damaged_quantity', '>', 0);
     }
 
-    public function scopeExpired($query)
+    public function scopeForReturn($query)
     {
-        return $query->where('condition', 'Expired');
+        return $query->where('return_to_vendor', true);
     }
 
-    // Methods
-    public function calculateTotalPrice(): void
+    // Helper methods
+    public function getGoodQuantityAttribute()
     {
-        $this->total_price = $this->quantity * $this->unit_price;
-        $this->save();
+        return $this->quantity - $this->damaged_quantity;
     }
 
-    public function isDamaged(): bool
+    public function hasDamage()
     {
-        return $this->condition === 'Damaged';
+        return $this->damaged_quantity > 0;
+    }
+
+    public function isFullyDamaged()
+    {
+        return $this->damaged_quantity >= $this->quantity;
+    }
+
+    public function getDamagePercentageAttribute()
+    {
+        if ($this->quantity == 0) return 0;
+        return round(($this->damaged_quantity / $this->quantity) * 100, 2);
     }
 
     public function isExpired(): bool

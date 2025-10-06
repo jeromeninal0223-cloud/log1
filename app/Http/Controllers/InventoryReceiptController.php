@@ -40,38 +40,72 @@ class InventoryReceiptController extends Controller
             'totalValue', 
             'recentReceipts',
             'suppliers',
-            'purchaseOrders'
         ));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'receipt_date' => 'required|date',
-            'supplier_name' => 'required|string',
-            'purchase_order_number' => 'nullable|string',
-            'delivery_date' => 'required|date',
-            'invoice_number' => 'nullable|string',
-            'warehouse_location' => 'required|string',
-            'received_by' => 'required|string',
-            'notes' => 'nullable|string',
-            'items' => 'required|array|min:1',
+        try {
+            \Log::info('Store receipt request received');
+            \Log::info('Request method: ' . $request->method());
+            \Log::info('Request headers: ' . json_encode($request->headers->all()));
+            
+            // Parse items from JSON string if it's FormData
+            $items = $request->input('items');
+            \Log::info('Items input: ' . ($items ? (is_string($items) ? $items : json_encode($items)) : 'null'));
+            
+            if (is_string($items)) {
+                $items = json_decode($items, true);
+                $request->merge(['items' => $items]);
+                \Log::info('Items parsed from JSON');
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error in store method start: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Server error: ' . $e->getMessage()], 500);
+        }
+
+        try {
+            $request->validate([
+                'receipt_date' => 'required|date',
+                'supplier_name' => 'required|string',
+                'purchase_order_number' => 'nullable|string',
+                'delivery_date' => 'nullable|date',
+                'invoice_number' => 'nullable|string',
+                'warehouse_location' => 'required|string',
+                'received_by' => 'required|string',
+                'notes' => 'nullable|string',
+                'items' => 'required|array|min:1',
             'items.*.item_name' => 'required|string',
             'items.*.description' => 'nullable|string',
+            'items.*.category' => 'nullable|string',
             'items.*.quantity' => 'required|integer|min:1',
+            'items.*.damaged_quantity' => 'nullable|integer|min:0',
             'items.*.unit' => 'required|string',
             'items.*.unit_price' => 'nullable|numeric|min:0',
             'items.*.condition' => 'required|string',
             'items.*.storage_location' => 'required|string',
-            'items.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+            'items.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'items.*.damage_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation error: ' . json_encode($e->errors()));
+            return response()->json(['success' => false, 'message' => 'Validation failed', 'errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            \Log::error('Error in validation: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Server error during validation: ' . $e->getMessage()], 500);
+        }
 
         try {
             DB::beginTransaction();
 
             // Create receipt
+            $receiptNumber = InventoryReceipt::generateReceiptNumber();
+            if (!$receiptNumber) {
+                $receiptNumber = 'REC-' . time(); // Fallback receipt number
+            }
+            
             $receipt = InventoryReceipt::create([
-                'receipt_number' => InventoryReceipt::generateReceiptNumber(),
+                'receipt_number' => $receiptNumber,
                 'receipt_date' => $request->receipt_date,
                 'supplier_name' => $request->supplier_name,
                 'purchase_order_number' => $request->purchase_order_number,
@@ -80,7 +114,7 @@ class InventoryReceiptController extends Controller
                 'warehouse_location' => $request->warehouse_location,
                 'received_by' => $request->received_by,
                 'notes' => $request->notes,
-                'created_by' => Auth::id(),
+                'created_by' => Auth::id() ?? 1, // Fallback to user ID 1 if no auth
                 'purchase_order_id' => $this->getPurchaseOrderId($request->purchase_order_number),
             ]);
 
@@ -88,56 +122,108 @@ class InventoryReceiptController extends Controller
             foreach ($request->items as $index => $itemData) {
                 $totalPrice = ($itemData['quantity'] ?? 0) * ($itemData['unit_price'] ?? 0);
                 
-                // Handle image upload
+                // Handle item image
                 $imagePath = null;
                 $imageName = null;
                 $imageSize = null;
                 
                 if ($request->hasFile("items.{$index}.image")) {
                     $image = $request->file("items.{$index}.image");
-                    $imageName = time() . '_' . $image->getClientOriginalName();
+                    $imageName = time() . '_item_' . $image->getClientOriginalName();
                     $imagePath = $image->storeAs('inventory_items', $imageName, 'public');
                     $imageSize = $image->getSize();
+                    \Log::info("Item image uploaded: " . $imagePath);
+                }
+
+                // Handle damage image
+                $damageImagePath = null;
+                $damageImageName = null;
+                $damageImageSize = null;
+                
+                if ($request->hasFile("items.{$index}.damage_image")) {
+                    $damageImage = $request->file("items.{$index}.damage_image");
+                    $damageImageName = time() . '_damage_' . $damageImage->getClientOriginalName();
+                    $damageImagePath = $damageImage->storeAs('inventory_damage', $damageImageName, 'public');
+                    $damageImageSize = $damageImage->getSize();
+                    \Log::info("Damage image uploaded: " . $damageImagePath);
+                } else {
+                    \Log::info("No damage image found for item index: " . $index);
                 }
                 
-                $receiptItem = $receipt->items()->create([
+                $damagedQty = $itemData['damaged_quantity'] ?? 0;
+                $receiptItemData = [
                     'item_name' => $itemData['item_name'],
                     'description' => $itemData['description'] ?? null,
                     'quantity' => $itemData['quantity'],
+                    'damaged_quantity' => $damagedQty,
+                    'damage_reason' => $damagedQty > 0 ? ($itemData['damage_reason'] ?? 'Damaged on receipt') : null,
+                    'return_to_vendor' => $damagedQty > 0,
                     'unit' => $itemData['unit'],
                     'unit_price' => $itemData['unit_price'] ?? 0,
                     'total_price' => $totalPrice,
-                    'condition' => $itemData['condition'],
+                    'condition' => $damagedQty > 0 ? 'Partial Damage' : ($itemData['condition'] ?? 'Good'),
                     'storage_location' => $itemData['storage_location'],
                     'batch_number' => $itemData['batch_number'] ?? null,
                     'expiry_date' => $itemData['expiry_date'] ?? null,
                     'item_notes' => $itemData['item_notes'] ?? null,
-                    'image_path' => $imagePath,
-                    'image_name' => $imageName,
-                    'image_size' => $imageSize,
-                ]);
+                ];
+
+                // Add image fields only if they have values
+                if ($imagePath) {
+                    $receiptItemData['image_path'] = $imagePath;
+                    $receiptItemData['image_name'] = $imageName;
+                    $receiptItemData['image_size'] = $imageSize;
+                }
+
+                // Add damage image fields only if they have values
+                if ($damageImagePath) {
+                    $receiptItemData['damage_image_path'] = $damageImagePath;
+                    $receiptItemData['damage_image_name'] = $damageImageName;
+                    $receiptItemData['damage_image_size'] = $damageImageSize;
+                }
+
+                $receiptItem = $receipt->items()->create($receiptItemData);
 
                 // Update or create inventory item
-                $this->updateInventoryItem($receiptItem);
+                $this->updateInventoryItem($receiptItem, $itemData['category'] ?? 'General');
             }
 
             // Update receipt totals
             $receipt->updateTotals();
+            
+            // Complete the receipt and generate document
+            $receipt->complete();
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Inventory receipt created successfully',
+                'message' => 'Inventory receipt created and completed successfully',
                 'receipt_id' => $receipt->id,
-                'receipt_number' => $receipt->receipt_number
+                'receipt_number' => $receipt->receipt_number,
+                'document_generated' => !empty($receipt->document_path)
             ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
+            
+            // Log the full error for debugging
+            \Log::error('Inventory Receipt Creation Error', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all()
+            ]);
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Error creating receipt: ' . $e->getMessage()
+                'message' => 'Error creating receipt: ' . $e->getMessage(),
+                'debug' => config('app.debug') ? [
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString()
+                ] : null
             ], 500);
         }
     }
@@ -222,6 +308,60 @@ class InventoryReceiptController extends Controller
         }
     }
 
+    public function completeReceipt(Request $request, $id)
+    {
+        try {
+            $receipt = InventoryReceipt::findOrFail($id);
+            
+            if ($receipt->status === 'Completed') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Receipt is already completed'
+                ], 400);
+            }
+            
+            // Complete the receipt and generate document
+            $receipt->complete();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Receipt completed successfully and document generated',
+                'receipt_number' => $receipt->receipt_number,
+                'document_generated' => !empty($receipt->document_path),
+                'document_path' => $receipt->document_path
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error completing receipt: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function generateDocument(Request $request, $id)
+    {
+        try {
+            $receipt = InventoryReceipt::findOrFail($id);
+            
+            // Generate document
+            $receipt->generateDocument();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Document generated successfully',
+                'receipt_number' => $receipt->receipt_number,
+                'document_path' => $receipt->document_path
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error generating document: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function getRecentReceipts()
     {
         $receipts = InventoryReceipt::with(['items', 'purchaseOrder'])
@@ -261,8 +401,15 @@ class InventoryReceiptController extends Controller
             ]);
         }
 
-        // Get vendor by company name
+        // Get vendor by company name (try exact match first, then partial match)
         $vendor = Vendor::where('company_name', $supplierName)->first();
+        
+        if (!$vendor) {
+            // Try partial match or case-insensitive match
+            $vendor = Vendor::where('company_name', 'LIKE', "%{$supplierName}%")
+                           ->orWhere('name', 'LIKE', "%{$supplierName}%")
+                           ->first();
+        }
         
         if (!$vendor) {
             return response()->json([
@@ -272,7 +419,8 @@ class InventoryReceiptController extends Controller
                 'debug' => [
                     'supplier_name' => $supplierName,
                     'vendor_found' => false,
-                    'total_vendors' => Vendor::count()
+                    'total_vendors' => Vendor::count(),
+                    'available_vendors' => Vendor::pluck('company_name')->toArray()
                 ]
             ]);
         }
@@ -286,16 +434,15 @@ class InventoryReceiptController extends Controller
         // Also get purchase orders with other statuses for debugging
         $allPurchaseOrders = PurchaseOrder::where('vendor_id', $vendor->id)->get();
 
-        // Get invoices for this vendor that are tied to completed purchase orders
-        $invoices = \App\Models\Invoice::where('vendor_name', $supplierName)
-            ->orWhere('vendor_id', $vendor->id)
-            ->whereIn('po_number', $purchaseOrders->pluck('po_number'))
-            ->get();
+        // Get invoices for this vendor (both tied to POs and standalone)
+        $invoices = \App\Models\Invoice::where(function($query) use ($supplierName, $vendor) {
+            $query->where('vendor_name', $supplierName)
+                  ->orWhere('vendor_name', 'LIKE', "%{$supplierName}%")
+                  ->orWhere('vendor_id', $vendor->id);
+        })->get();
 
         // Also get all invoices for this vendor for debugging
-        $allInvoices = \App\Models\Invoice::where('vendor_name', $supplierName)
-            ->orWhere('vendor_id', $vendor->id)
-            ->get();
+        $allInvoices = $invoices;
 
         return response()->json([
             'success' => true,
@@ -314,7 +461,8 @@ class InventoryReceiptController extends Controller
                     'amount' => $invoice->amount,
                     'status' => $invoice->status,
                     'issued_date' => $invoice->issued_date?->format('Y-m-d'),
-                    'due_date' => $invoice->due_date?->format('Y-m-d')
+                    'due_date' => $invoice->due_date?->format('Y-m-d'),
+                    'purchase_order_number' => $invoice->po_number ?? $invoice->purchase_order_number ?? null
                 ];
             }),
             'debug' => [
@@ -388,25 +536,6 @@ class InventoryReceiptController extends Controller
         ]);
     }
 
-    public function completeReceipt($id)
-    {
-        try {
-            $receipt = InventoryReceipt::findOrFail($id);
-            $receipt->complete();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Receipt completed successfully'
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error completing receipt: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
     private function getPurchaseOrderId($poNumber)
     {
         if (!$poNumber) {
@@ -417,35 +546,86 @@ class InventoryReceiptController extends Controller
         return $purchaseOrder ? $purchaseOrder->id : null;
     }
 
-    private function updateInventoryItem($receiptItem)
+    private function updateInventoryItem($receiptItem, $category = 'General')
     {
-        // Find existing inventory item or create new one
+        // Find existing inventory item by name and supplier
         $inventoryItem = InventoryItem::where('name', $receiptItem->item_name)
-            ->where('category', 'General') // Default category
+            ->where('supplier', $receiptItem->receipt->supplier_name)
             ->first();
 
         if ($inventoryItem) {
-            // Update existing item
-            $inventoryItem->addStock($receiptItem->quantity);
+            // Update existing item - only add good quantity to inventory
+            $goodQuantity = $receiptItem->quantity - ($receiptItem->damaged_quantity ?? 0);
+            if ($goodQuantity > 0) {
+                $inventoryItem->addStock($goodQuantity);
+            }
             if ($receiptItem->unit_price > 0) {
-                $inventoryItem->update(['unit_price' => $receiptItem->unit_price]);
+                $inventoryItem->update([
+                    'unit_price' => $receiptItem->unit_price,
+                    'storage_location' => $receiptItem->storage_location, // Update location
+                ]);
             }
         } else {
-            // Create new inventory item
-            InventoryItem::create([
-                'item_code' => InventoryItem::generateItemCode(),
-                'name' => $receiptItem->item_name,
-                'description' => $receiptItem->description,
-                'category' => 'General',
-                'supplier' => $receiptItem->receipt->supplier_name,
-                'current_stock' => $receiptItem->quantity,
-                'minimum_stock' => 10, // Default minimum
-                'reorder_quantity' => 50, // Default reorder
-                'unit_of_measure' => $receiptItem->unit,
-                'unit_price' => $receiptItem->unit_price,
-                'storage_location' => $receiptItem->storage_location,
-                'status' => 'Active',
-            ]);
+            // Check if item with same name exists from different supplier
+            $existingItem = InventoryItem::where('name', $receiptItem->item_name)->first();
+            
+            if ($existingItem) {
+                // Create variant with supplier suffix
+                $itemName = $receiptItem->item_name . ' (' . $receiptItem->receipt->supplier_name . ')';
+            } else {
+                $itemName = $receiptItem->item_name;
+            }
+            
+            // Create new inventory item with retry logic for item code
+            $maxRetries = 5;
+            $retryCount = 0;
+            
+            while ($retryCount < $maxRetries) {
+                try {
+                    InventoryItem::create([
+                        'item_code' => InventoryItem::generateItemCode(),
+                        'name' => $itemName,
+                        'description' => $receiptItem->description,
+                        'category' => $category,
+                        'supplier' => $receiptItem->receipt->supplier_name,
+                        'current_stock' => $receiptItem->quantity - ($receiptItem->damaged_quantity ?? 0),
+                        'minimum_stock' => 10, // Default minimum
+                        'reorder_quantity' => 50, // Default reorder
+                        'unit_of_measure' => $receiptItem->unit,
+                        'unit_price' => $receiptItem->unit_price ?? 0,
+                        'storage_location' => $receiptItem->storage_location,
+                        'status' => 'Active',
+                    ]);
+                    break; // Success, exit retry loop
+                } catch (\Illuminate\Database\QueryException $e) {
+                    if ($e->errorInfo[1] == 1062) { // Duplicate entry error
+                        $retryCount++;
+                        if ($retryCount >= $maxRetries) {
+                            // Final fallback - use timestamp in item code
+                            $fallbackCode = 'ITM-' . time() . '-' . rand(100, 999);
+                            InventoryItem::create([
+                                'item_code' => $fallbackCode,
+                                'name' => $itemName,
+                                'description' => $receiptItem->description,
+                                'category' => $category,
+                                'supplier' => $receiptItem->receipt->supplier_name,
+                                'current_stock' => $receiptItem->quantity - ($receiptItem->damaged_quantity ?? 0),
+                                'minimum_stock' => 10,
+                                'reorder_quantity' => 50,
+                                'unit_of_measure' => $receiptItem->unit,
+                                'unit_price' => $receiptItem->unit_price ?? 0,
+                                'storage_location' => $receiptItem->storage_location,
+                                'status' => 'Active',
+                            ]);
+                            break;
+                        }
+                        // Wait a bit before retry
+                        usleep(100000); // 0.1 second
+                    } else {
+                        throw $e; // Re-throw if it's not a duplicate key error
+                    }
+                }
+            }
         }
     }
 }

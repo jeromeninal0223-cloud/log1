@@ -12,6 +12,220 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('assets/css/dash-style-fixed.css') }}">
 
+  <style>
+    /* Modern Invoices Table Styling */
+    .modern-invoices-table {
+      border-radius: 0;
+      overflow: hidden;
+    }
+
+    .invoices-table-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .invoices-table-header th {
+      padding: 1rem 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      border: none;
+    }
+
+    .invoice-row-hover {
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+    }
+
+    .invoice-row-hover:hover {
+      background-color: #f8f9ff;
+      border-left-color: #667eea;
+      transform: translateX(2px);
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+    }
+
+    /* Invoice ID Badge */
+    .invoice-id-badge {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 0.95rem;
+    }
+
+    /* Invoice Status Badges */
+    .invoice-status-badge {
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border: none;
+    }
+
+    .invoice-status-pending {
+      background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+      color: #8b4513;
+    }
+
+    .invoice-status-paid {
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+      color: #2d5016;
+    }
+
+    .invoice-status-overdue {
+      background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+      color: #8b0000;
+    }
+
+    .invoice-status-cancelled {
+      background: linear-gradient(135deg, #a8a8a8 0%, #d3d3d3 100%);
+      color: #4a4a4a;
+    }
+
+    /* Payment Status Badges */
+    .payment-status-badge {
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border: none;
+    }
+
+    .payment-status-unpaid {
+      background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+      color: #8b4513;
+    }
+
+    .payment-status-partial {
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+      color: #1e40af;
+    }
+
+    .payment-status-paid {
+      background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+      color: #2d5016;
+    }
+
+    /* Invoice Actions */
+    .invoice-actions .btn {
+      transition: all 0.3s ease;
+      border-radius: 8px;
+    }
+
+    .invoice-actions .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    /* Mobile Invoice Cards */
+    .mobile-invoices {
+      padding: 0;
+    }
+
+    .invoice-card .card {
+      transition: all 0.3s ease;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .invoice-card .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .invoice-number {
+      font-size: 1.1rem;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .invoice-detail-item {
+      padding: 0.5rem 0;
+    }
+
+    .invoice-detail-item small {
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .page-header .breadcrumb {
+        margin: 0;
+      }
+
+      .invoice-actions {
+        flex-wrap: wrap;
+      }
+
+      .invoice-actions .btn {
+        flex: 1;
+        min-width: 100px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .invoice-card {
+        margin: 0 1rem !important;
+      }
+
+      .invoice-status-badge,
+      .payment-status-badge {
+        font-size: 0.7rem;
+        padding: 0.25rem 0.5rem;
+      }
+    }
+
+    /* Amount Display */
+    .amount-display {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    /* Date Info */
+    .date-info {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    /* Filter and Export Controls */
+    .card-header {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    .form-select-sm {
+      border-radius: 8px;
+      border: 1px solid #ced4da;
+      transition: all 0.3s ease;
+    }
+
+    .form-select-sm:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .btn-outline-primary {
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-outline-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+  </style>
+
 </head>
 <body style="background-color: #f8f9fa !important;">
 
@@ -67,6 +281,11 @@
       <li class="nav-item">
         <a href="{{ route('vendor.invoices') }}" class="nav-link text-dark active">
           <i class="bi bi-receipt me-2"></i> My Invoices
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{{ route('vendor.damage.reports') }}" class="nav-link text-dark">
+          <i class="bi bi-exclamation-triangle me-2"></i> Damage Reports
         </a>
       </li>
       <li class="nav-item">
@@ -200,78 +419,178 @@
               </button>
             </div>
           </div>
-          <div class="card-body">
+          <div class="card-body p-0">
             @if($invoices->count() > 0)
-              <div class="table-responsive">
-                <table class="table table-hover" id="invoicesTable">
-                  <thead class="table-light">
-                    <tr>
-                      <th>Invoice #</th>
-                      <th>Order</th>
-                      <th>Description</th>
-                      <th>Amount</th>
-                      <th>Status</th>
-                      <th>Payment</th>
-                      <th>Issue Date</th>
-                      <th>Due Date</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @foreach($invoices as $invoice)
-                    <tr>
-                      <td><strong>{{ $invoice->id ?? 'INV-' . str_pad($loop->iteration, 3, '0', STR_PAD_LEFT) }}</strong></td>
-                      <td>{{ $invoice->order ?? 'ORD-' . str_pad($loop->iteration, 3, '0', STR_PAD_LEFT) }}</td>
-                      <td>{{ $invoice->item_names ?? 'Services rendered' }}</td>
-                      <td><strong>₱{{ number_format($invoice->amount ?? rand(50000, 500000)) }}</strong></td>
-                      <td>
-                        @php
-                          $status = $invoice->status ?? 'Pending';
-                          $statusClass = [
-                            'Pending' => 'bg-warning',
-                            'Paid' => 'bg-success',
-                            'Overdue' => 'bg-danger',
-                            'Cancelled' => 'bg-secondary'
-                          ][$status] ?? 'bg-secondary';
-                        @endphp
-                        <span class="badge {{ $statusClass }}">{{ $status }}</span>
-                      </td>
-                      <td>
-                        @php
-                          $p = $invoice->payment_status ?? 'Unpaid';
-                          $payClass = [
-                            'Unpaid' => 'bg-secondary',
-                            'Partial' => 'bg-info',
-                            'Paid' => 'bg-success',
-                          ][$p] ?? 'bg-secondary';
-                        @endphp
-                        <span class="badge {{ $payClass }}">{{ $p }}</span>
-                      </td>
-                      <td>{{ $invoice->issue_date ?? now()->subDays(rand(1, 30))->format('M d, Y') }}</td>
-                      <td>{{ $invoice->due_date ?? now()->addDays(rand(7, 30))->format('M d, Y') }}</td>
-                      <td>
-                        <div class="btn-group btn-group-sm">
-                          <button class="btn btn-outline-primary" onclick="viewInvoice({{ $invoice->id ?? 0 }})">
-                            <i class="bi bi-eye"></i>
+              <!-- Desktop Table View -->
+              <div class="d-none d-lg-block">
+                <div class="table-responsive">
+                  <table class="table table-hover mb-0 modern-invoices-table" id="invoicesTable">
+                    <thead class="invoices-table-header">
+                      <tr>
+                        <th class="border-0 fw-semibold text-uppercase small">Invoice #</th>
+                        <th class="border-0 fw-semibold text-uppercase small">Order Details</th>
+                        <th class="border-0 fw-semibold text-uppercase small">Amount</th>
+                        <th class="border-0 fw-semibold text-uppercase small">Status</th>
+                        <th class="border-0 fw-semibold text-uppercase small">Payment</th>
+                        <th class="border-0 fw-semibold text-uppercase small">Issue Date</th>
+                        <th class="border-0 fw-semibold text-uppercase small">Due Date</th>
+                        <th class="border-0 fw-semibold text-uppercase small">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @foreach($invoices as $invoice)
+                      <tr class="invoice-row-hover">
+                        <td class="align-middle py-3">
+                          <div class="invoice-id-badge">
+                            <span class="fw-bold text-primary">{{ $invoice->id ?? 'INV-' . str_pad($loop->iteration, 3, '0', STR_PAD_LEFT) }}</span>
+                          </div>
+                        </td>
+                        <td class="align-middle py-3">
+                          <div class="invoice-info">
+                            <h6 class="mb-1 fw-semibold text-dark">{{ $invoice->order ?? 'ORD-' . str_pad($loop->iteration, 3, '0', STR_PAD_LEFT) }}</h6>
+                            <p class="mb-0 text-muted small">{{ Str::limit($invoice->item_names ?? 'Services rendered', 50) }}</p>
+                          </div>
+                        </td>
+                        <td class="align-middle py-3">
+                          <div class="amount-display">
+                            <span class="fw-bold fs-6 text-success">₱{{ number_format($invoice->amount ?? rand(50000, 500000)) }}</span>
+                          </div>
+                        </td>
+                        <td class="align-middle py-3">
+                          @php
+                            $status = $invoice->status ?? 'Pending';
+                            $statusClass = [
+                              'Pending' => 'invoice-status-pending',
+                              'Paid' => 'invoice-status-paid',
+                              'Overdue' => 'invoice-status-overdue',
+                              'Cancelled' => 'invoice-status-cancelled'
+                            ][$status] ?? 'invoice-status-pending';
+                          @endphp
+                          <span class="invoice-status-badge {{ $statusClass }}">{{ $status }}</span>
+                        </td>
+                        <td class="align-middle py-3">
+                          @php
+                            $p = $invoice->payment_status ?? 'Unpaid';
+                            $payClass = [
+                              'Unpaid' => 'payment-status-unpaid',
+                              'Partial' => 'payment-status-partial',
+                              'Paid' => 'payment-status-paid',
+                            ][$p] ?? 'payment-status-unpaid';
+                          @endphp
+                          <span class="payment-status-badge {{ $payClass }}">{{ $p }}</span>
+                        </td>
+                        <td class="align-middle py-3">
+                          <div class="date-info">
+                            <span class="text-muted small">{{ $invoice->issue_date ?? now()->subDays(rand(1, 30))->format('M d, Y') }}</span>
+                          </div>
+                        </td>
+                        <td class="align-middle py-3">
+                          <div class="date-info">
+                            <span class="text-muted small">{{ $invoice->due_date ?? now()->addDays(rand(7, 30))->format('M d, Y') }}</span>
+                          </div>
+                        </td>
+                        <td class="align-middle py-3">
+                          <div class="invoice-actions">
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="viewInvoice({{ $invoice->id ?? 0 }})" title="View Details">
+                              <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-success" onclick="downloadInvoice({{ $loop->iteration }})" title="Download">
+                              <i class="bi bi-download"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      @endforeach
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Mobile Card View -->
+              <div class="d-lg-none mobile-invoices">
+                @foreach($invoices as $invoice)
+                  @php
+                    $status = $invoice->status ?? 'Pending';
+                    $statusClass = [
+                      'Pending' => 'invoice-status-pending',
+                      'Paid' => 'invoice-status-paid',
+                      'Overdue' => 'invoice-status-overdue',
+                      'Cancelled' => 'invoice-status-cancelled'
+                    ][$status] ?? 'invoice-status-pending';
+                    
+                    $p = $invoice->payment_status ?? 'Unpaid';
+                    $payClass = [
+                      'Unpaid' => 'payment-status-unpaid',
+                      'Partial' => 'payment-status-partial',
+                      'Paid' => 'payment-status-paid',
+                    ][$p] ?? 'payment-status-unpaid';
+                  @endphp
+                  <div class="invoice-card mb-3 mx-3">
+                    <div class="card border-0 shadow-sm h-100">
+                      <div class="card-body p-4">
+                        <!-- Header -->
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                          <div class="invoice-header">
+                            <span class="invoice-number fw-bold text-primary">{{ $invoice->id ?? 'INV-' . str_pad($loop->iteration, 3, '0', STR_PAD_LEFT) }}</span>
+                            <div class="mt-2">
+                              <span class="invoice-status-badge {{ $statusClass }} me-2">{{ $status }}</span>
+                              <span class="payment-status-badge {{ $payClass }}">{{ $p }}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Order Info -->
+                        <h6 class="card-title fw-semibold mb-2 text-dark">{{ $invoice->order ?? 'ORD-' . str_pad($loop->iteration, 3, '0', STR_PAD_LEFT) }}</h6>
+                        
+                        <!-- Description -->
+                        <p class="card-text text-muted small mb-3">{{ Str::limit($invoice->item_names ?? 'Services rendered', 80) }}</p>
+                        
+                        <!-- Details Grid -->
+                        <div class="row g-3 mb-3">
+                          <div class="col-6">
+                            <div class="invoice-detail-item">
+                              <small class="text-muted d-block">Amount</small>
+                              <span class="fw-bold text-success">₱{{ number_format($invoice->amount ?? rand(50000, 500000)) }}</span>
+                            </div>
+                          </div>
+                          <div class="col-6">
+                            <div class="invoice-detail-item">
+                              <small class="text-muted d-block">Issue Date</small>
+                              <span class="small">{{ $invoice->issue_date ?? now()->subDays(rand(1, 30))->format('M d, Y') }}</span>
+                            </div>
+                          </div>
+                          <div class="col-12">
+                            <div class="invoice-detail-item">
+                              <small class="text-muted d-block">Due Date</small>
+                              <span class="small">{{ $invoice->due_date ?? now()->addDays(rand(7, 30))->format('M d, Y') }}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="invoice-actions d-flex gap-2 justify-content-center">
+                          <button class="btn btn-sm btn-outline-primary" onclick="viewInvoice({{ $invoice->id ?? 0 }})" title="View Details">
+                            <i class="bi bi-eye me-1"></i>View
                           </button>
-                          <button class="btn btn-outline-success" onclick="downloadInvoice({{ $loop->iteration }})">
-                            <i class="bi bi-download"></i>
+                          <button class="btn btn-sm btn-outline-success" onclick="downloadInvoice({{ $loop->iteration }})" title="Download">
+                            <i class="bi bi-download me-1"></i>Download
                           </button>
                         </div>
-                      </td>
-                    </tr>
-                    @endforeach
-                  </tbody>
-                </table>
+                      </div>
+                    </div>
+                  </div>
+                @endforeach
               </div>
             @else
               <div class="text-center py-5">
-                <i class="bi bi-receipt fa-3x text-muted mb-3"></i>
-                <h5>No Invoices Generated Yet</h5>
-                <p class="text-muted">Invoices will be generated once you complete orders. Complete your first order to see invoices here!</p>
-                <a href="{{ route('vendor.orders') }}" class="btn btn-primary">
-                  <i class="bi bi-cart-check me-2"></i>View Orders
-                </a>
+                <div class="text-muted">
+                  <i class="bi bi-receipt fs-1 d-block mb-3"></i>
+                  <h6>No Invoices Generated Yet</h6>
+                  <p class="mb-0">Invoices will be generated once you complete orders. Complete your first order to see invoices here!</p>
+                  <a href="{{ route('vendor.orders') }}" class="btn btn-primary mt-3">
+                    <i class="bi bi-cart-check me-2"></i>View Orders
+                  </a>
+                </div>
               </div>
             @endif
           </div>

@@ -17,6 +17,13 @@ body {
   overflow-x: hidden;
 }
 
+@media (max-width: 768px) {
+  body {
+    min-height: auto;
+    padding: 0.25rem;
+  }
+}
+
 .register-container {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
@@ -58,6 +65,13 @@ body {
   justify-content: flex-start;
   min-height: 100vh;
   overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .register-right {
+    min-height: auto;
+    padding: 1rem;
+  }
 }
 
 .logo-container {
@@ -353,48 +367,43 @@ body {
 
 /* Mobile Responsive Styles */
 @media (max-width: 768px) {
-  body {
-    align-items: flex-start;
-    padding: 0.5rem;
-  }
-
   .register-container {
-    margin: 0.5rem auto;
+    margin: 0.25rem;
     max-width: 100%;
-    max-height: none;
+    border-radius: 12px;
   }
 
   .register-left {
-    padding: 2rem 1.5rem;
-    min-height: 200px;
+    padding: 1rem 0.75rem;
+    min-height: auto;
+    order: 1;
   }
 
   .register-right {
-    padding: 1.5rem;
+    padding: 1rem 0.75rem;
     min-height: auto;
-    max-height: none;
-    justify-content: flex-start;
+    order: 2;
   }
   
   .logo-box {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 1rem;
-  }
-  
-  .brand-text {
-    font-size: 1.3rem;
+    width: 50px;
+    height: 50px;
     margin-bottom: 0.5rem;
   }
   
+  .brand-text {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+  
   .brand-subtitle {
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
+    font-size: 0.75rem;
+    margin-bottom: 0.5rem;
   }
   
   .welcome-text {
-    font-size: 1.4rem;
-    margin-bottom: 0;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
   }
   
   /* Hide elements on mobile */
@@ -404,17 +413,55 @@ body {
     display: none;
   }
 
-  /* Ensure form fields are visible */
+  /* Compact form styling */
   .form-control, .form-select {
     font-size: 16px; /* Prevents zoom on iOS */
+    padding: 0.5rem 0.75rem;
   }
 
   h3 {
-    font-size: 1.3rem;
-    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
   }
   
-
+  h5 {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .mb-3 {
+    margin-bottom: 0.75rem !important;
+  }
+  
+  .mb-4 {
+    margin-bottom: 1rem !important;
+  }
+  
+  .my-4 {
+    margin-top: 1rem !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  /* File upload adjustments */
+  .file-upload-wrapper {
+    padding: 15px;
+  }
+  
+  .file-upload-info i {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+  }
+  
+  /* Button adjustments */
+  .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  /* Modal adjustments */
+  .modal-dialog {
+    margin: 1rem;
+  }
 }
 
 /* Animation for form elements */

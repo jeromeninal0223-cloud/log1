@@ -138,7 +138,7 @@
       <ul class="nav flex-column ms-3">
         <li class="nav-item">
           <a href="{{ url('/plt/toursetup') }}" class="nav-link text-dark small">
-            <i class="bi bi-flag me-2"></i> Tour Setup
+            <i class="bi bi-diagram-3 me-2"></i> Project Planning
           </a>
         </li>
         <li class="nav-item">
@@ -302,7 +302,7 @@
                 <i class="bi bi-currency-dollar"></i>
               </div>
               <div>
-                <h3 class="fw-bold mb-0">${{ number_format($stats['total_estimated_cost'] ?? 0, 0) }}</h3>
+                <h3 class="fw-bold mb-0">₱{{ number_format($stats['total_estimated_cost'] ?? 0, 0) }}</h3>
                 <p class="text-muted mb-0 small">Estimated Cost</p>
                 <small class="text-success"><i class="bi bi-calculator"></i> Pending requests</small>
               </div>
@@ -364,7 +364,7 @@
                         {{ ucfirst($item->getStockStatus()) }}
                       </span>
                     </td>
-                    <td>${{ number_format($item->unit_price * $item->reorder_quantity, 2) }}</td>
+                    <td>₱{{ number_format(($item->unit_price ?? 0) * ($item->reorder_quantity ?? 1), 2) }}</td>
                     <td>
                       @if($item->hasPendingPurchaseRequest())
                         <span class="badge bg-info">Request Pending</span>
@@ -393,69 +393,6 @@
           </div>
         </div>
 
-        <!-- Purchase Requests -->
-        <div class="card shadow-sm border-0 mt-4">
-          <div class="card-header border-bottom d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">Recent Purchase Requests</h5>
-            <a href="{{ url('/psm/request') }}" class="btn btn-sm btn-outline-primary">View All</a>
-          </div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-hover">
-                <thead class="table-light">
-                  <tr>
-                    <th>Request #</th>
-                    <th>Item</th>
-                    <th>Quantity</th>
-                    <th>Priority</th>
-                    <th>Status</th>
-                    <th>Est. Cost</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @forelse($recentRequests as $request)
-                  <tr>
-                    <td><strong>{{ $request->request_number }}</strong></td>
-                    <td>{{ $request->stockItem->name ?? 'N/A' }}</td>
-                    <td>{{ $request->quantity_requested }} {{ $request->stockItem->unit_of_measure ?? '' }}</td>
-                    <td>
-                      <span class="badge bg-{{ $request->getPriorityColor() }}">
-                        {{ ucfirst($request->priority) }}
-                      </span>
-                    </td>
-                    <td>
-                      <span class="badge bg-{{ $request->getStatusColor() }}">
-                        {{ ucfirst(str_replace('_', ' ', $request->status)) }}
-                      </span>
-                    </td>
-                    <td>${{ number_format($request->total_estimated_cost, 2) }}</td>
-                    <td>
-                      @if($request->status === 'pending')
-                        <button class="btn btn-sm btn-success approve-btn" data-request-id="{{ $request->id }}">
-                          <i class="bi bi-check-circle"></i> Approve
-                        </button>
-                      @elseif($request->status === 'approved')
-                        <button class="btn btn-sm btn-primary send-to-procurement-btn" data-request-id="{{ $request->id }}">
-                          <i class="bi bi-send"></i> Send to Procurement
-                        </button>
-                      @elseif($request->status === 'forwarded_to_procurement')
-                        <span class="badge bg-info">
-                          <i class="bi bi-check-circle"></i> Sent to Procurement
-                        </span>
-                      @endif
-                    </td>
-                  </tr>
-                  @empty
-                  <tr>
-                    <td colspan="7" class="text-center text-muted">No purchase requests found</td>
-                  </tr>
-                  @endforelse
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
 
         <!-- Inventory Chart -->
         <div class="card shadow-sm border-0 mt-4">
@@ -795,8 +732,7 @@
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
           },
           body: JSON.stringify({
-            stock_item_id: itemId,
-            requested_by: 'Current User'
+            item_id: itemId
           })
         });
 
@@ -823,8 +759,7 @@
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
           },
           body: JSON.stringify({
-            stock_item_ids: itemIds,
-            requested_by: 'Current User'
+            item_ids: itemIds
           })
         });
 
@@ -848,7 +783,7 @@
       }
 
       try {
-        const response = await fetch('/api/stock/auto-generate', {
+        const response = await fetch('/api/stock/auto-generate-requests', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -879,8 +814,7 @@
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
           },
           body: JSON.stringify({
-            purchase_request_id: requestId,
-            approved_by: 'Current User'
+            request_id: requestId
           })
         });
 

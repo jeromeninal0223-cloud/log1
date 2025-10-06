@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>Procurement & Sourcing Management - Purchase Orders</title>
 
   <!-- Bootstrap CSS -->
@@ -10,8 +10,244 @@
   <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('assets/css/dash-style-fixed.css') }}">
+  <!-- PSM Animations -->
+  <link rel="stylesheet" href="{{ asset('assets/css/psm-animations.css') }}">
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    /* Enhanced table styles */
+    .table-enhanced {
+      border: none;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    .table-enhanced thead th {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border: none;
+      font-weight: 600;
+      font-size: 0.875rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #495057;
+      padding: 1rem 0.75rem;
+      vertical-align: middle;
+      position: relative;
+    }
+    
+    .table-enhanced tbody td {
+      border: none;
+      border-bottom: 1px solid #f1f3f4;
+      padding: 1rem 0.75rem;
+      vertical-align: middle;
+      font-size: 0.9rem;
+      color: #495057;
+    }
+    
+    .table-enhanced tbody tr {
+      transition: all 0.2s ease;
+      background-color: #ffffff;
+    }
+    
+    .table-enhanced tbody tr:hover {
+      background-color: #f8f9fa;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .table-enhanced tbody tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .sortable {
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    
+    .sortable:hover {
+      background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+      color: #212529;
+    }
+    
+    .sortable i {
+      opacity: 0.5;
+      transition: opacity 0.2s ease;
+    }
+    
+    .sortable:hover i {
+      opacity: 1;
+    }
+    
+    /* Enhanced badges */
+    .badge-enhanced {
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-weight: 500;
+      font-size: 0.75rem;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      white-space: nowrap;
+      min-width: fit-content;
+      display: inline-block;
+    }
+    
+    .badge-status-pending {
+      background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+      color: white;
+    }
+    
+    .badge-status-approved {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+    }
+    
+    .badge-status-in-progress {
+      background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+      color: white;
+    }
+    
+    .badge-status-completed {
+      background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+      color: white;
+    }
+    
+    .badge-status-cancelled {
+      background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
+      color: white;
+    }
+    
+    /* Enhanced action buttons */
+    .btn-action {
+      padding: 0.4rem 0.6rem;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      transition: all 0.2s ease;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin: 0 2px;
+    }
+    
+    .btn-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-action-view {
+      background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+      color: white;
+      border-color: #0d6efd;
+    }
+    
+    .btn-action-view:hover {
+      background: linear-gradient(135deg, #0b5ed7 0%, #520dc2 100%);
+      color: white;
+    }
+    
+    .btn-action-edit {
+      background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+      color: white;
+      border-color: #ffc107;
+    }
+    
+    .btn-action-edit:hover {
+      background: linear-gradient(135deg, #e0a800 0%, #dc6502 100%);
+      color: white;
+    }
+    
+    .btn-action-delete {
+      background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
+      color: white;
+      border-color: #dc3545;
+    }
+    
+    .btn-action-delete:hover {
+      background: linear-gradient(135deg, #c82333 0%, #d91a72 100%);
+      color: white;
+    }
+
+    .btn-action-approve {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      border-color: #28a745;
+    }
+    
+    .btn-action-approve:hover {
+      background: linear-gradient(135deg, #218838 0%, #1aa085 100%);
+      color: white;
+    }
+
+    .btn-action-download {
+      background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+      color: white;
+      border-color: #6c757d;
+    }
+    
+    .btn-action-download:hover {
+      background: linear-gradient(135deg, #5a6268 0%, #3d4142 100%);
+      color: white;
+    }
+    
+    /* Text alignment improvements */
+    .text-center-custom {
+      text-align: center !important;
+      vertical-align: middle !important;
+    }
+    
+    .text-left-custom {
+      text-align: left !important;
+      vertical-align: middle !important;
+    }
+    
+    .text-right-custom {
+      text-align: right !important;
+      vertical-align: middle !important;
+    }
+    
+    /* ID styling */
+    .order-id {
+      font-family: 'Courier New', monospace;
+      font-weight: 700;
+      color: #6f42c1;
+      background: linear-gradient(135deg, #f8f4ff 0%, #ede4ff 100%);
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Contract styling */
+    .contract-text {
+      font-weight: 600;
+      color: #212529;
+    }
+    
+    /* Date styling */
+    .date-text {
+      color: #6c757d;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    
+    /* Amount styling */
+    .amount-text {
+      font-family: 'Courier New', monospace;
+      font-weight: 600;
+      color: #28a745;
+    }
+    
+    .table-container {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+  </style>
 
 </head>
 <body style="background-color: #f8f9fa !important;">
@@ -100,7 +336,7 @@
             </li>
             <li class="nav-item">
               <a href="{{ url('/psm/bidding') }}" class="nav-link text-dark small">
-                <i class="bi bi-gavel me-2"></i> Bidding & RFQ
+                <i class="bi bi-clipboard-check me-2"></i> Bidding & RFQ
               </a>
             </li>
             <li class="nav-item">
@@ -136,7 +372,7 @@
       <ul class="nav flex-column ms-3">
         <li class="nav-item">
           <a href="{{ url('/plt/toursetup') }}" class="nav-link text-dark small">
-            <i class="bi bi-flag me-2"></i> Tour Setup
+            <i class="bi bi-diagram-3 me-2"></i> Project Planning
           </a>
         </li>
         <li class="nav-item">
@@ -146,7 +382,7 @@
         </li>
         <li class="nav-item">
           <a href="{{ url('/plt/closure') }}" class="nav-link text-dark small">
-            <i class="bi bi-check2-circle me-2"></i> Post-Tour Closure
+            <i class="bi bi-check2-circle me-2"></i> Closure
           </a>
         </li>
       </ul>
@@ -307,73 +543,79 @@
       </div>
     </div>
 
-    <!-- Purchase Order Management & Quick Actions -->
+    <!-- Purchase Order Management -->
     <div class="row g-4">
-      <div class="col-lg-8">
+      <div class="col-12">
         <div class="card shadow-sm border-0">
           <div class="card-header border-bottom d-flex justify-content-between align-items-center">
             <h5 class="card-title mb-0">Purchase Orders</h5>
-            <div class="d-flex gap-2">
-              <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#createOrderModal">
-                <i class="bi bi-plus-circle me-1"></i>New Order
-              </button>
-            <button class="btn btn-sm btn-outline-primary">View All</button>
-            </div>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createOrderModal">
+              <i class="bi bi-plus-circle me-2"></i>Create New Order
+            </button>
           </div>
           <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-hover">
-                <thead class="table-light">
+            <div class="table-responsive table-container">
+              <table class="table table-enhanced">
+                <thead>
                   <tr>
-                    <th>PO Number</th>
-                    <th>Contract</th>
-                    <th>Vendor</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th>Order Date</th>
-                    <th>Actions</th>
+                    <th class="text-center-custom sortable">PO Number <i class="bi bi-arrow-down-up ms-1"></i></th>
+                    <th class="text-left-custom sortable">Contract <i class="bi bi-arrow-down-up ms-1"></i></th>
+                    <th class="text-left-custom sortable">Vendor <i class="bi bi-arrow-down-up ms-1"></i></th>
+                    <th class="text-right-custom sortable">Amount <i class="bi bi-arrow-down-up ms-1"></i></th>
+                    <th class="text-center-custom sortable">Status <i class="bi bi-arrow-down-up ms-1"></i></th>
+                    <th class="text-center-custom sortable">Order Date <i class="bi bi-arrow-down-up ms-1"></i></th>
+                    <th class="text-center-custom">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   @forelse($purchaseOrders ?? [] as $order)
                   <tr>
-                    <td><strong>{{ $order->po_number }}</strong></td>
-                    <td>
-                      <small class="text-muted">{{ $order->contract->contract_number ?? 'N/A' }}</small><br>
-                      <span class="fw-semibold">{{ Str::limit($order->title, 30) }}</span>
+                    <td class="text-center-custom">
+                      <span class="order-id">#{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}</span>
                     </td>
-                    <td>{{ $order->vendor->company_name ?? $order->vendor->name }}</td>
-                    <td><strong>₱{{ number_format($order->total_amount, 2) }}</strong></td>
-                    <td>
+                    <td class="text-left-custom">
+                      <span class="contract-text">{{ $order->contract->contract_number ?? 'N/A' }}</span><br>
+                      <small class="text-muted">{{ Str::limit($order->title, 40) }}</small>
+                    </td>
+                    <td class="text-left-custom">{{ $order->vendor->company_name ?? $order->vendor->name }}</td>
+                    <td class="text-right-custom">
+                      <span class="amount-text">₱{{ number_format($order->total_amount, 2) }}</span>
+                    </td>
+                    <td class="text-center-custom">
                       @php
-                        $badge = match ($order->status) {
-                          'Draft' => 'bg-secondary',
-                          'Pending Approval' => 'bg-warning',
-                          'Approved' => 'bg-info',
-                          'Issued' => 'bg-primary',
-                          'In Progress' => 'bg-info',
-                          'Completed' => 'bg-success',
-                          'Cancelled' => 'bg-danger',
-                          default => 'bg-secondary',
+                        $statusClass = match (strtolower(str_replace(' ', '-', $order->status))) {
+                          'draft' => 'badge-status-pending',
+                          'pending-approval' => 'badge-status-pending',
+                          'approved' => 'badge-status-approved',
+                          'issued' => 'badge-status-approved',
+                          'in-progress' => 'badge-status-in-progress',
+                          'completed' => 'badge-status-completed',
+                          'cancelled' => 'badge-status-cancelled',
+                          default => 'badge-status-pending',
                         };
                       @endphp
-                      <span class="badge {{ $badge }}">{{ $order->status }}</span>
+                      <span class="badge-enhanced {{ $statusClass }}">{{ $order->status }}</span>
                     </td>
-                    <td>{{ $order->order_date->format('M d, Y') }}</td>
-                    <td>
-                      <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-primary" title="View Details (Coming Soon)">
+                    <td class="text-center-custom">
+                      <span class="date-text">{{ $order->order_date->format('M d, Y') }}</span>
+                    </td>
+                    <td class="text-center-custom">
+                      <div class="d-flex justify-content-center align-items-center gap-1">
+                        <button type="button" class="btn btn-action btn-action-view btn-view-details" data-po-id="{{ $order->id }}" title="View Details">
                           <i class="bi bi-eye"></i>
                         </button>
+                        <button type="button" class="btn btn-action btn-action-download btn-download-pdf" data-po-id="{{ $order->id }}" title="Download PDF">
+                          <i class="bi bi-download"></i>
+                        </button>
                         @if($order->status === 'Draft')
-                          <button class="btn btn-outline-warning" title="Edit (Coming Soon)">
+                          <button type="button" class="btn btn-action btn-action-edit" title="Edit">
                             <i class="bi bi-pencil"></i>
                           </button>
-                          <button class="btn btn-outline-success btn-submit-approval" data-po-id="{{ $order->id }}" title="Submit for Approval">
+                          <button type="button" class="btn btn-action btn-action-approve btn-submit-approval" data-po-id="{{ $order->id }}" title="Submit for Approval">
                             <i class="bi bi-send"></i>
                           </button>
                         @elseif($order->status === 'Pending Approval')
-                          <button class="btn btn-outline-success btn-approve" data-po-id="{{ $order->id }}" title="Approve">
+                          <button type="button" class="btn btn-action btn-action-approve btn-approve" data-po-id="{{ $order->id }}" title="Approve">
                             <i class="bi bi-check-circle"></i>
                           </button>
                         @elseif($order->status === 'Approved')
@@ -388,11 +630,7 @@
                   <tr>
                     <td colspan="7" class="text-center text-muted py-4">
                       <i class="bi bi-cart-x fs-1 d-block mb-2"></i>
-                      No purchase orders yet
-                      <br>
-                      <button class="btn btn-primary btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#createOrderModal">
-                        <i class="bi bi-plus-circle me-1"></i>Create First Order
-                      </button>
+                      No purchase orders created yet
                     </td>
                   </tr>
                   @endforelse
@@ -400,120 +638,15 @@
               </table>
             </div>
             
-            @if(($purchaseOrders ?? collect())->hasPages())
-              <div class="d-flex justify-content-center mt-3">
+            <!-- Pagination -->
+            @if(isset($purchaseOrders) && $purchaseOrders->hasPages())
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              <div class="text-muted small">
+                Showing {{ $purchaseOrders->firstItem() }} to {{ $purchaseOrders->lastItem() }} of {{ $purchaseOrders->total() }} results
+              </div>
+              <nav>
                 {{ $purchaseOrders->links() }}
-              </div>
-            @endif
-          </div>
-        </div>
-
-        <!-- Purchase Order Chart -->
-        <div class="card shadow-sm border-0 mt-4">
-          <div class="card-header border-bottom">
-            <h5 class="card-title mb-0">Purchase Order Trends</h5>
-          </div>
-          <div class="card-body">
-            <canvas id="purchaseOrderChart" height="100"></canvas>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-lg-4">
-        <div class="card shadow-sm border-0">
-          <div class="card-header border-bottom">
-            <h5 class="card-title mb-0">Quick Actions</h5>
-          </div>
-          <div class="card-body">
-            <div class="d-grid gap-2">
-              <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createOrderModal">
-                <i class="bi bi-plus-circle me-2"></i>New Purchase Order
-              </button>
-              <button class="btn btn-outline-primary" id="btn-bulk-approve">
-                <i class="bi bi-check2-all me-2"></i>Bulk Approve
-              </button>
-              <button class="btn btn-outline-primary" id="btn-export-orders">
-                <i class="bi bi-download me-2"></i>Export Orders
-              </button>
-              <button class="btn btn-outline-secondary" id="btn-generate-report">
-                <i class="bi bi-file-earmark-text me-2"></i>Generate Report
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card shadow-sm border-0 mt-4">
-          <div class="card-header border-bottom">
-            <h5 class="card-title mb-0">Contract Overview</h5>
-          </div>
-          <div class="card-body">
-            <div class="mb-3">
-              <div class="d-flex justify-content-between align-items-center mb-1">
-                <span class="small">Active Contracts</span>
-                <span class="small text-muted">{{ $stats['total'] ?? 0 }}</span>
-              </div>
-              <div class="progress" style="height: 6px;">
-                <div class="progress-bar bg-success" style="width: 100%"></div>
-              </div>
-            </div>
-            <div class="mb-3">
-              <div class="d-flex justify-content-between align-items-center mb-1">
-                <span class="small">Pending Approval</span>
-                <span class="small text-muted">{{ $stats['pending_approval'] ?? 0 }}</span>
-              </div>
-              <div class="progress" style="height: 6px;">
-                <div class="progress-bar bg-warning" style="width: {{ $stats['pending_approval'] > 0 ? '100' : '0' }}%"></div>
-              </div>
-            </div>
-            <div class="mb-3">
-              <div class="d-flex justify-content-between align-items-center mb-1">
-                <span class="small">In Progress</span>
-                <span class="small text-muted">{{ $stats['in_progress'] ?? 0 }}</span>
-              </div>
-              <div class="progress" style="height: 6px;">
-                <div class="progress-bar bg-info" style="width: {{ $stats['in_progress'] > 0 ? '100' : '0' }}%"></div>
-              </div>
-            </div>
-            <div>
-              <div class="d-flex justify-content-between align-items-center mb-1">
-                <span class="small">Completed</span>
-                <span class="small text-muted">{{ $stats['completed'] ?? 0 }}</span>
-              </div>
-              <div class="progress" style="height: 6px;">
-                <div class="progress-bar bg-success" style="width: {{ $stats['completed'] > 0 ? '100' : '0' }}%"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Alerts -->
-        <div class="card shadow-sm border-0 mt-4">
-          <div class="card-header border-bottom">
-            <h5 class="card-title mb-0">Alerts</h5>
-          </div>
-          <div class="card-body">
-            @if(($stats['pending_approval'] ?? 0) > 0)
-            <div class="alert alert-warning alert-sm mb-2">
-              <i class="bi bi-clock me-2"></i>
-              {{ $stats['pending_approval'] }} purchase order(s) pending approval
-            </div>
-            @endif
-            @if(($stats['in_progress'] ?? 0) > 0)
-            <div class="alert alert-info alert-sm mb-2">
-              <i class="bi bi-arrow-repeat me-2"></i>
-              {{ $stats['in_progress'] }} purchase order(s) in progress
-            </div>
-            @endif
-            @if(($stats['completed'] ?? 0) > 0)
-            <div class="alert alert-success alert-sm">
-              <i class="bi bi-check-circle me-2"></i>
-              {{ $stats['completed'] }} purchase order(s) completed successfully
-            </div>
-            @endif
-            @if(($stats['total'] ?? 0) === 0)
-            <div class="alert alert-secondary alert-sm">
-              <i class="bi bi-info-circle me-2"></i>
-              No purchase orders created yet. Start by creating your first order.
+              </nav>
             </div>
             @endif
           </div>
@@ -947,16 +1080,32 @@
         });
       }
 
+      // View Details Modal functionality
+      document.querySelectorAll('.btn-view-details').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const poId = this.getAttribute('data-po-id');
+          if (poId) viewOrderDetails(poId);
+        });
+      });
+
+      // Download PDF functionality
+      document.querySelectorAll('.btn-download-pdf').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const poId = this.getAttribute('data-po-id');
+          if (poId) downloadPurchaseOrderPDF(poId);
+        });
+      });
+
       // Bind Add Item button in modal
       document.getElementById('addItemBtn')?.addEventListener('click', function() {
         addOrderItem();
         calculateTotalAmount();
       });
 
-      // Add loading animation to quick action buttons
-      document.querySelectorAll('.btn').forEach(btn => {
+      // Add loading animation to specific action buttons only
+      document.querySelectorAll('.btn-submit-approval, .btn-approve, .btn-issue, #btn-bulk-approve, #btn-export-orders, #btn-generate-report').forEach(btn => {
         btn.addEventListener('click', function(e) {
-          if (!this.classList.contains('loading')) {
+          if (!this.classList.contains('loading') && !this.hasAttribute('data-bs-toggle')) {
             this.classList.add('loading');
             const originalText = this.innerHTML;
             this.innerHTML = '<i class="bi bi-arrow-clockwise me-2"></i>Loading...';
@@ -1065,25 +1214,321 @@
       showNotification('info', 'Report generation feature coming soon');
     }
 
-    function showNotification(type, message) {
-      const mappedType = (type === 'error') ? 'danger' : type;
-      // Create notification element
-      const notification = document.createElement('div');
-      notification.className = `alert alert-${mappedType} alert-dismissible fade show position-fixed`;
-      notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-      notification.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      `;
+    async function downloadPurchaseOrderPDF(poId) {
+      try {
+        // Show loading notification
+        Swal.fire({
+          title: 'Generating PDF...',
+          text: 'Please wait while we prepare your purchase order document.',
+          icon: 'info',
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          showConfirmButton: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
 
-      document.body.appendChild(notification);
+        const response = await fetch(`/psm/order/${poId}/download-pdf`, {
+          method: 'GET',
+          headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/pdf',
+          },
+        });
 
-      // Auto-remove after 5 seconds
-      setTimeout(() => {
-        if (notification.parentNode) {
-          notification.remove();
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-      }, 5000);
+
+        // Get the PDF blob
+        const blob = await response.blob();
+        
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Purchase_Order_${poId}.pdf`;
+        
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Clean up
+        window.URL.revokeObjectURL(url);
+        
+        // Close loading and show success
+        Swal.close();
+        showNotification('success', 'Purchase order PDF downloaded successfully!');
+        
+      } catch (error) {
+        console.error('Error downloading PDF:', error);
+        Swal.close();
+        showNotification('error', 'Failed to download PDF. Please try again.');
+      }
+    }
+
+    async function viewOrderDetails(poId) {
+      try {
+        const response = await fetch(`/psm/order/${poId}`, {
+          method: 'GET',
+          headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Server error response:', errorText);
+          
+          // Try to parse as JSON first, fallback to text
+          try {
+            const errorData = JSON.parse(errorText);
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+          } catch (parseError) {
+            throw new Error(`Server error (${response.status}): Unable to load purchase order details`);
+          }
+        }
+
+        const data = await response.json();
+        
+        if (data.success) {
+          showOrderDetailsModal(data.order);
+        } else {
+          showNotification('error', data.message || 'Failed to load order details');
+        }
+      } catch (error) {
+        console.error('Error loading order details:', error);
+        showNotification('error', 'Failed to load order details');
+      }
+    }
+
+    function showOrderDetailsModal(order) {
+      // Create modal if it doesn't exist
+      let modal = document.getElementById('viewOrderModal');
+      if (!modal) {
+        modal = createViewOrderModal();
+        document.body.appendChild(modal);
+      }
+      
+      // Populate modal with order data
+      populateOrderModal(order);
+      
+      // Show modal
+      const bsModal = new bootstrap.Modal(modal);
+      bsModal.show();
+    }
+
+    function createViewOrderModal() {
+      const modal = document.createElement('div');
+      modal.className = 'modal fade';
+      modal.id = 'viewOrderModal';
+      modal.setAttribute('tabindex', '-1');
+      modal.setAttribute('aria-labelledby', 'viewOrderModalLabel');
+      modal.setAttribute('aria-hidden', 'true');
+      modal.style.zIndex = '1056';
+      
+      modal.innerHTML = `
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="viewOrderModalLabel">
+                <i class="bi bi-eye me-2"></i>Purchase Order Details
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="row mb-4">
+                <div class="col-md-6">
+                  <h6 class="fw-bold text-primary mb-3">Order Information</h6>
+                  <div class="row">
+                    <div class="col-sm-4"><strong>PO Number:</strong></div>
+                    <div class="col-sm-8" id="view-po-number">-</div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-4"><strong>Title:</strong></div>
+                    <div class="col-sm-8" id="view-title">-</div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-4"><strong>Status:</strong></div>
+                    <div class="col-sm-8" id="view-status">-</div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-4"><strong>Order Date:</strong></div>
+                    <div class="col-sm-8" id="view-order-date">-</div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-4"><strong>Total Amount:</strong></div>
+                    <div class="col-sm-8" id="view-total-amount">-</div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <h6 class="fw-bold text-primary mb-3">Contract & Vendor</h6>
+                  <div class="row">
+                    <div class="col-sm-4"><strong>Contract:</strong></div>
+                    <div class="col-sm-8" id="view-contract">-</div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-4"><strong>Vendor:</strong></div>
+                    <div class="col-sm-8" id="view-vendor">-</div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-4"><strong>Currency:</strong></div>
+                    <div class="col-sm-8" id="view-currency">-</div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-4"><strong>Expected Delivery:</strong></div>
+                    <div class="col-sm-8" id="view-delivery-date">-</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row mb-4">
+                <div class="col-12">
+                  <h6 class="fw-bold text-primary mb-3">Description</h6>
+                  <p id="view-description" class="text-muted">-</p>
+                </div>
+              </div>
+              
+              <div class="row mb-4">
+                <div class="col-md-6">
+                  <h6 class="fw-bold text-primary mb-3">Delivery Address</h6>
+                  <p id="view-delivery-address" class="text-muted">-</p>
+                </div>
+                <div class="col-md-6">
+                  <h6 class="fw-bold text-primary mb-3">Payment Terms</h6>
+                  <p id="view-payment-terms" class="text-muted">-</p>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-12">
+                  <h6 class="fw-bold text-primary mb-3">Order Items</h6>
+                  <div class="table-responsive">
+                    <table class="table table-bordered">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Item Name</th>
+                          <th>Quantity</th>
+                          <th>Unit</th>
+                          <th>Unit Price</th>
+                          <th>Total</th>
+                          <th>Description</th>
+                        </tr>
+                      </thead>
+                      <tbody id="view-order-items">
+                        <!-- Items will be populated here -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row" id="view-notes-section" style="display: none;">
+                <div class="col-12">
+                  <h6 class="fw-bold text-primary mb-3">Notes</h6>
+                  <p id="view-notes" class="text-muted">-</p>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <i class="bi bi-x-circle me-1"></i>Close
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      return modal;
+    }
+
+    function populateOrderModal(order) {
+      document.getElementById('view-po-number').textContent = order.po_number || '-';
+      document.getElementById('view-title').textContent = order.title || '-';
+      
+      // Status badge
+      const statusElement = document.getElementById('view-status');
+      const badgeClass = {
+        'Draft': 'bg-secondary',
+        'Pending Approval': 'bg-warning',
+        'Approved': 'bg-info',
+        'Issued': 'bg-primary',
+        'In Progress': 'bg-info',
+        'Completed': 'bg-success',
+        'Cancelled': 'bg-danger'
+      }[order.status] || 'bg-secondary';
+      statusElement.innerHTML = `<span class="badge ${badgeClass}">${order.status}</span>`;
+      
+      document.getElementById('view-order-date').textContent = order.order_date || '-';
+      document.getElementById('view-total-amount').textContent = order.total_amount ? `₱${parseFloat(order.total_amount).toLocaleString('en-US', {minimumFractionDigits: 2})}` : '-';
+      document.getElementById('view-contract').textContent = order.contract?.contract_number || '-';
+      document.getElementById('view-vendor').textContent = order.vendor?.company_name || order.vendor?.name || '-';
+      document.getElementById('view-currency').textContent = order.currency || '-';
+      document.getElementById('view-delivery-date').textContent = order.expected_delivery_date || '-';
+      document.getElementById('view-description').textContent = order.description || 'No description provided';
+      document.getElementById('view-delivery-address').textContent = order.delivery_address || 'No delivery address specified';
+      document.getElementById('view-payment-terms').textContent = order.payment_terms || 'No payment terms specified';
+      
+      // Populate items
+      const itemsTable = document.getElementById('view-order-items');
+      itemsTable.innerHTML = '';
+      
+      if (order.items && order.items.length > 0) {
+        order.items.forEach(item => {
+          const row = document.createElement('tr');
+          const unitPrice = parseFloat(item.unit_price || 0);
+          const quantity = parseFloat(item.quantity || 0);
+          const total = unitPrice * quantity;
+          
+          row.innerHTML = `
+            <td>${item.item_name || '-'}</td>
+            <td>${item.quantity || '-'}</td>
+            <td>${item.unit || '-'}</td>
+            <td>₱${unitPrice.toFixed(2)}</td>
+            <td>₱${total.toFixed(2)}</td>
+            <td>${item.description || '-'}</td>
+          `;
+          itemsTable.appendChild(row);
+        });
+      } else {
+        itemsTable.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No items found</td></tr>';
+      }
+      
+      // Notes section
+      const notesSection = document.getElementById('view-notes-section');
+      const notesElement = document.getElementById('view-notes');
+      if (order.notes && order.notes.trim()) {
+        notesElement.textContent = order.notes;
+        notesSection.style.display = 'block';
+      } else {
+        notesSection.style.display = 'none';
+      }
+    }
+
+    function showNotification(type, message) {
+      const iconMap = {
+        success: 'success',
+        error: 'error',
+        warning: 'warning',
+        info: 'info',
+        danger: 'error'
+      };
+      
+      Swal.fire({
+        icon: iconMap[type] || 'info',
+        title: type === 'success' ? 'Success!' : type === 'error' || type === 'danger' ? 'Error!' : 'Notice',
+        text: message,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+      });
     }
     // Handle menu active states
 document.addEventListener('DOMContentLoaded', function() {
@@ -1451,18 +1896,28 @@ document.addEventListener('DOMContentLoaded', function() {
       const data = await response.json();
       
       if (data.success) {
-        showNotification('success', data.message);
-        
-        // Close modal
-        const modal = bootstrap.Modal.getInstance(document.getElementById('createOrderModal'));
-        modal.hide();
-        
-        // Reload page to show new order
-        setTimeout(() => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: data.message,
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        }).then(() => {
+          // Close modal
+          const modal = bootstrap.Modal.getInstance(document.getElementById('createOrderModal'));
+          modal.hide();
+          
+          // Reload page to show new order
           window.location.reload();
-        }, 1500);
+        });
       } else {
-        showNotification('danger', data.message || 'Failed to create purchase order');
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: data.message || 'Failed to create purchase order'
+        });
+        
         if (data.errors) {
           Object.keys(data.errors).forEach((fieldName) => {
             const input = form.querySelector(`[name="${fieldName}"]`);
@@ -1480,7 +1935,11 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     } catch (error) {
       console.error('Error submitting form:', error);
-      showNotification('error', 'Failed to create purchase order');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Failed to create purchase order. Please try again.'
+      });
     }
   });
 
@@ -1503,7 +1962,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const container = document.getElementById('orderItems');
     const items = container.querySelectorAll('.order-item');
     if (items.length <= 1) {
-      showNotification('warning', 'At least one item is required');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Warning!',
+        text: 'At least one item is required',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 2000
+      });
       return;
     }
     btn.closest('.order-item')?.remove();

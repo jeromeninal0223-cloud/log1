@@ -97,6 +97,7 @@ class PurchaseOrder extends Model
                     'po_number' => $purchaseOrder->po_number,
                     'status' => $purchaseOrder->status
                 ]);
+                $purchaseOrder->generateInvoice();
                 $purchaseOrder->syncContractStatusOnCompletion();
             }
         });
@@ -133,6 +134,7 @@ class PurchaseOrder extends Model
     public function complete(): void
     {
         $this->update(['status' => 'Completed']);
+        $this->generateInvoice();
         $this->syncContractStatusOnCompletion();
     }
 
@@ -147,6 +149,53 @@ class PurchaseOrder extends Model
         $lastPo = self::latest()->first();
         $lastNumber = $lastPo ? intval(substr($lastPo->po_number, 3)) : 0;
         return 'PO-' . str_pad($lastNumber + 1, 6, '0', STR_PAD_LEFT);
+    }
+
+    public function generateInvoice(): void
+    {
+        // Check if invoice already exists for this PO
+        $existingInvoice = Invoice::where('po_number', $this->po_number)->first();
+        if ($existingInvoice) {
+            \Log::info('Invoice already exists for PO', [
+                'po_number' => $this->po_number,
+                'invoice_id' => $existingInvoice->id
+            ]);
+            return;
+        }
+
+        try {
+            $invoice = Invoice::create([
+                'invoice_no' => $this->generateInvoiceNumber(),
+                'vendor_id' => $this->vendor_id,
+                'vendor_name' => $this->vendor->company_name ?? $this->vendor->name,
+                'po_number' => $this->po_number,
+                'amount' => $this->total_amount,
+                'status' => 'Pending',
+                'payment_status' => 'Unpaid',
+                'due_date' => now()->addDays(30), // 30 days payment terms
+                'issued_date' => now(),
+                'notes' => "Auto-generated invoice for completed purchase order {$this->po_number}",
+            ]);
+
+            \Log::info('Invoice generated successfully', [
+                'po_number' => $this->po_number,
+                'invoice_no' => $invoice->invoice_no,
+                'amount' => $this->total_amount
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Failed to generate invoice for PO', [
+                'po_number' => $this->po_number,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    private function generateInvoiceNumber(): string
+    {
+        $lastInvoice = Invoice::latest()->first();
+        $lastNumber = $lastInvoice ? intval(substr($lastInvoice->invoice_no, 4)) : 0;
+        return 'INV-' . str_pad($lastNumber + 1, 6, '0', STR_PAD_LEFT);
     }
 
     public function syncContractStatusOnCompletion(): void

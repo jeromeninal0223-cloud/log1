@@ -61,6 +61,11 @@
         </a>
       </li>
       <li class="nav-item">
+        <a href="{{ route('vendor.contracts') }}" class="nav-link text-dark">
+          <i class="bi bi-file-earmark-check me-2"></i> My Contracts
+        </a>
+      </li>
+      <li class="nav-item">
         <a href="{{ route('vendor.orders') }}" class="nav-link text-dark">
           <i class="bi bi-cart-check me-2"></i> My Orders
         </a>
@@ -68,6 +73,11 @@
       <li class="nav-item">
         <a href="{{ route('vendor.invoices') }}" class="nav-link text-dark">
           <i class="bi bi-receipt me-2"></i> My Invoices
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{{ route('vendor.damage.reports') }}" class="nav-link text-dark">
+          <i class="bi bi-exclamation-triangle me-2"></i> Damage Reports
         </a>
       </li>
       <li class="nav-item">
@@ -217,6 +227,56 @@
                   <small class="text-muted">When do you expect to complete this project?</small>
                 </div>
 
+                <!-- Warranty Period -->
+                <div class="col-md-6">
+                  <label for="warranty_period" class="form-label fw-bold">
+                    <i class="bi bi-shield-check me-1"></i>Warranty Period <span class="text-danger">*</span>
+                  </label>
+                  <select class="form-select" id="warranty_period" name="warranty_period" required>
+                    <option value="">Select warranty period</option>
+                    <option value="3_months" {{ old('warranty_period') == '3_months' ? 'selected' : '' }}>3 months</option>
+                    <option value="6_months" {{ old('warranty_period') == '6_months' ? 'selected' : '' }}>6 months</option>
+                    <option value="12_months" {{ old('warranty_period') == '12_months' ? 'selected' : '' }}>12 months (Standard)</option>
+                    <option value="18_months" {{ old('warranty_period') == '18_months' ? 'selected' : '' }}>18 months</option>
+                    <option value="24_months" {{ old('warranty_period') == '24_months' ? 'selected' : '' }}>24 months</option>
+                    <option value="36_months" {{ old('warranty_period') == '36_months' ? 'selected' : '' }}>36 months</option>
+                    <option value="custom" {{ old('warranty_period') == 'custom' ? 'selected' : '' }}>Custom period</option>
+                  </select>
+                  <small class="text-muted">Select the warranty period you're offering</small>
+                </div>
+
+                <!-- Custom Warranty Period (Hidden by default) -->
+                <div class="col-md-6" id="custom_warranty_section" style="display: none;">
+                  <label for="custom_warranty" class="form-label fw-bold">
+                    <i class="bi bi-pencil me-1"></i>Custom Warranty Period
+                  </label>
+                  <input type="text" class="form-control" id="custom_warranty" name="custom_warranty" 
+                         value="{{ old('custom_warranty') }}" placeholder="e.g., 5 years for structural work">
+                  <small class="text-muted">Specify your custom warranty terms</small>
+                </div>
+
+                <!-- Payment Terms -->
+                <div class="col-12">
+                  <label for="payment_terms" class="form-label fw-bold">
+                    <i class="bi bi-credit-card me-1"></i>Payment Terms & Conditions <span class="text-danger">*</span>
+                  </label>
+                  <select class="form-select mb-3" id="payment_terms_type" name="payment_terms_type" required>
+                    <option value="">Select payment structure</option>
+                    <option value="full_advance" {{ old('payment_terms_type') == 'full_advance' ? 'selected' : '' }}>100% Advance Payment</option>
+                    <option value="full_delivery" {{ old('payment_terms_type') == 'full_delivery' ? 'selected' : '' }}>100% Upon Delivery</option>
+                    <option value="cod" {{ old('payment_terms_type') == 'cod' ? 'selected' : '' }}>Cash on Delivery (COD)</option>
+                    <option value="50_50" {{ old('payment_terms_type') == '50_50' ? 'selected' : '' }}>50% Advance, 50% Upon Delivery</option>
+                    <option value="30_70" {{ old('payment_terms_type') == '30_70' ? 'selected' : '' }}>30% Advance, 70% Upon Delivery</option>
+                    <option value="milestone" {{ old('payment_terms_type') == 'milestone' ? 'selected' : '' }}>Milestone-based Payments</option>
+                    <option value="net_30" {{ old('payment_terms_type') == 'net_30' ? 'selected' : '' }}>Net 30 Days</option>
+                    <option value="net_15" {{ old('payment_terms_type') == 'net_15' ? 'selected' : '' }}>Net 15 Days</option>
+                    <option value="custom" {{ old('payment_terms_type') == 'custom' ? 'selected' : '' }}>Custom Terms</option>
+                  </select>
+                  <textarea class="form-control" id="payment_terms_details" name="payment_terms_details" rows="4" required
+                            placeholder="Provide detailed payment terms and conditions. Include payment methods accepted, late payment penalties, and any specific requirements.">{{ old('payment_terms_details') }}</textarea>
+                  <small class="text-muted">Specify your complete payment terms, conditions, and accepted payment methods</small>
+                </div>
+
                 <!-- Proposal -->
                 <div class="col-12">
                   <label for="proposal" class="form-label fw-bold">
@@ -362,6 +422,62 @@
         });
       }
 
+      // Handle warranty period custom option
+      const warrantySelect = document.getElementById('warranty_period');
+      const customWarrantySection = document.getElementById('custom_warranty_section');
+      const customWarrantyInput = document.getElementById('custom_warranty');
+      
+      if (warrantySelect && customWarrantySection) {
+        warrantySelect.addEventListener('change', function() {
+          if (this.value === 'custom') {
+            customWarrantySection.style.display = 'block';
+            customWarrantyInput.required = true;
+          } else {
+            customWarrantySection.style.display = 'none';
+            customWarrantyInput.required = false;
+            customWarrantyInput.value = '';
+          }
+        });
+        
+        // Check initial state
+        if (warrantySelect.value === 'custom') {
+          customWarrantySection.style.display = 'block';
+          customWarrantyInput.required = true;
+        }
+      }
+
+      // Auto-populate payment terms details based on selection
+      const paymentTermsType = document.getElementById('payment_terms_type');
+      const paymentTermsDetails = document.getElementById('payment_terms_details');
+      
+      if (paymentTermsType && paymentTermsDetails) {
+        paymentTermsType.addEventListener('change', function() {
+          const templates = {
+            'full_advance': 'Payment Terms: 100% advance payment required before project commencement.\n\nAccepted Payment Methods: Bank transfer, check, or online payment.\n\nPayment Schedule: Full payment due upon contract signing.\n\nLate Payment: N/A (advance payment required).',
+            
+            'full_delivery': 'Payment Terms: 100% payment upon successful delivery and acceptance.\n\nAccepted Payment Methods: Bank transfer, check, or online payment.\n\nPayment Schedule: Full payment due within 7 days of delivery confirmation.\n\nLate Payment: 2% monthly interest on overdue amounts.',
+            
+            'cod': 'Payment Terms: Cash on Delivery (COD) - Payment collected upon delivery.\n\nAccepted Payment Methods: Cash, check, or card payment upon delivery.\n\nPayment Schedule: Full payment due at time of delivery/service completion.\n\nDelivery Requirements: Valid ID and authorized recipient required for COD transactions.\n\nLate Payment: N/A (payment collected on delivery).',
+            
+            '50_50': 'Payment Terms: 50% advance payment, 50% upon delivery and acceptance.\n\nAccepted Payment Methods: Bank transfer, check, or online payment.\n\nPayment Schedule:\n- 50% upon contract signing\n- 50% within 7 days of delivery confirmation\n\nLate Payment: 2% monthly interest on overdue amounts.',
+            
+            '30_70': 'Payment Terms: 30% advance payment, 70% upon delivery and acceptance.\n\nAccepted Payment Methods: Bank transfer, check, or online payment.\n\nPayment Schedule:\n- 30% upon contract signing\n- 70% within 7 days of delivery confirmation\n\nLate Payment: 2% monthly interest on overdue amounts.',
+            
+            'milestone': 'Payment Terms: Milestone-based payment structure.\n\nAccepted Payment Methods: Bank transfer, check, or online payment.\n\nPayment Schedule:\n- 25% upon contract signing\n- 25% at 25% project completion\n- 25% at 75% project completion\n- 25% upon final delivery and acceptance\n\nLate Payment: 2% monthly interest on overdue amounts.',
+            
+            'net_30': 'Payment Terms: Net 30 days from invoice date.\n\nAccepted Payment Methods: Bank transfer, check, or online payment.\n\nPayment Schedule: Full payment due within 30 days of invoice.\n\nLate Payment: 2% monthly interest on overdue amounts after 30 days.',
+            
+            'net_15': 'Payment Terms: Net 15 days from invoice date.\n\nAccepted Payment Methods: Bank transfer, check, or online payment.\n\nPayment Schedule: Full payment due within 15 days of invoice.\n\nLate Payment: 2% monthly interest on overdue amounts after 15 days.'
+          };
+          
+          if (this.value && this.value !== 'custom' && templates[this.value]) {
+            paymentTermsDetails.value = templates[this.value];
+          } else if (this.value === 'custom') {
+            paymentTermsDetails.value = 'Please specify your custom payment terms and conditions here...';
+          }
+        });
+      }
+
       // File upload preview
       const fileInput = document.getElementById('attachments');
       const fileList = document.getElementById('file-list');
@@ -408,10 +524,38 @@
           const amount = document.getElementById('amount').value;
           const proposal = document.getElementById('proposal').value;
           const terms = document.getElementById('terms').checked;
+          const warrantyPeriod = document.getElementById('warranty_period').value;
+          const paymentTermsType = document.getElementById('payment_terms_type').value;
+          const paymentTermsDetails = document.getElementById('payment_terms_details').value;
+          const customWarranty = document.getElementById('custom_warranty').value;
           
           if (!amount || parseFloat(amount) <= 0) {
             e.preventDefault();
             alert('Please enter a valid bid amount.');
+            return;
+          }
+          
+          if (!warrantyPeriod) {
+            e.preventDefault();
+            alert('Please select a warranty period.');
+            return;
+          }
+          
+          if (warrantyPeriod === 'custom' && !customWarranty.trim()) {
+            e.preventDefault();
+            alert('Please specify your custom warranty period.');
+            return;
+          }
+          
+          if (!paymentTermsType) {
+            e.preventDefault();
+            alert('Please select payment terms.');
+            return;
+          }
+          
+          if (!paymentTermsDetails.trim()) {
+            e.preventDefault();
+            alert('Please provide detailed payment terms and conditions.');
             return;
           }
           

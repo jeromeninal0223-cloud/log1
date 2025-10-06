@@ -11,9 +11,13 @@ class MaintenanceSchedule extends Model
 
     protected $fillable = [
         'asset_id',
+        'category',
         'title',
+        'priority',
         'scheduled_date',
         'status',
+        'estimated_duration',
+        'assigned_technician',
         'notes',
     ];
 

@@ -70,6 +70,11 @@
         </a>
       </li>
       <li class="nav-item">
+        <a href="{{ route('vendor.damage.reports') }}" class="nav-link text-dark">
+          <i class="bi bi-exclamation-triangle me-2"></i> Damage Reports
+        </a>
+      </li>
+      <li class="nav-item">
         <a href="{{ route('vendor.profile') }}" class="nav-link text-dark">
           <i class="bi bi-person me-2"></i> My Profile
         </a>
@@ -192,6 +197,7 @@
                 <option value="">All Status</option>
                 <option value="Pending">Pending</option>
                 <option value="In Progress">In Progress</option>
+                <option value="Delivered">Delivered</option>
                 <option value="Completed">Completed</option>
                 <option value="Cancelled">Cancelled</option>
               </select>
@@ -200,72 +206,162 @@
               </button>
             </div>
           </div>
-          <div class="card-body">
+          <div class="card-body p-0">
             @if($orders->count() > 0)
-              <div class="table-responsive">
-                <table class="table table-hover" id="ordersTable">
-                  <thead class="table-light">
-                    <tr>
-                      <th>Order ID</th>
-                      <th>Project</th>
-                      <th>Category</th>
-                      <th>Amount</th>
-                      <th>Status</th>
-                      <th>Due Date</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @foreach($orders as $order)
-                    <tr>
-                      <td><strong>{{ $order->po_number ?? 'PO-' . str_pad($loop->iteration, 3, '0', STR_PAD_LEFT) }}</strong></td>
-                      <td>
-                        <div>
-                          <strong>{{ $order->title ?? 'Purchase Order ' . $loop->iteration }}</strong><br>
-                          <small class="text-muted">{{ $order->description ?? 'No description available' }}</small>
+              <!-- Desktop Table View -->
+              <div class="d-none d-lg-block">
+                <div class="table-responsive">
+                  <table class="table table-hover mb-0 modern-orders-table" id="ordersTable">
+                    <thead class="orders-table-header">
+                      <tr>
+                        <th class="border-0 fw-semibold text-uppercase small">Order ID</th>
+                        <th class="border-0 fw-semibold text-uppercase small">Project Details</th>
+                        <th class="border-0 fw-semibold text-uppercase small">Category</th>
+                        <th class="border-0 fw-semibold text-uppercase small">Amount</th>
+                        <th class="border-0 fw-semibold text-uppercase small">Status</th>
+                        <th class="border-0 fw-semibold text-uppercase small">Due Date</th>
+                        <th class="border-0 fw-semibold text-uppercase small">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @foreach($orders as $order)
+                      <tr class="order-row-hover">
+                        <td class="align-middle py-3">
+                          <div class="order-id-badge">
+                            <span class="fw-bold text-primary">{{ $order->po_number ?? 'PO-' . str_pad($loop->iteration, 3, '0', STR_PAD_LEFT) }}</span>
+                          </div>
+                        </td>
+                        <td class="align-middle py-3">
+                          <div class="order-info">
+                            <h6 class="mb-1 fw-semibold text-dark">{{ $order->title ?? 'Purchase Order ' . $loop->iteration }}</h6>
+                            <p class="mb-0 text-muted small">{{ Str::limit($order->description ?? 'No description available', 60) }}</p>
+                          </div>
+                        </td>
+                        <td class="align-middle py-3">
+                          <span class="category-tag">{{ $order->contract->category ?? 'Logistics & Transportation' }}</span>
+                        </td>
+                        <td class="align-middle py-3">
+                          <div class="amount-display">
+                            <span class="fw-bold fs-6 text-success">₱{{ number_format($order->total_amount ?? 0, 2) }}</span>
+                          </div>
+                        </td>
+                        <td class="align-middle py-3">
+                          @php
+                            $status = $order->status ?? 'Draft';
+                            $statusClass = [
+                              'Draft' => 'order-status-draft',
+                              'Pending Approval' => 'order-status-pending',
+                              'Approved' => 'order-status-approved',
+                              'Issued' => 'order-status-issued',
+                              'In Progress' => 'order-status-progress',
+                              'Delivered' => 'order-status-delivered',
+                              'Completed' => 'order-status-completed',
+                              'Cancelled' => 'order-status-cancelled'
+                            ][$status] ?? 'order-status-draft';
+                          @endphp
+                          <span class="order-status-badge {{ $statusClass }}">{{ $status }}</span>
+                        </td>
+                        <td class="align-middle py-3">
+                          <div class="due-date">
+                            <span class="text-muted small">{{ $order->expected_delivery_date ? $order->expected_delivery_date->format('M d, Y') : 'Not set' }}</span>
+                          </div>
+                        </td>
+                        <td class="align-middle py-3">
+                          <div class="order-actions">
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="viewOrderDetails({{ $order->id }})" title="View Details">
+                              <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-success" onclick="openStatusModal({{ $order->id }}, '{{ $order->status ?? 'In Progress' }}')" title="Update Status">
+                              <i class="bi bi-clipboard-check"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      @endforeach
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Mobile Card View -->
+              <div class="d-lg-none mobile-orders">
+                @foreach($orders as $order)
+                  @php
+                    $status = $order->status ?? 'Draft';
+                    $statusClass = [
+                      'Draft' => 'order-status-draft',
+                      'Pending Approval' => 'order-status-pending',
+                      'Approved' => 'order-status-approved',
+                      'Issued' => 'order-status-issued',
+                      'In Progress' => 'order-status-progress',
+                      'Delivered' => 'order-status-delivered',
+                      'Completed' => 'order-status-completed',
+                      'Cancelled' => 'order-status-cancelled'
+                    ][$status] ?? 'order-status-draft';
+                  @endphp
+                  <div class="order-card mb-3 mx-3">
+                    <div class="card border-0 shadow-sm h-100">
+                      <div class="card-body p-4">
+                        <!-- Header -->
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                          <div class="order-header">
+                            <span class="order-number fw-bold text-primary">{{ $order->po_number ?? 'PO-' . str_pad($loop->iteration, 3, '0', STR_PAD_LEFT) }}</span>
+                            <span class="order-status-badge {{ $statusClass }} ms-2">{{ $status }}</span>
+                          </div>
                         </div>
-                      </td>
-                      <td>{{ $order->contract->category ?? 'Logistics & Transportation' }}</td>
-                      <td><strong>₱{{ number_format($order->total_amount ?? 0, 2) }}</strong></td>
-                      <td>
-                        @php
-                          $status = $order->status ?? 'Draft';
-                          $statusClass = [
-                            'Draft' => 'bg-secondary',
-                            'Pending Approval' => 'bg-warning',
-                            'Approved' => 'bg-info',
-                            'Issued' => 'bg-primary',
-                            'In Progress' => 'bg-primary',
-                            'Completed' => 'bg-success',
-                            'Cancelled' => 'bg-danger'
-                          ][$status] ?? 'bg-secondary';
-                        @endphp
-                        <span class="badge {{ $statusClass }}">{{ $status }}</span>
-                      </td>
-                      <td>{{ $order->expected_delivery_date ? $order->expected_delivery_date->format('M d, Y') : 'Not set' }}</td>
-                      <td>
-                        <div class="btn-group btn-group-sm">
-                          <button class="btn btn-outline-primary" onclick="viewOrderDetails({{ $order->id }})">
-                            <i class="bi bi-eye"></i>
+
+                        <!-- Order Title -->
+                        <h6 class="card-title fw-semibold mb-2 text-dark">{{ $order->title ?? 'Purchase Order ' . $loop->iteration }}</h6>
+                        
+                        <!-- Description -->
+                        <p class="card-text text-muted small mb-3">{{ Str::limit($order->description ?? 'No description available', 80) }}</p>
+                        
+                        <!-- Details Grid -->
+                        <div class="row g-3 mb-3">
+                          <div class="col-6">
+                            <div class="order-detail-item">
+                              <small class="text-muted d-block">Amount</small>
+                              <span class="fw-bold text-success">₱{{ number_format($order->total_amount ?? 0, 2) }}</span>
+                            </div>
+                          </div>
+                          <div class="col-6">
+                            <div class="order-detail-item">
+                              <small class="text-muted d-block">Category</small>
+                              <span class="small">{{ $order->contract->category ?? 'Logistics & Transportation' }}</span>
+                            </div>
+                          </div>
+                          <div class="col-12">
+                            <div class="order-detail-item">
+                              <small class="text-muted d-block">Due Date</small>
+                              <span class="small">{{ $order->expected_delivery_date ? $order->expected_delivery_date->format('M d, Y') : 'Not set' }}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="order-actions d-flex gap-2 justify-content-center">
+                          <button class="btn btn-sm btn-outline-primary" onclick="viewOrderDetails({{ $order->id }})" title="View Details">
+                            <i class="bi bi-eye me-1"></i>View
                           </button>
-                          <button class="btn btn-outline-success" onclick="openStatusModal({{ $order->id }}, '{{ $order->status ?? 'In Progress' }}')">
-                            <i class="bi bi-clipboard-check"></i>
+                          <button class="btn btn-sm btn-outline-success" onclick="openStatusModal({{ $order->id }}, '{{ $order->status ?? 'In Progress' }}')" title="Update Status">
+                            <i class="bi bi-clipboard-check me-1"></i>Update
                           </button>
                         </div>
-                      </td>
-                    </tr>
-                    @endforeach
-                  </tbody>
-                </table>
+                      </div>
+                    </div>
+                  </div>
+                @endforeach
               </div>
             @else
               <div class="text-center py-5">
-                <i class="bi bi-cart-check fa-3x text-muted mb-3"></i>
-                <h5>No Orders Assigned Yet</h5>
-                <p class="text-muted">You don't have any orders assigned to you yet. Keep submitting competitive bids!</p>
-                <a href="{{ route('vendor.bidding.landing') }}" class="btn btn-primary">
-                  <i class="bi bi-gavel me-2"></i>Submit Bids
-                </a>
+                <div class="text-muted">
+                  <i class="bi bi-cart-check fs-1 d-block mb-3"></i>
+                  <h6>No Orders Assigned Yet</h6>
+                  <p class="mb-0">You don't have any orders assigned to you yet. Keep submitting competitive bids!</p>
+                  <a href="{{ route('vendor.bidding.landing') }}" class="btn btn-primary mt-3">
+                    <i class="bi bi-gavel me-2"></i>Submit Bids
+                  </a>
+                </div>
               </div>
             @endif
           </div>
@@ -458,6 +554,7 @@
             <select id="status" class="form-select">
               <option value="Issued">Issued</option>
               <option value="In Progress">In Progress</option>
+              <option value="Delivered">Delivered</option>
               <option value="Completed">Completed</option>
               <option value="Cancelled">Cancelled</option>
             </select>
@@ -479,5 +576,266 @@
       </div>
     </div>
   </div>
+
+  <style>
+    /* Enhanced Modern Orders Table Styling */
+    .modern-orders-table {
+      border-radius: 0;
+      overflow: hidden;
+    }
+    
+    .orders-table-header {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-bottom: 3px solid #dee2e6;
+    }
+    
+    .orders-table-header th {
+      font-weight: 600;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+      color: #495057;
+      padding: 16px 12px;
+      border: none;
+      position: relative;
+    }
+    
+    .modern-orders-table tbody tr {
+      border-bottom: 1px solid #f1f3f4;
+      transition: all 0.2s ease;
+    }
+    
+    .order-row-hover:hover {
+      background-color: #f8f9fa;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .modern-orders-table td {
+      vertical-align: middle;
+      padding: 16px 12px;
+      border: none;
+    }
+    
+    /* Order ID Badge */
+    .order-id-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 12px;
+      background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+      border-radius: 20px;
+      border: 1px solid #e1f5fe;
+    }
+    
+    /* Order Info Styling */
+    .order-info h6 {
+      font-size: 0.95rem;
+      line-height: 1.4;
+      margin-bottom: 4px;
+    }
+    
+    .order-info p {
+      font-size: 0.8rem;
+      line-height: 1.3;
+    }
+    
+    /* Category Tag */
+    .category-tag {
+      display: inline-block;
+      padding: 4px 10px;
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      color: #6c757d;
+      font-weight: 500;
+    }
+    
+    /* Amount Display */
+    .amount-display {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+    
+    /* Order Status Badges */
+    .order-status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border: 2px solid transparent;
+    }
+    
+    .order-status-draft {
+      background: linear-gradient(135deg, #e2e3e5 0%, #ced4da 100%);
+      color: #383d41;
+      border-color: #ced4da;
+    }
+    
+    .order-status-pending {
+      background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+      color: #856404;
+      border-color: #ffeaa7;
+    }
+    
+    .order-status-approved {
+      background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+      color: #0c5460;
+      border-color: #bee5eb;
+    }
+    
+    .order-status-issued {
+      background: linear-gradient(135deg, #cce7ff 0%, #b3d9ff 100%);
+      color: #004085;
+      border-color: #b3d9ff;
+    }
+    
+    .order-status-progress {
+      background: linear-gradient(135deg, #d4e6f1 0%, #aed6f1 100%);
+      color: #1b4f72;
+      border-color: #aed6f1;
+    }
+    
+    .order-status-delivered {
+      background: linear-gradient(135deg, #d5f4e6 0%, #82e0aa 100%);
+      color: #0e4b2a;
+      border-color: #82e0aa;
+    }
+    
+    .order-status-completed {
+      background: linear-gradient(135deg, #d4edda 0%, #a8e6cf 100%);
+      color: #155724;
+      border-color: #a8e6cf;
+    }
+    
+    .order-status-cancelled {
+      background: linear-gradient(135deg, #f8d7da 0%, #ff7675 100%);
+      color: #721c24;
+      border-color: #ff7675;
+    }
+    
+    /* Order Actions */
+    .order-actions .btn {
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+    
+    .order-actions .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    
+    /* Mobile Order Cards */
+    .mobile-orders {
+      padding: 0;
+    }
+    
+    .order-card {
+      transition: all 0.3s ease;
+    }
+    
+    .order-card:hover {
+      transform: translateY(-2px);
+    }
+    
+    .order-card .card {
+      border-radius: 16px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    }
+    
+    .order-card .card-body {
+      position: relative;
+    }
+    
+    .order-card .card-body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #28a745, #17a2b8, #ffc107);
+      border-radius: 16px 16px 0 0;
+    }
+    
+    .order-header {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .order-number {
+      font-size: 0.9rem;
+      padding: 4px 10px;
+      background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+      border-radius: 12px;
+      border: 1px solid #e1f5fe;
+    }
+    
+    .order-detail-item {
+      padding: 8px 0;
+    }
+    
+    .order-detail-item small {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+    
+    /* Due Date */
+    .due-date {
+      text-align: left;
+    }
+    
+    /* Responsive Improvements */
+    @media (max-width: 768px) {
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 1rem;
+      }
+      
+      .page-header .breadcrumb {
+        margin-top: 0.5rem;
+      }
+      
+      .card-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 1rem;
+      }
+      
+      .card-header .d-flex {
+        width: 100%;
+        justify-content: space-between;
+      }
+      
+      .mobile-orders .order-card {
+        margin-left: 1rem !important;
+        margin-right: 1rem !important;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .order-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .order-actions {
+        margin-top: 8px;
+        flex-wrap: wrap;
+      }
+      
+      .order-detail-item {
+        text-align: center;
+      }
+    }
+  </style>
 </body>
 </html>

@@ -11,6 +11,8 @@
   <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('assets/css/dash-style-fixed.css') }}">
+  <!-- PSM Animations -->
+  <link rel="stylesheet" href="{{ asset('assets/css/psm-animations.css') }}">
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -100,7 +102,7 @@
             </li>
             <li class="nav-item">
               <a href="{{ url('/psm/bidding') }}" class="nav-link text-dark small">
-                <i class="bi bi-gavel me-2"></i> Bidding & RFQ
+                <i class="bi bi-clipboard-check me-2"></i> Bidding & RFQ
               </a>
             </li>
             <li class="nav-item">
@@ -136,7 +138,7 @@
       <ul class="nav flex-column ms-3">
         <li class="nav-item">
           <a href="{{ url('/plt/toursetup') }}" class="nav-link text-dark small">
-            <i class="bi bi-flag me-2"></i> Tour Setup
+            <i class="bi bi-diagram-3 me-2"></i> Project Planning
           </a>
         </li>
         <li class="nav-item">
@@ -146,7 +148,7 @@
         </li>
         <li class="nav-item">
           <a href="{{ url('/plt/closure') }}" class="nav-link text-dark small">
-            <i class="bi bi-check2-circle me-2"></i> Post-Tour Closure
+            <i class="bi bi-check2-circle me-2"></i> Closure
           </a>
         </li>
       </ul>
@@ -319,78 +321,79 @@
             </button>
           </div>
           <div class="card-body">
-            <form>
+            <form method="POST" action="{{ route('psm.request.store') }}" enctype="multipart/form-data">
+              @csrf
+              @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                  {{ session('success') }}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+              @endif
+              @if($errors->any())
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                  <strong>Validation Error:</strong>
+                  <ul class="mb-0">
+                    @foreach($errors->all() as $error)
+                      <li>{{ $error }}</li>
+                    @endforeach
+                  </ul>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+              @endif
               <div class="row g-3">
-                <div class="col-md-6">
+                <div class="col-12">
                   <label class="form-label">Item Description</label>
-                  <input type="text" class="form-control" placeholder="e.g., Vehicle brake pads, Office supplies">
+                  <input type="text" name="item_description" class="form-control" placeholder="e.g., Vehicle brake pads, Office supplies" required>
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label">Category</label>
-                  <select class="form-select">
-                    <option>Vehicle Parts</option>
-                    <option>Office Supplies</option>
-                    <option>Tour Materials</option>
-                    <option>IT Equipment</option>
-                    <option>Maintenance Tools</option>
-                  </select>
-                </div>
-                <div class="col-md-4">
                   <label class="form-label">Quantity</label>
-                  <input type="number" class="form-control" placeholder="0">
+                  <input type="number" name="quantity" class="form-control" placeholder="0" min="1" required>
                 </div>
-                <div class="col-md-4">
-                  <label class="form-label">Unit</label>
-                  <select class="form-select">
-                    <option>Pieces</option>
-                    <option>Boxes</option>
-                    <option>Sets</option>
-                    <option>Liters</option>
-                    <option>Meters</option>
-                  </select>
-                </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                   <label class="form-label">Estimated Cost</label>
-                  <input type="number" class="form-control" placeholder="$0.00">
+                  <input type="number" name="estimated_cost" class="form-control" placeholder="0.00" step="0.01" min="0" required>
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Required Date</label>
-                  <input type="date" class="form-control">
+                  <input type="date" name="required_date" class="form-control" required>
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Priority</label>
-                  <select class="form-select">
-                    <option>Low</option>
-                    <option>Medium</option>
-                    <option>High</option>
-                    <option>Urgent</option>
+                  <select name="priority" class="form-select" required>
+                    <option value="">Select Priority</option>
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
                   </select>
                 </div>
                 <div class="col-12">
                   <label class="form-label">Justification</label>
-                  <textarea class="form-control" rows="3" placeholder="Explain why this item is needed..."></textarea>
+                  <textarea name="justification" class="form-control" rows="3" placeholder="Explain why this item is needed..." required></textarea>
                 </div>
                 <div class="col-12">
                   <label class="form-label">Attachments</label>
-                  <input type="file" class="form-control" multiple>
+                  <input type="file" name="attachments[]" class="form-control" multiple>
                   <small class="text-muted">Upload specs, supplier references, or requirement documents</small>
                 </div>
                 <div class="col-12">
-                  <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-send me-2"></i>Submit Requisition
+                  <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-plus-circle me-2"></i>Submit Request
                   </button>
+                  <a href="{{ url('/psm/purchaserequest-approval') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-clipboard-check me-2"></i>View Approval Queue
+                  </a>
                 </div>
               </div>
             </form>
           </div>
         </div>
 
-        <!-- Purchase Requests from Stock Replenishment -->
+        <!-- My Purchase Requests -->
         <div class="card shadow-sm border-0 mt-4">
           <div class="card-header border-bottom d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">Purchase Requests from Stock Replenishment</h5>
-            <a href="{{ url('/stock-replenishment') }}" class="btn btn-sm btn-outline-primary">
-              <i class="bi bi-arrow-left"></i> Back to Stock
+            <h5 class="card-title mb-0">Recent Purchase</h5>
+            <a href="{{ url('/psm/purchaserequest-approval') }}" class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-clipboard-check"></i> View All Requests
             </a>
           </div>
           <div class="card-body">
@@ -399,7 +402,63 @@
                 <thead class="table-light">
                   <tr>
                     <th>Request #</th>
-                    <th>Stock Item</th>
+                    <th>Item Description</th>
+                    <th>Quantity</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Est. Cost</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @forelse($purchaseRequests as $request)
+                  <tr>
+                    <td><strong>{{ $request->request_number }}</strong></td>
+                    <td>
+                      <strong>{{ $request->item_description ?? 'N/A' }}</strong>
+                    </td>
+                    <td>{{ $request->quantity }}</td>
+                    <td>
+                      <span class="badge bg-{{ $request->getPriorityColor() }}">
+                        {{ ucfirst($request->priority) }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge bg-{{ $request->getStatusColor() }}">
+                        {{ ucfirst(str_replace('_', ' ', $request->status)) }}
+                      </span>
+                    </td>
+                    <td>₱{{ number_format($request->estimated_cost, 2) }}</td>
+                  </tr>
+                  @empty
+                  <tr>
+                    <td colspan="6" class="text-center py-4">
+                      <i class="bi bi-inbox text-muted fs-1 mb-2"></i>
+                      <h6 class="text-muted">No purchase requests found</h6>
+                      <p class="text-muted small mb-0">Submit a new request to see it here.</p>
+                    </td>
+                  </tr>
+                  @endforelse
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Purchase Requests from Stock Replenishment -->
+        <div class="card shadow-sm border-0 mt-4">
+          <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Recent Purchase Requests from Stock Replenishment</h5>
+            <a href="{{ url('/stock-replenishment') }}" class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-box-seam"></i> View Stock System
+            </a>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead class="table-light">
+                  <tr>
+                    <th>Request #</th>
+                    <th>Item</th>
                     <th>Quantity</th>
                     <th>Priority</th>
                     <th>Status</th>
@@ -408,15 +467,17 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @forelse($purchaseRequests as $request)
+                  @php
+                    // Get recent stock replenishment requests (ItemRequest model)
+                    $recentRequests = \App\Models\ItemRequest::with('requestedBy', 'stockItem')
+                      ->orderBy('created_at', 'desc')
+                      ->limit(10)
+                      ->get();
+                  @endphp
+                  @forelse($recentRequests as $request)
                   <tr>
                     <td><strong>{{ $request->request_number }}</strong></td>
-                    <td>
-                      <div>
-                        <strong>{{ $request->stockItem->name ?? 'N/A' }}</strong>
-                        <br><small class="text-muted">{{ $request->stockItem->category ?? '' }}</small>
-                      </div>
-                    </td>
+                    <td>{{ $request->stockItem->name ?? 'N/A' }}</td>
                     <td>{{ $request->quantity_requested }} {{ $request->stockItem->unit_of_measure ?? '' }}</td>
                     <td>
                       <span class="badge bg-{{ $request->getPriorityColor() }}">
@@ -428,50 +489,33 @@
                         {{ ucfirst(str_replace('_', ' ', $request->status)) }}
                       </span>
                     </td>
-                    <td>${{ number_format($request->total_estimated_cost, 2) }}</td>
+                    <td>₱{{ number_format($request->total_estimated_cost, 2) }}</td>
                     <td>
-                      @if($request->status === 'pending')
-                        <button class="btn btn-sm btn-success approve-request-btn" data-request-id="{{ $request->id }}">
+                      @if($request->status === 'PENDING')
+                        <button class="btn btn-sm btn-success approve-btn" data-request-id="{{ $request->id }}">
                           <i class="bi bi-check-circle"></i> Approve
                         </button>
-                      @elseif($request->status === 'approved')
-                        <button class="btn btn-sm btn-primary create-bid-form-btn" data-request-id="{{ $request->id }}">
-                          <i class="bi bi-file-earmark-plus"></i> Create Bid Form
+                      @elseif($request->status === 'COMPLETED')
+                        <button class="btn btn-sm btn-primary send-to-procurement-btn" data-request-id="{{ $request->id }}">
+                          <i class="bi bi-send"></i> Send to Procurement
                         </button>
-                      @elseif($request->status === 'in_bidding')
-                        <a href="{{ route('psm.bidding') }}?opportunity={{ $request->opportunity_id }}" class="btn btn-sm btn-info">
-                          <i class="bi bi-eye"></i> View Bidding
-                        </a>
+                      @elseif($request->status === 'IN_PROGRESS')
+                        <span class="badge bg-info">
+                          <i class="bi bi-check-circle"></i> Sent to Procurement
+                        </span>
                       @endif
                     </td>
                   </tr>
                   @empty
                   <tr>
-                    <td colspan="7" class="text-center text-muted">
-                      <div class="py-4">
-                        <i class="bi bi-inbox fs-1 text-muted"></i>
-                        <p class="mt-2">No purchase requests found</p>
-                        <a href="{{ url('/stock-replenishment') }}" class="btn btn-primary">
-                          <i class="bi bi-plus-circle"></i> Create from Stock Replenishment
-                        </a>
-                      </div>
-                    </td>
+                    <td colspan="7" class="text-center text-muted">No purchase requests found</td>
                   </tr>
                   @endforelse
                 </tbody>
               </table>
             </div>
           </div>
-        </div>
-
-        <!-- Approval Workflow Chart -->
-        <div class="card shadow-sm border-0 mt-4">
-          <div class="card-header border-bottom">
-            <h5 class="card-title mb-0">Approval Workflow</h5>
-          </div>
-          <div class="card-body">
-            <div class="row text-center">
-              <div class="col-md-3">
+        </div>      <div class="col-md-3">
                 <div class="border rounded p-3 mb-3">
                   <i class="bi bi-person-plus fs-1 text-primary"></i>
                   <h6 class="mt-2">Submit</h6>
@@ -634,6 +678,9 @@
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- PSM Animations JavaScript -->
+  <script src="{{ asset('assets/js/psm-animations.js') }}"></script>
 
   <!-- Sidebar toggle functionality -->
   <script>

@@ -28,6 +28,7 @@ class InventoryReceipt extends Model
         'damaged_items',
         'created_by',
         'purchase_order_id',
+        'document_path',
     ];
 
     protected $casts = [
@@ -105,6 +106,34 @@ class InventoryReceipt extends Model
         // Update purchase order status if linked
         if ($this->purchaseOrder) {
             $this->purchaseOrder->markInProgress();
+        }
+        
+        // Generate and store document in DTRS
+        $this->generateDocument();
+    }
+    
+    public function generateDocument(): void
+    {
+        try {
+            // Generate PDF document for the receipt
+            $documentService = new \App\Services\InventoryReceiptDocumentService();
+            $pdfPath = $documentService->generateReceiptPDF($this);
+            
+            // Update receipt with document path
+            $this->update(['document_path' => $pdfPath]);
+            
+            \Log::info('Inventory Receipt document generated', [
+                'receipt_id' => $this->id,
+                'receipt_number' => $this->receipt_number,
+                'document_path' => $pdfPath
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Failed to generate inventory receipt document', [
+                'receipt_id' => $this->id,
+                'receipt_number' => $this->receipt_number,
+                'error' => $e->getMessage()
+            ]);
         }
     }
 

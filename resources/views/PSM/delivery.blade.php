@@ -10,8 +10,222 @@
   <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('assets/css/dash-style-fixed.css') }}">
+  <!-- PSM Animations -->
+  <link rel="stylesheet" href="{{ asset('assets/css/psm-animations.css') }}">
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    /* Enhanced table styles */
+    .table-enhanced {
+      border: none;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    .table-enhanced thead th {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border: none;
+      font-weight: 600;
+      font-size: 0.875rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #495057;
+      padding: 1rem 0.75rem;
+      vertical-align: middle;
+      position: relative;
+    }
+    
+    .table-enhanced tbody td {
+      border: none;
+      border-bottom: 1px solid #f1f3f4;
+      padding: 1rem 0.75rem;
+      vertical-align: middle;
+      font-size: 0.9rem;
+      color: #495057;
+    }
+    
+    .table-enhanced tbody tr {
+      transition: all 0.2s ease;
+      background-color: #ffffff;
+    }
+    
+    .table-enhanced tbody tr:hover {
+      background-color: #f8f9fa;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .table-enhanced tbody tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .sortable {
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    
+    .sortable:hover {
+      background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+      color: #212529;
+    }
+    
+    .sortable i {
+      opacity: 0.5;
+      transition: opacity 0.2s ease;
+    }
+    
+    .sortable:hover i {
+      opacity: 1;
+    }
+    
+    /* Enhanced badges */
+    .badge-enhanced {
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-weight: 500;
+      font-size: 0.75rem;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      white-space: nowrap;
+      min-width: fit-content;
+      display: inline-block;
+    }
+    
+    .badge-status-issued {
+      background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+      color: white;
+    }
+    
+    .badge-status-in-progress {
+      background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+      color: white;
+    }
+    
+    .badge-status-delivered {
+      background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+      color: white;
+    }
+    
+    .badge-status-completed {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+    }
+    
+    .badge-status-cancelled {
+      background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
+      color: white;
+    }
+    
+    /* Enhanced action buttons */
+    .btn-action {
+      padding: 0.4rem 0.6rem;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      transition: all 0.2s ease;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin: 0 2px;
+    }
+    
+    .btn-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-action-view {
+      background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+      color: white;
+      border-color: #0d6efd;
+    }
+    
+    .btn-action-view:hover {
+      background: linear-gradient(135deg, #0b5ed7 0%, #520dc2 100%);
+      color: white;
+    }
+    
+    .btn-action-edit {
+      background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+      color: white;
+      border-color: #ffc107;
+    }
+    
+    .btn-action-edit:hover {
+      background: linear-gradient(135deg, #e0a800 0%, #dc6502 100%);
+      color: white;
+    }
+    
+    .btn-action-success {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      border-color: #28a745;
+    }
+    
+    .btn-action-success:hover {
+      background: linear-gradient(135deg, #218838 0%, #1aa085 100%);
+      color: white;
+    }
+    
+    /* Text alignment improvements */
+    .text-center-custom {
+      text-align: center !important;
+      vertical-align: middle !important;
+    }
+    
+    .text-left-custom {
+      text-align: left !important;
+      vertical-align: middle !important;
+    }
+    
+    .text-right-custom {
+      text-align: right !important;
+      vertical-align: middle !important;
+    }
+    
+    /* PO Number styling */
+    .po-number {
+      font-family: 'Courier New', monospace;
+      font-weight: 700;
+      color: #6f42c1;
+      background: linear-gradient(135deg, #f8f4ff 0%, #ede4ff 100%);
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Vendor styling */
+    .vendor-text {
+      font-weight: 600;
+      color: #212529;
+    }
+    
+    /* Date styling */
+    .date-text {
+      color: #6c757d;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    
+    /* Amount styling */
+    .amount-text {
+      font-family: 'Courier New', monospace;
+      font-weight: 600;
+      color: #28a745;
+    }
+    
+    .table-container {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+  </style>
 
 </head>
 <body style="background-color: #f8f9fa !important;">
@@ -100,7 +314,7 @@
             </li>
             <li class="nav-item">
               <a href="{{ url('/psm/bidding') }}" class="nav-link text-dark small">
-                <i class="bi bi-gavel me-2"></i> Bidding & RFQ
+                <i class="bi bi-clipboard-check me-2"></i> Bidding & RFQ
               </a>
             </li>
             <li class="nav-item">
@@ -136,7 +350,7 @@
       <ul class="nav flex-column ms-3">
         <li class="nav-item">
           <a href="{{ url('/plt/toursetup') }}" class="nav-link text-dark small">
-            <i class="bi bi-flag me-2"></i> Tour Setup
+            <i class="bi bi-diagram-3 me-2"></i> Project Planning
           </a>
         </li>
         <li class="nav-item">
@@ -146,7 +360,7 @@
         </li>
         <li class="nav-item">
           <a href="{{ url('/plt/closure') }}" class="nav-link text-dark small">
-            <i class="bi bi-check2-circle me-2"></i> Post-Tour Closure
+            <i class="bi bi-check2-circle me-2"></i> Closure
           </a>
         </li>
       </ul>
@@ -318,6 +532,7 @@
                 <option value="">All Status</option>
                 <option value="Issued">Issued</option>
                 <option value="In Progress">In Progress</option>
+                <option value="Delivered">Delivered</option>
                 <option value="Completed">Completed</option>
               </select>
               <button class="btn btn-sm btn-outline-primary" onclick="refreshDeliveries()">
@@ -326,76 +541,77 @@
             </div>
           </div>
           <div class="card-body">
-            @if($deliveryOrders->count() > 0)
-              <div class="table-responsive">
-                <table class="table table-hover" id="deliveryTable">
-                  <thead class="table-light">
-                    <tr>
-                      <th>PO Number</th>
-                      <th>Vendor</th>
-                      <th>Order Details</th>
-                      <th>Expected Delivery</th>
-                      <th>Status</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @foreach($deliveryOrders as $order)
-                    <tr>
-                      <td><strong>{{ $order->po_number }}</strong></td>
-                      <td>{{ $order->vendor->company_name ?? $order->vendor->name }}</td>
-                      <td>
-                        <div>
-                          <strong>{{ Str::limit($order->title, 30) }}</strong><br>
-                          <small class="text-muted">{{ Str::limit($order->description, 50) }}</small>
-                        </div>
-                      </td>
-                      <td>
-                        @if($order->expected_delivery_date)
-                          {{ $order->expected_delivery_date->format('M d, Y') }}
-                        @else
-                          <span class="text-muted">Not set</span>
-                        @endif
-                      </td>
-                      <td>
-                        @php
-                          $statusClass = match ($order->status) {
-                            'Issued' => 'bg-info',
-                            'In Progress' => 'bg-warning',
-                            'Completed' => 'bg-success',
-                            'Cancelled' => 'bg-danger',
-                            default => 'bg-secondary',
-                          };
-                        @endphp
-                        <span class="badge {{ $statusClass }}">{{ $order->status }}</span>
-                      </td>
-                      <td>
-                        <div class="btn-group btn-group-sm">
-                          <button class="btn btn-outline-primary" onclick="viewDeliveryDetails({{ $order->id }})" title="View Details">
-                            <i class="bi bi-eye"></i>
+            <div class="table-responsive table-container">
+              <table class="table table-enhanced">
+                <thead>
+                  <tr>
+                    <th class="text-center-custom sortable">PO Number <i class="bi bi-arrow-down-up ms-1"></i></th>
+                    <th class="text-left-custom sortable">Vendor <i class="bi bi-arrow-down-up ms-1"></i></th>
+                    <th class="text-left-custom sortable">Order Details <i class="bi bi-arrow-down-up ms-1"></i></th>
+                    <th class="text-center-custom sortable">Expected Delivery <i class="bi bi-arrow-down-up ms-1"></i></th>
+                    <th class="text-center-custom sortable">Status <i class="bi bi-arrow-down-up ms-1"></i></th>
+                    <th class="text-center-custom">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @forelse($deliveryOrders ?? [] as $order)
+                  <tr>
+                    <td class="text-center-custom">
+                      <span class="po-number">{{ $order->po_number }}</span>
+                    </td>
+                    <td class="text-left-custom">
+                      <span class="vendor-text">{{ $order->vendor->company_name ?? $order->vendor->name }}</span>
+                    </td>
+                    <td class="text-left-custom">
+                      <div>
+                        <strong>{{ Str::limit($order->title, 30) }}</strong><br>
+                        <small class="text-muted">{{ Str::limit($order->description ?? 'TESTING ONLY', 50) }}</small>
+                      </div>
+                    </td>
+                    <td class="text-center-custom">
+                      @if($order->expected_delivery_date)
+                        <span class="date-text">{{ $order->expected_delivery_date->format('M d, Y') }}</span>
+                      @else
+                        <span class="text-muted">Not set</span>
+                      @endif
+                    </td>
+                    <td class="text-center-custom">
+                      @php
+                        $statusClass = match (strtolower(str_replace(' ', '-', $order->status))) {
+                          'issued' => 'badge-status-issued',
+                          'in-progress' => 'badge-status-in-progress',
+                          'delivered' => 'badge-status-delivered',
+                          'completed' => 'badge-status-completed',
+                          'cancelled' => 'badge-status-cancelled',
+                          default => 'badge-status-issued',
+                        };
+                      @endphp
+                      <span class="badge-enhanced {{ $statusClass }}">{{ $order->status }}</span>
+                    </td>
+                    <td class="text-center-custom">
+                      <div class="d-flex justify-content-center align-items-center gap-1">
+                        <button type="button" class="btn btn-action btn-action-view" onclick="viewDeliveryDetails({{ $order->id }})" title="View Details">
+                          <i class="bi bi-eye"></i>
+                        </button>
+                        @if($order->status !== 'Completed')
+                          <button type="button" class="btn btn-action btn-action-edit" onclick="updateDeliveryStatus({{ $order->id }})" title="Update Status">
+                            <i class="bi bi-pencil"></i>
                           </button>
-                          @if($order->status !== 'Completed')
-                            <button class="btn btn-outline-success" onclick="updateDeliveryStatus({{ $order->id }})" title="Update Status">
-                              <i class="bi bi-pencil"></i>
-                            </button>
-                          @endif
-                        </div>
-                      </td>
-                    </tr>
-                    @endforeach
-                  </tbody>
-                </table>
-              </div>
-            @else
-              <div class="text-center py-5">
-                <i class="bi bi-truck fa-3x text-muted mb-3"></i>
-                <h5>No Active Deliveries</h5>
-                <p class="text-muted">There are no purchase orders currently in delivery stages.</p>
-                <a href="{{ url('/psm/order') }}" class="btn btn-primary">
-                  <i class="bi bi-cart-check me-2"></i>View Purchase Orders
-                </a>
-              </div>
-            @endif
+                        @endif
+                      </div>
+                    </td>
+                  </tr>
+                  @empty
+                  <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                      <i class="bi bi-truck fs-1 d-block mb-2"></i>
+                      No active deliveries found
+                    </td>
+                  </tr>
+                  @endforelse
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
@@ -507,6 +723,37 @@
     </div>
   </main>
 
+  <!-- Delivery Details Modal -->
+  <div class="modal fade" id="deliveryDetailsModal" tabindex="-1" aria-labelledby="deliveryDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deliveryDetailsModalLabel">
+            <i class="bi bi-truck me-2"></i>Delivery Details
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3" id="deliveryDetailsContent">
+            <!-- Content will be populated by JavaScript -->
+            <div class="text-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-2 text-muted">Loading delivery details...</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="updateStatusFromDetails" onclick="updateDeliveryStatusFromModal()">
+            <i class="bi bi-pencil me-2"></i>Update Status
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Delivery Status Update Modal -->
   <div class="modal fade" id="deliveryStatusModal" tabindex="-1" aria-labelledby="deliveryStatusModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -524,6 +771,7 @@
                 <option value="">Select Status</option>
                 <option value="Issued">Issued</option>
                 <option value="In Progress">In Progress</option>
+                <option value="Delivered">Delivered</option>
                 <option value="Completed">Completed</option>
                 <option value="Cancelled">Cancelled</option>
               </select>
@@ -531,7 +779,7 @@
             <div class="mb-3">
               <label for="actual_delivery_date" class="form-label">Actual Delivery Date</label>
               <input type="date" class="form-control" id="actual_delivery_date" name="actual_delivery_date">
-              <small class="text-muted">Required when marking as completed</small>
+              <small class="text-muted">Required when marking as delivered or completed</small>
             </div>
             <div class="mb-3">
               <label for="notes" class="form-label">Notes</label>
@@ -931,6 +1179,7 @@
     // Global variables for delivery tracking
     let currentOrderId = null;
     let deliveryStatusModal = null;
+    let deliveryDetailsModal = null;
 
     // Initialize delivery chart
     function initializeDeliveryChart() {
@@ -963,23 +1212,207 @@
 
     // View delivery details
     function viewDeliveryDetails(orderId) {
+      currentOrderId = orderId;
+      
+      // Initialize modal if not already done
+      if (!deliveryDetailsModal) {
+        deliveryDetailsModal = new bootstrap.Modal(document.getElementById('deliveryDetailsModal'));
+      }
+      
+      // Show modal with loading state
+      deliveryDetailsModal.show();
+      
+      // Reset content to loading state
+      document.getElementById('deliveryDetailsContent').innerHTML = `
+        <div class="text-center py-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-2 text-muted">Loading delivery details...</p>
+        </div>
+      `;
+      
+      // Fetch order details
       fetch(`/psm/delivery/${orderId}/details`)
         .then(response => response.json())
         .then(data => {
           if (data.success) {
             const order = data.purchase_order;
-            alert(`Order Details:\nPO: ${order.po_number}\nVendor: ${order.vendor.company_name}\nStatus: ${order.status}\nExpected Delivery: ${order.expected_delivery_date || 'Not set'}`);
+            
+            // Format the expected delivery date
+            let formattedDate = 'Not set';
+            if (order.expected_delivery_date) {
+              const date = new Date(order.expected_delivery_date);
+              formattedDate = date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+              });
+            }
+            
+            // Format actual delivery date if exists
+            let actualFormattedDate = 'Not delivered yet';
+            if (order.actual_delivery_date) {
+              const actualDate = new Date(order.actual_delivery_date);
+              actualFormattedDate = actualDate.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+              });
+            }
+            
+            // Get status badge class
+            const statusClass = getStatusBadgeClass(order.status);
+            
+            // Populate modal content
+            document.getElementById('deliveryDetailsContent').innerHTML = `
+              <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                  <div class="card-body">
+                    <h6 class="card-title text-primary mb-3">
+                      <i class="bi bi-file-earmark-text me-2"></i>Order Information
+                    </h6>
+                    <div class="row g-2">
+                      <div class="col-4"><strong>PO Number:</strong></div>
+                      <div class="col-8"><span class="po-number">${order.po_number}</span></div>
+                      <div class="col-4"><strong>Title:</strong></div>
+                      <div class="col-8">${order.title || 'N/A'}</div>
+                      <div class="col-4"><strong>Description:</strong></div>
+                      <div class="col-8">${order.description || 'TESTING ONLY'}</div>
+                      <div class="col-4"><strong>Amount:</strong></div>
+                      <div class="col-8"><span class="amount-text">₱${parseFloat(order.total_amount || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                  <div class="card-body">
+                    <h6 class="card-title text-success mb-3">
+                      <i class="bi bi-building me-2"></i>Vendor Information
+                    </h6>
+                    <div class="row g-2">
+                      <div class="col-4"><strong>Company:</strong></div>
+                      <div class="col-8"><span class="vendor-text">${order.vendor.company_name || order.vendor.name}</span></div>
+                      <div class="col-4"><strong>Contact:</strong></div>
+                      <div class="col-8">${order.vendor.contact_person || 'N/A'}</div>
+                      <div class="col-4"><strong>Email:</strong></div>
+                      <div class="col-8">${order.vendor.email || 'N/A'}</div>
+                      <div class="col-4"><strong>Phone:</strong></div>
+                      <div class="col-8">${order.vendor.phone || 'N/A'}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                  <div class="card-body">
+                    <h6 class="card-title text-info mb-3">
+                      <i class="bi bi-truck me-2"></i>Delivery Information
+                    </h6>
+                    <div class="row g-3">
+                      <div class="col-md-3">
+                        <div class="text-center">
+                          <div class="small text-muted">Current Status</div>
+                          <span class="badge-enhanced ${statusClass}">${order.status}</span>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="text-center">
+                          <div class="small text-muted">Expected Delivery</div>
+                          <div class="fw-semibold date-text">${formattedDate}</div>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="text-center">
+                          <div class="small text-muted">Actual Delivery</div>
+                          <div class="fw-semibold date-text">${actualFormattedDate}</div>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="text-center">
+                          <div class="small text-muted">Order Date</div>
+                          <div class="fw-semibold date-text">${new Date(order.order_date).toLocaleDateString('en-US', {year: 'numeric', month: 'short', day: 'numeric'})}</div>
+                        </div>
+                      </div>
+                    </div>
+                    ${order.delivery_address ? `
+                      <div class="mt-3">
+                        <div class="small text-muted">Delivery Address</div>
+                        <div class="fw-semibold">${order.delivery_address}</div>
+                      </div>
+                    ` : ''}
+                    ${order.notes ? `
+                      <div class="mt-3">
+                        <div class="small text-muted">Notes</div>
+                        <div class="fw-semibold">${order.notes}</div>
+                      </div>
+                    ` : ''}
+                  </div>
+                </div>
+              </div>
+            `;
+            
+            // Show/hide update status button based on order status
+            const updateBtn = document.getElementById('updateStatusFromDetails');
+            if (order.status === 'Completed') {
+              updateBtn.style.display = 'none';
+            } else {
+              updateBtn.style.display = 'inline-block';
+            }
+          } else {
+            document.getElementById('deliveryDetailsContent').innerHTML = `
+              <div class="text-center py-4">
+                <i class="bi bi-exclamation-triangle fs-1 text-warning"></i>
+                <h5 class="mt-3">Error Loading Details</h5>
+                <p class="text-muted">Unable to load delivery details. Please try again.</p>
+              </div>
+            `;
           }
         })
         .catch(error => {
           console.error('Error:', error);
-          alert('Error loading order details');
+          document.getElementById('deliveryDetailsContent').innerHTML = `
+            <div class="text-center py-4">
+              <i class="bi bi-exclamation-triangle fs-1 text-danger"></i>
+              <h5 class="mt-3">Connection Error</h5>
+              <p class="text-muted">Failed to connect to server. Please check your connection and try again.</p>
+            </div>
+          `;
         });
+    }
+    
+    // Helper function to get status badge class
+    function getStatusBadgeClass(status) {
+      const statusMap = {
+        'Issued': 'badge-status-issued',
+        'In Progress': 'badge-status-in-progress', 
+        'Delivered': 'badge-status-delivered',
+        'Completed': 'badge-status-completed',
+        'Cancelled': 'badge-status-cancelled'
+      };
+      return statusMap[status] || 'badge-status-issued';
     }
 
     // Update delivery status
     function updateDeliveryStatus(orderId) {
       currentOrderId = orderId;
+      if (!deliveryStatusModal) {
+        deliveryStatusModal = new bootstrap.Modal(document.getElementById('deliveryStatusModal'));
+      }
+      deliveryStatusModal.show();
+    }
+    
+    // Update delivery status from details modal
+    function updateDeliveryStatusFromModal() {
+      if (!currentOrderId) return;
+      
+      // Hide details modal and show status update modal
+      if (deliveryDetailsModal) {
+        deliveryDetailsModal.hide();
+      }
+      
+      // Show status update modal
       if (!deliveryStatusModal) {
         deliveryStatusModal = new bootstrap.Modal(document.getElementById('deliveryStatusModal'));
       }
@@ -992,6 +1425,7 @@
 
       const form = document.getElementById('deliveryStatusForm');
       const formData = new FormData(form);
+      const status = formData.get('status');
       formData.append('_token', '{{ csrf_token() }}');
 
       fetch(`/psm/delivery/${currentOrderId}/status`, {
@@ -1001,7 +1435,33 @@
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          alert('Delivery status updated successfully!');
+          let message = 'Delivery status updated successfully!';
+          
+          // If status is completed, trigger invoice generation
+          if (status === 'Completed') {
+            message += ' Invoice has been automatically generated.';
+            // Call the purchase order complete endpoint to trigger invoice generation
+            fetch(`/psm/order/${currentOrderId}/complete`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+              }
+            })
+            .then(response => response.json())
+            .then(invoiceData => {
+              if (invoiceData.success) {
+                console.log('Invoice generated successfully');
+              } else {
+                console.error('Invoice generation failed:', invoiceData.message);
+              }
+            })
+            .catch(error => {
+              console.error('Invoice generation error:', error);
+            });
+          }
+          
+          alert(message);
           deliveryStatusModal.hide();
           location.reload(); // Refresh to show updated data
         } else {
