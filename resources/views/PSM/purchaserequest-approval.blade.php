@@ -42,7 +42,7 @@
         </div>
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ Auth::user()->role === 'procurement_officer' ? url('/officer/dashboard') : url('/dashboard') }}">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="{{ url('/psm/request') }}">PSM</a></li>
             <li class="breadcrumb-item active">Purchase Request Approval</li>
           </ol>

@@ -1,3 +1,23 @@
+@php
+// Access Control: Only logistics_staff and admin can access SWS
+if (!auth()->check()) {
+    header('Location: /login');
+    exit();
+}
+
+$userRole = auth()->user()->role;
+if (!in_array($userRole, ['logistics_staff', 'admin'])) {
+    // Redirect procurement officers to their dashboard
+    if ($userRole === 'procurement_officer') {
+        header('Location: /officer/dashboard');
+        exit();
+    }
+    // Redirect other unauthorized users to main dashboard
+    header('Location: /dashboard');
+    exit();
+}
+@endphp
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

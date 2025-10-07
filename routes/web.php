@@ -52,50 +52,7 @@ Route::middleware(['auth', 'role:procurement_officer,admin'])->group(function ()
     })->name('officer.dashboard');
     
     Route::get('/officer/purchaserequest', function () {
-        // Get purchase requests data
-        $purchaseRequests = collect(); // Initialize empty collection for now
-        $pendingRequests = collect();
-        $approvedRequests = collect();
-        
-        // Try to get actual data from ItemRequest model if it exists
-        try {
-            $itemRequests = \App\Models\ItemRequest::with('requestedBy', 'stockItem')
-                ->orderBy('created_at', 'desc')
-                ->take(10)
-                ->get();
-            
-            $pendingRequests = $itemRequests->where('status', 'PENDING');
-            $approvedRequests = $itemRequests->where('status', 'COMPLETED');
-            $purchaseRequests = $itemRequests;
-        } catch (\Exception $e) {
-            // If models don't exist, use empty collections
-            $purchaseRequests = collect();
-            $pendingRequests = collect();
-            $approvedRequests = collect();
-        }
-        
-        // Sample recent activities
-        $recentActivities = collect([
-            [
-                'title' => 'Purchase Request Submitted',
-                'description' => 'Office supplies request submitted for approval',
-                'time' => '2 hours ago',
-                'type' => 'info'
-            ],
-            [
-                'title' => 'Request Approved',
-                'description' => 'Vehicle parts request has been approved',
-                'time' => '1 day ago',
-                'type' => 'success'
-            ]
-        ]);
-        
-        return view('Officer.purchaserequest', compact(
-            'purchaseRequests', 
-            'pendingRequests', 
-            'approvedRequests',
-            'recentActivities'
-        ));
+        return redirect()->route('psm.request');
     })->name('officer.purchaserequest');
     
     // Officer Purchase Request Form Submission
@@ -142,39 +99,32 @@ Route::middleware(['auth', 'role:procurement_officer,admin'])->group(function ()
     })->name('officer.request.store');
     
     Route::get('/officer/vendorlist', function () {
-        $vendors = \App\Models\Vendor::all();
-        $stats = [
-            'pending' => \App\Models\Vendor::pending()->count(),
-            'approved' => \App\Models\Vendor::active()->count(),
-            'suspended' => \App\Models\Vendor::suspended()->count(),
-            'total' => \App\Models\Vendor::count()
-        ];
-        return view('Officer.vendorlist', compact('vendors', 'stats'));
+        return redirect()->route('psm.vendor');
     })->name('officer.vendorlist');
     
     Route::get('/officer/biddinglist', function () {
-        return view('Officer.biddinglist');
+        return redirect()->route('psm.bidding');
     })->name('officer.biddinglist');
     
     Route::get('/officer/contractlist', function () {
-        return view('Officer.contractlist');
+        return redirect('/psm/contract');
     })->name('officer.contractlist');
     
     Route::get('/officer/orderlist', function () {
-        return view('Officer.orderlist');
+        return redirect()->route('psm.order.index');
     })->name('officer.orderlist');
     
     Route::get('/officer/trackinglist', function () {
-        return view('Officer.trackinglist');
+        return redirect()->route('psm.delivery');
     })->name('officer.trackinglist');
     
     Route::get('/officer/invoicelist', function () {
-        return view('Officer.invoicelist');
+        return redirect()->route('psm.invoice.index');
     })->name('officer.invoicelist');
 });
 
-// SWS Routes - Accessible by procurement officers and logistics staff
-Route::middleware(['auth', 'role:procurement_officer,logistics_staff,admin'])->group(function () {
+// SWS Routes - Accessible by logistics staff and admin only (procurement officers restricted)
+Route::middleware(['auth', 'role:logistics_staff,admin'])->group(function () {
     Route::get('/smartwarehousing', function () {
         return view('SWS.smartwarehousing');
     });
@@ -314,8 +264,8 @@ Route::middleware(['auth', 'role:procurement_officer,admin'])->group(function ()
     Route::get('/psm/invoice/{invoice}/record-payment', [App\Http\Controllers\PSMInvoiceController::class, 'recordPayment'])->name('psm.invoice.recordPayment');
 });
 
-// Project Logistics Tracker (PLT) Routes - Accessible by logistics staff, procurement officers and admin
-Route::middleware(['auth', 'role:logistics_staff,procurement_officer,admin'])->group(function () {
+// Project Logistics Tracker (PLT) Routes - Accessible by logistics staff and admin only
+Route::middleware(['auth', 'role:logistics_staff,admin'])->group(function () {
     // Project Management Routes
     Route::get('/plt/toursetup', [App\Http\Controllers\ProjectController::class, 'index'])->name('plt.projects.index');
     Route::post('/plt/projects', [App\Http\Controllers\ProjectController::class, 'store'])->name('plt.projects.store');
@@ -354,8 +304,8 @@ Route::middleware(['auth', 'role:logistics_staff,admin'])->group(function () {
     Route::post('/alms/disposal-requests', [App\Http\Controllers\ALMS\DisposalController::class, 'store'])->name('alms.disposal.store');
 });
 
-// Document Tracking Routes - Accessible by logistics staff, procurement officers, and admin
-Route::middleware(['auth', 'role:logistics_staff,admin,procurement_officer'])->group(function () {
+// Document Tracking Routes - Accessible by logistics staff and admin only
+Route::middleware(['auth', 'role:logistics_staff,admin'])->group(function () {
     Route::get('/dtrs/document', [App\Http\Controllers\DTRSController::class, 'documents']);
     Route::get('/dtrs/documents/{documentId}/view', [App\Http\Controllers\DTRSController::class, 'viewDocument']);
     Route::get('/dtrs/documents/{documentId}/download', [App\Http\Controllers\DTRSController::class, 'downloadDocument']);
@@ -540,8 +490,8 @@ Route::get('/create-vendors-table', function () {
     }
 });
 
-// SWS routes by direct view path (fallback) - Accessible by procurement officers and logistics staff
-Route::middleware(['auth', 'role:procurement_officer,logistics_staff,admin'])->group(function () {
+// SWS routes by direct view path (fallback) - Accessible by logistics staff and admin only
+Route::middleware(['auth', 'role:logistics_staff,admin'])->group(function () {
     Route::get('/sws/inventoryreceipt', [App\Http\Controllers\InventoryReceiptController::class, 'index'])->name('sws.inventoryreceipt');
 
     Route::get('/sws/picking-dispatch', function () {

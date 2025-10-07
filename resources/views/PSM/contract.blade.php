@@ -360,10 +360,11 @@
       <!-- Navigation Menu -->
     <ul class="nav flex-column">
       <li class="nav-item">
-        <a href="{{ url('/dashboard') }}" class="nav-link text-dark">
+        <a href="{{ Auth::user()->role === 'procurement_officer' ? url('/officer/dashboard') : url('/dashboard') }}" class="nav-link text-dark">
           <i class="bi bi-speedometer2 me-2"></i> Dashboard
         </a>
       </li>
+      @if(Auth::user()->role !== 'procurement_officer')
       <li class="nav-item">
         <a href="#" class="nav-link text-dark" data-bs-toggle="collapse" data-bs-target="#warehouseSubmenu" aria-expanded="false" aria-controls="warehouseSubmenu">
           <i class="bi bi-box-seam me-2"></i> Smart Warehousing
@@ -394,6 +395,46 @@
           </ul>
         </div>
       </li>
+      @endif
+      @if(Auth::user()->role === 'procurement_officer')
+      <!-- Flat navigation for procurement officers -->
+      <li class="nav-item">
+        <a href="{{ url('/psm/request') }}" class="nav-link text-dark">
+          <i class="bi bi-file-earmark-text me-2"></i> Purchase Request
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{{ url('/psm/vendor') }}" class="nav-link text-dark">
+          <i class="bi bi-building me-2"></i> Vendor Management
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{{ url('/psm/bidding') }}" class="nav-link text-dark">
+          <i class="bi bi-clipboard-check me-2"></i> Bidding & RFQ
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{{ url('/psm/contract') }}" class="nav-link text-dark active">
+          <i class="bi bi-file-earmark-check me-2"></i> Contract Management
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{{ url('/psm/order') }}" class="nav-link text-dark">
+          <i class="bi bi-cart-check me-2"></i> Purchase Orders
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{{ url('/psm/delivery') }}" class="nav-link text-dark">
+          <i class="bi bi-truck me-2"></i> Delivery Tracking
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{{ url('/psm/invoice') }}" class="nav-link text-dark">
+          <i class="bi bi-receipt me-2"></i> Invoice Management
+        </a>
+      </li>
+      @else
+      <!-- Dropdown navigation for admin/logistics staff -->
       <li class="nav-item">
         <a href="#" class="nav-link text-dark active" data-bs-toggle="collapse" data-bs-target="#procurementSubmenu" aria-expanded="true" aria-controls="procurementSubmenu">
           <i class="bi bi-cart-plus me-2"></i> Procurement & Sourcing
@@ -439,6 +480,7 @@
           </ul>
         </div>
       </li>
+      @endif
       @if(Auth::user()->role !== 'procurement_officer')
        <li class="nav-item">
     <a href="#" class="nav-link text-dark" data-bs-toggle="collapse" data-bs-target="#pltSubmenu" aria-expanded="false" aria-controls="pltSubmenu">
@@ -544,7 +586,7 @@
         </div>
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}" class="text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ Auth::user()->role === 'procurement_officer' ? url('/officer/dashboard') : url('/dashboard') }}" class="text-decoration-none">Home</a></li>
             <li class="breadcrumb-item"><a href="{{ url('/psm') }}" class="text-decoration-none">Procurement & Sourcing</a></li>
             <li class="breadcrumb-item active" aria-current="page">Contract Management</li>
           </ol>
