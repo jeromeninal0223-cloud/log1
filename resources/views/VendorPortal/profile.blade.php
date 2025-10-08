@@ -1113,10 +1113,24 @@
         return;
       }
 
+      // Validate that code contains only digits
+      if (!/^\d{6}$/.test(code)) {
+        showError('verification_error', 'Please enter a valid 6-digit numeric code.');
+        return;
+      }
+
+      if (!window.tempSecret) {
+        showError('verification_error', 'No secret key found. Please restart the setup process.');
+        return;
+      }
+
       const btn = document.getElementById('enable2FABtn');
       const originalText = btn.innerHTML;
       btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Verifying...';
       btn.disabled = true;
+
+      console.log('Attempting to enable 2FA with code:', code);
+      console.log('Secret length:', window.tempSecret ? window.tempSecret.length : 'No secret');
 
       fetch('/vendor/2fa/enable', {
         method: 'POST',
@@ -1129,8 +1143,12 @@
           secret: window.tempSecret
         })
       })
-      .then(response => response.json())
+      .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+      })
       .then(data => {
+        console.log('Response data:', data);
         if (data.success) {
           // Show backup codes
           displayBackupCodes(data.backup_codes);
@@ -1149,11 +1167,12 @@
             location.reload(); // Refresh to show updated status
           });
         } else {
-          showError('verification_error', data.message || 'Invalid verification code.');
+          console.error('2FA Enable failed:', data.message);
+          showError('verification_error', data.message || 'Invalid verification code. Please check your authenticator app and try again.');
         }
       })
       .catch(error => {
-        console.error('Error:', error);
+        console.error('Error enabling 2FA:', error);
         showError('verification_error', 'Error enabling 2FA. Please try again.');
       })
       .finally(() => {

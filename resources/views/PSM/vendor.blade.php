@@ -1684,19 +1684,51 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="card-body p-3">
                   <h6 class="card-title mb-2">
                     <i class="bi bi-files text-primary me-2"></i>Additional Documents
-                    ${(currentVendor.additional_documents_paths && currentVendor.additional_documents_paths.length > 0) ? 
-                      `<span class="badge bg-info ms-2">${currentVendor.additional_documents_paths.length} files</span>` : 
-                      '<span class="badge bg-secondary ms-2">Optional</span>'
-                    }
+                    ${(() => {
+                      // Parse additional documents paths safely
+                      let additionalDocs = [];
+                      try {
+                        if (currentVendor.additional_documents_paths) {
+                          if (typeof currentVendor.additional_documents_paths === 'string') {
+                            additionalDocs = JSON.parse(currentVendor.additional_documents_paths);
+                          } else if (Array.isArray(currentVendor.additional_documents_paths)) {
+                            additionalDocs = currentVendor.additional_documents_paths;
+                          }
+                        }
+                      } catch (e) {
+                        console.warn('Failed to parse additional_documents_paths:', e);
+                        additionalDocs = [];
+                      }
+                      
+                      return (additionalDocs && additionalDocs.length > 0) ? 
+                        `<span class="badge bg-info ms-2">${additionalDocs.length} files</span>` : 
+                        '<span class="badge bg-secondary ms-2">Optional</span>';
+                    })()}
                   </h6>
-                  ${(currentVendor.additional_documents_paths && currentVendor.additional_documents_paths.length > 0) ? 
-                    currentVendor.additional_documents_paths.map((path, index) => 
-                      `<button class="btn btn-sm btn-outline-primary me-1 mb-1" onclick="viewDocument('${path}', 'Additional Document ${index + 1}')">
-                        <i class="bi bi-eye me-1"></i>Doc ${index + 1}
-                      </button>`
-                    ).join('') : 
-                    '<small class="text-muted">No additional documents</small>'
-                  }
+                  ${(() => {
+                    // Parse and render additional documents safely
+                    let additionalDocs = [];
+                    try {
+                      if (currentVendor.additional_documents_paths) {
+                        if (typeof currentVendor.additional_documents_paths === 'string') {
+                          additionalDocs = JSON.parse(currentVendor.additional_documents_paths);
+                        } else if (Array.isArray(currentVendor.additional_documents_paths)) {
+                          additionalDocs = currentVendor.additional_documents_paths;
+                        }
+                      }
+                    } catch (e) {
+                      console.warn('Failed to parse additional_documents_paths:', e);
+                      additionalDocs = [];
+                    }
+                    
+                    return (additionalDocs && additionalDocs.length > 0) ? 
+                      additionalDocs.map((path, index) => 
+                        `<button class="btn btn-sm btn-outline-primary me-1 mb-1" onclick="viewDocument('${path}', 'Additional Document ${index + 1}')">
+                          <i class="bi bi-eye me-1"></i>Doc ${index + 1}
+                        </button>`
+                      ).join('') : 
+                      '<small class="text-muted">No additional documents</small>';
+                  })()}
                 </div>
               </div>
             </div>
@@ -2359,19 +2391,51 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="card-body p-3">
                   <h6 class="card-title mb-2">
                     <i class="bi bi-files text-primary me-2"></i>Additional Documents
-                    ${(currentVendor.additional_documents_paths && currentVendor.additional_documents_paths.length > 0) ? 
-                      `<span class="badge bg-info ms-2">${currentVendor.additional_documents_paths.length} files</span>` : 
-                      '<span class="badge bg-secondary ms-2">Optional</span>'
-                    }
+                    ${(() => {
+                      // Parse additional documents paths safely
+                      let additionalDocs = [];
+                      try {
+                        if (currentVendor.additional_documents_paths) {
+                          if (typeof currentVendor.additional_documents_paths === 'string') {
+                            additionalDocs = JSON.parse(currentVendor.additional_documents_paths);
+                          } else if (Array.isArray(currentVendor.additional_documents_paths)) {
+                            additionalDocs = currentVendor.additional_documents_paths;
+                          }
+                        }
+                      } catch (e) {
+                        console.warn('Failed to parse additional_documents_paths:', e);
+                        additionalDocs = [];
+                      }
+                      
+                      return (additionalDocs && additionalDocs.length > 0) ? 
+                        `<span class="badge bg-info ms-2">${additionalDocs.length} files</span>` : 
+                        '<span class="badge bg-secondary ms-2">Optional</span>';
+                    })()}
                   </h6>
-                  ${(currentVendor.additional_documents_paths && currentVendor.additional_documents_paths.length > 0) ? 
-                    currentVendor.additional_documents_paths.map((path, index) => 
-                      `<button class="btn btn-sm btn-outline-primary me-1 mb-1" onclick="viewDocument('${path}', 'Additional Document ${index + 1}')">
-                        <i class="bi bi-eye me-1"></i>Doc ${index + 1}
-                      </button>`
-                    ).join('') : 
-                    '<small class="text-muted">No additional documents</small>'
-                  }
+                  ${(() => {
+                    // Parse and render additional documents safely
+                    let additionalDocs = [];
+                    try {
+                      if (currentVendor.additional_documents_paths) {
+                        if (typeof currentVendor.additional_documents_paths === 'string') {
+                          additionalDocs = JSON.parse(currentVendor.additional_documents_paths);
+                        } else if (Array.isArray(currentVendor.additional_documents_paths)) {
+                          additionalDocs = currentVendor.additional_documents_paths;
+                        }
+                      }
+                    } catch (e) {
+                      console.warn('Failed to parse additional_documents_paths:', e);
+                      additionalDocs = [];
+                    }
+                    
+                    return (additionalDocs && additionalDocs.length > 0) ? 
+                      additionalDocs.map((path, index) => 
+                        `<button class="btn btn-sm btn-outline-primary me-1 mb-1" onclick="viewDocument('${path}', 'Additional Document ${index + 1}')">
+                          <i class="bi bi-eye me-1"></i>Doc ${index + 1}
+                        </button>`
+                      ).join('') : 
+                      '<small class="text-muted">No additional documents</small>';
+                  })()}
                 </div>
               </div>
             </div>

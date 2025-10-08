@@ -1214,13 +1214,11 @@ class VendorController extends Controller
      */
     public function enable2FA(Request $request)
     {
-        // Minimal validation
-        if (!$request->has('verification_code') || !$request->has('secret')) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Missing required fields'
-            ], 422);
-        }
+        // Validate required fields
+        $request->validate([
+            'verification_code' => 'required|string|size:6',
+            'secret' => 'required|string'
+        ]);
 
         // Get authenticated vendor
         $vendor = Auth::guard('vendor')->user();
@@ -1231,17 +1229,41 @@ class VendorController extends Controller
             ], 401);
         }
 
-        // Simple backup codes
-        $backupCodes = [
-            'ABCD-1234', 'EFGH-5678', 'IJKL-9012', 'MNOP-3456',
-            'QRST-7890', 'UVWX-1357', 'YZAB-2468', 'CDEF-9753'
-        ];
+        $verificationCode = $request->input('verification_code');
+        $secret = $request->input('secret');
+
+        // Verify the TOTP code before enabling 2FA
+        \Log::info('2FA Enable Attempt', [
+            'vendor_id' => $vendor->id,
+            'code_length' => strlen($verificationCode),
+            'secret_length' => strlen($secret),
+            'code' => $verificationCode
+        ]);
+        
+        if (!$this->verifyTOTP($secret, $verificationCode)) {
+            \Log::warning('2FA Enable Failed - Invalid Code', [
+                'vendor_id' => $vendor->id,
+                'provided_code' => $verificationCode
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid verification code. Please check your authenticator app and try again.'
+            ], 422);
+        }
+        
+        \Log::info('2FA Enable Success - Code Verified', [
+            'vendor_id' => $vendor->id
+        ]);
+
+        // Generate backup codes
+        $backupCodes = $this->generateBackupCodes();
 
         try {
-            // Use Laravel's database connection instead of hardcoded PDO
+            // Enable 2FA with verified secret
             $vendor->update([
                 'two_factor_enabled' => true,
-                'two_factor_secret' => $request->input('secret'),
+                'two_factor_secret' => $secret,
                 'two_factor_backup_codes' => json_encode($backupCodes),
                 'two_factor_confirmed_at' => now()
             ]);
@@ -1322,12 +1344,12 @@ class VendorController extends Controller
             
             $verificationCode = $request->input('verification_code');
             
-            // Simplified verification - accept any 6-digit code or backup codes
+            // Proper TOTP verification
             $isValid = false;
             
-            // Check if it's a 6-digit code (simplified TOTP verification)
+            // Check if it's a 6-digit code (TOTP verification)
             if (preg_match('/^\d{6}$/', $verificationCode)) {
-                $isValid = true; // Accept any 6-digit code for now
+                $isValid = $this->verifyTOTP($vendor->two_factor_secret, $verificationCode);
             } else {
                 // Check backup codes (only if 2FA secret exists)
                 if ($vendor->two_factor_secret) {
@@ -1409,12 +1431,103 @@ class VendorController extends Controller
     }
 
     /**
-     * Simple TOTP verification function
+     * TOTP verification function
      */
     private function verifyTOTP($secret, $code)
     {
-        // For now, accept any 6-digit code during setup
-        // This is a temporary solution until proper TOTP verification is implemented
-        return preg_match('/^\d{6}$/', $code);
+        if (!$secret || !$code) {
+            \Log::debug('TOTP Verification Failed: Missing secret or code', [
+                'has_secret' => !empty($secret),
+                'has_code' => !empty($code)
+            ]);
+            return false;
+        }
+
+        // Convert base32 secret to binary
+        $binarySecret = $this->base32Decode($secret);
+        if (!$binarySecret) {
+            \Log::debug('TOTP Verification Failed: Invalid base32 secret', [
+                'secret_length' => strlen($secret)
+            ]);
+            return false;
+        }
+
+        // Get current time window (30-second intervals)
+        $timeWindow = floor(time() / 30);
+        
+        \Log::debug('TOTP Verification Attempt', [
+            'provided_code' => $code,
+            'time_window' => $timeWindow,
+            'secret_length' => strlen($secret)
+        ]);
+        
+        // Check current time window and ±1 window for clock drift tolerance
+        for ($i = -1; $i <= 1; $i++) {
+            $testWindow = $timeWindow + $i;
+            $hash = hash_hmac('sha1', pack('N*', 0, $testWindow), $binarySecret, true);
+            
+            // Get offset from last 4 bits of hash
+            $offset = ord($hash[19]) & 0xf;
+            
+            // Extract 4 bytes starting from offset
+            $code_calc = (
+                ((ord($hash[$offset + 0]) & 0x7f) << 24) |
+                ((ord($hash[$offset + 1]) & 0xff) << 16) |
+                ((ord($hash[$offset + 2]) & 0xff) << 8) |
+                (ord($hash[$offset + 3]) & 0xff)
+            ) % 1000000;
+            
+            // Format to 6 digits with leading zeros
+            $expectedCode = str_pad($code_calc, 6, '0', STR_PAD_LEFT);
+            
+            \Log::debug('TOTP Code Calculation', [
+                'window_offset' => $i,
+                'test_window' => $testWindow,
+                'expected_code' => $expectedCode,
+                'provided_code' => $code
+            ]);
+            
+            if (hash_equals($expectedCode, $code)) {
+                \Log::info('TOTP Verification Success', [
+                    'window_offset' => $i
+                ]);
+                return true;
+            }
+        }
+        
+        \Log::warning('TOTP Verification Failed: No matching codes');
+        return false;
+    }
+
+    /**
+     * Decode base32 string
+     */
+    private function base32Decode($input)
+    {
+        if (empty($input)) {
+            return false;
+        }
+        
+        $input = strtoupper($input);
+        $alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+        $output = '';
+        $v = 0;
+        $vbits = 0;
+        
+        for ($i = 0, $j = strlen($input); $i < $j; $i++) {
+            $v <<= 5;
+            $pos = strpos($alphabet, $input[$i]);
+            if ($pos === false) {
+                continue; // Skip invalid characters
+            }
+            $v += $pos;
+            $vbits += 5;
+            if ($vbits >= 8) {
+                $output .= chr(($v >> ($vbits - 8)) & 255);
+                $vbits -= 8;
+            }
+        }
+        
+        return $output;
     }
 }

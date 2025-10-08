@@ -594,7 +594,13 @@
                     </li>
                 @else
                     <li class="nav-item">
-                        <a class="nav-link btn btn-outline-light btn-sm ms-2" href="{{ route('vendor.login') }}">Vendor Login</a>
+                        @if(Auth::check())
+                            {{-- Admin is logged in, show logout first option --}}
+                            <a class="nav-link btn btn-outline-light btn-sm ms-2" href="#" onclick="showAdminLogoutModalForDestination('{{ route('vendor.login') }}')">Vendor Login</a>
+                        @else
+                            {{-- No one is logged in, direct vendor login --}}
+                            <a class="nav-link btn btn-outline-light btn-sm ms-2" href="{{ route('vendor.login') }}">Vendor Login</a>
+                        @endif
                     </li>
                 @endif
             </ul>
@@ -629,12 +635,23 @@
                             <i class="fas fa-file-alt me-2"></i>My Bids
                         </a>
                     @else
-                        <a href="{{ route('vendor.register') }}" class="btn btn-light btn-lg me-3">
-                            <i class="fas fa-user-plus me-2"></i>Register as Vendor
-                        </a>
-                        <a href="#bids" class="btn btn-outline-light btn-lg">
-                            <i class="fas fa-search me-2"></i>View Bids
-                        </a>
+                        @if(Auth::check())
+                            {{-- Admin is logged in --}}
+                            <a href="#" onclick="showAdminLogoutModalForDestination('{{ route('vendor.register') }}')" class="btn btn-light btn-lg me-3">
+                                <i class="fas fa-user-plus me-2"></i>Register as Vendor
+                            </a>
+                            <a href="#bids" class="btn btn-outline-light btn-lg">
+                                <i class="fas fa-search me-2"></i>View Bids
+                            </a>
+                        @else
+                            {{-- No one is logged in --}}
+                            <a href="{{ route('vendor.register') }}" class="btn btn-light btn-lg me-3">
+                                <i class="fas fa-user-plus me-2"></i>Register as Vendor
+                            </a>
+                            <a href="#bids" class="btn btn-outline-light btn-lg">
+                                <i class="fas fa-search me-2"></i>View Bids
+                            </a>
+                        @endif
                     @endif
                 </div>
             </div>
@@ -784,8 +801,15 @@
                 <a href="{{ route('vendor.dashboard') }}" class="btn btn-light btn-lg me-3">Go to Dashboard</a>
                 <a href="{{ route('vendor.bids') }}" class="btn btn-outline-light btn-lg">My Bids</a>
             @else
-                <a href="{{ route('vendor.register') }}" class="btn btn-light btn-lg me-3">Register Now</a>
-                <a href="{{ route('vendor.login') }}" class="btn btn-outline-light btn-lg">Login</a>
+                @if(Auth::check())
+                    {{-- Admin is logged in --}}
+                    <a href="#" onclick="showAdminLogoutModalForDestination('{{ route('vendor.register') }}')" class="btn btn-light btn-lg me-3">Register Now</a>
+                    <a href="#" onclick="showAdminLogoutModalForDestination('{{ route('vendor.login') }}')" class="btn btn-outline-light btn-lg">Login</a>
+                @else
+                    {{-- No one is logged in --}}
+                    <a href="{{ route('vendor.register') }}" class="btn btn-light btn-lg me-3">Register Now</a>
+                    <a href="{{ route('vendor.login') }}" class="btn btn-outline-light btn-lg">Login</a>
+                @endif
             @endif
         </div>
     </div>
@@ -829,9 +853,121 @@
     </div>
 </footer>
 
+<!-- Admin Logout Modal -->
+<div class="modal fade" id="adminLogoutModal" tabindex="-1" aria-labelledby="adminLogoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="adminLogoutModalLabel">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>Admin Session Active
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">You are currently logged in as an <strong>Admin</strong>. To access the Vendor Portal, you need to log out of your admin session first.</p>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Why is this necessary?</strong><br>
+                    Admin and Vendor accounts use separate authentication systems to maintain security and prevent session conflicts.
+                </div>
+                <p class="mb-0">Would you like to log out of your admin session and proceed to the Vendor Login?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-warning" onclick="logoutAndRedirectToVendorDestination()">
+                    <i class="fas fa-sign-out-alt me-1"></i>Logout Admin & Continue
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+// Function to show admin logout modal
+function showAdminLogoutModal() {
+    const modal = new bootstrap.Modal(document.getElementById('adminLogoutModal'));
+    modal.show();
+}
+
+// Function to logout admin and redirect to vendor login
+function logoutAndRedirectToVendor() {
+    // Create a form to logout the admin
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ route("logout") }}';
+    form.style.display = 'none';
+    
+    // Add CSRF token
+    const csrfToken = document.createElement('input');
+    csrfToken.type = 'hidden';
+    csrfToken.name = '_token';
+    csrfToken.value = '{{ csrf_token() }}';
+    form.appendChild(csrfToken);
+    
+    // Add to body and submit
+    document.body.appendChild(form);
+    
+    // Show loading state
+    const button = event.target;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Logging out...';
+    button.disabled = true;
+    
+    // Submit form and redirect after a short delay
+    form.submit();
+    
+    // After logout, redirect to vendor login
+    setTimeout(() => {
+        window.location.href = '{{ route("vendor.login") }}';
+    }, 1000);
+}
+
+// Store the intended destination for after logout
+let intendedVendorDestination = '{{ route("vendor.login") }}';
+
+// Function to set destination and show modal
+function showAdminLogoutModalForDestination(destination) {
+    intendedVendorDestination = destination;
+    showAdminLogoutModal();
+}
+
+// Updated logout function to use stored destination
+function logoutAndRedirectToVendorDestination() {
+    // Create a form to logout the admin
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ route("logout") }}';
+    form.style.display = 'none';
+    
+    // Add CSRF token
+    const csrfToken = document.createElement('input');
+    csrfToken.type = 'hidden';
+    csrfToken.name = '_token';
+    csrfToken.value = '{{ csrf_token() }}';
+    form.appendChild(csrfToken);
+    
+    // Add to body and submit
+    document.body.appendChild(form);
+    
+    // Show loading state
+    const button = event.target;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Logging out...';
+    button.disabled = true;
+    
+    // Submit form and redirect after a short delay
+    form.submit();
+    
+    // After logout, redirect to intended vendor destination
+    setTimeout(() => {
+        window.location.href = intendedVendorDestination;
+    }, 1000);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Navbar scroll effect
     window.addEventListener('scroll', function() {

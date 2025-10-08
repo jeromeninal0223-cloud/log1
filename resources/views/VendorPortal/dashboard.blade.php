@@ -59,53 +59,55 @@
             </li>
             <li><hr class="dropdown-divider m-0"></li>
             
-            @forelse($notifications as $notification)
-              <li class="notification-item {{ $notification['read'] ?? true ? 'read' : 'unread' }}">
-                <a class="dropdown-item py-3 px-3" href="{{ $notification['action_url'] ?? '#' }}">
-                  <div class="d-flex">
-                    <div class="notification-icon-wrapper bg-{{ $notification['type'] ?? 'primary' }} bg-opacity-10 rounded-circle p-2 me-3">
-                      <i class="bi bi-{{ $notification['icon'] ?? 'bell' }} text-{{ $notification['type'] ?? 'primary' }}"></i>
-                    </div>
-                    <div class="flex-grow-1" style="min-width: 0;">
-                      <div class="d-flex justify-content-between align-items-start mb-1">
-                        <div class="fw-semibold text-dark" style="flex: 1; min-width: 0; white-space: normal; overflow: hidden; margin-right: 8px;">{{ $notification['title'] ?? 'Notification' }}</div>
-                        <small class="text-muted" style="white-space: nowrap;">{{ $notification['time_ago'] ?? 'Recently' }}</small>
+            <div class="notification-items-container">
+              @forelse($notifications as $notification)
+                <li class="notification-item {{ $notification['read'] ?? true ? 'read' : 'unread' }}">
+                  <a class="dropdown-item py-3 px-3" href="{{ $notification['action_url'] ?? '#' }}">
+                    <div class="d-flex">
+                      <div class="notification-icon-wrapper bg-{{ $notification['type'] ?? 'primary' }} bg-opacity-10 rounded-circle p-2 me-3">
+                        <i class="bi bi-{{ $notification['icon'] ?? 'bell' }} text-{{ $notification['type'] ?? 'primary' }}"></i>
                       </div>
-                      <div class="text-muted small mb-2" style="line-height: 1.4; word-wrap: break-word; overflow-wrap: break-word;">{{ $notification['description'] ?? '' }}</div>
-                      @if(isset($notification['action_text']) && $notification['action_text'])
-                        <div class="d-flex gap-2">
-                          <button class="btn btn-{{ $notification['type'] ?? 'primary' }} btn-sm notification-action-btn" 
-                                  data-action-url="{{ $notification['action_url'] ?? '#' }}"
-                                  data-opportunity-id="{{ $notification['opportunity_id'] ?? '' }}"
-                                  {{ ($notification['action_disabled'] ?? false) ? 'disabled' : '' }}>
-                            @if(isset($notification['action_icon']))
-                              <i class="bi bi-{{ $notification['action_icon'] }} me-1"></i>
-                            @endif
-                            {{ $notification['action_text'] }}
-                          </button>
-                          @if(isset($notification['secondary_action']))
-                            <button class="btn btn-outline-{{ $notification['type'] ?? 'primary' }} btn-sm notification-secondary-btn"
-                                    data-action-url="{{ $notification['secondary_action']['url'] ?? '#' }}">
-                              @if(isset($notification['secondary_action']['icon']))
-                                <i class="bi bi-{{ $notification['secondary_action']['icon'] }} me-1"></i>
-                              @endif
-                              {{ $notification['secondary_action']['text'] }}
-                            </button>
-                          @endif
+                      <div class="flex-grow-1" style="min-width: 0;">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                          <div class="fw-semibold text-dark" style="flex: 1; min-width: 0; white-space: normal; overflow: hidden; margin-right: 8px;">{{ $notification['title'] ?? 'Notification' }}</div>
+                          <small class="text-muted" style="white-space: nowrap;">{{ $notification['time_ago'] ?? 'Recently' }}</small>
                         </div>
-                      @endif
+                        <div class="text-muted small mb-2" style="line-height: 1.4; word-wrap: break-word; overflow-wrap: break-word;">{{ $notification['description'] ?? '' }}</div>
+                        @if(isset($notification['action_text']) && $notification['action_text'])
+                          <div class="d-flex gap-2">
+                            <button class="btn btn-{{ $notification['type'] ?? 'primary' }} btn-sm notification-action-btn" 
+                                    data-action-url="{{ $notification['action_url'] ?? '#' }}"
+                                    data-opportunity-id="{{ $notification['opportunity_id'] ?? '' }}"
+                                    {{ ($notification['action_disabled'] ?? false) ? 'disabled' : '' }}>
+                              @if(isset($notification['action_icon']))
+                                <i class="bi bi-{{ $notification['action_icon'] }} me-1"></i>
+                              @endif
+                              {{ $notification['action_text'] }}
+                            </button>
+                            @if(isset($notification['secondary_action']))
+                              <button class="btn btn-outline-{{ $notification['type'] ?? 'primary' }} btn-sm notification-secondary-btn"
+                                      data-action-url="{{ $notification['secondary_action']['url'] ?? '#' }}">
+                                @if(isset($notification['secondary_action']['icon']))
+                                  <i class="bi bi-{{ $notification['secondary_action']['icon'] }} me-1"></i>
+                                @endif
+                                {{ $notification['secondary_action']['text'] }}
+                              </button>
+                            @endif
+                          </div>
+                        @endif
+                      </div>
                     </div>
+                  </a>
+                </li>
+              @empty
+                <li class="notification-item">
+                  <div class="dropdown-item py-4 text-center text-muted">
+                    <i class="bi bi-bell fs-1 mb-3 d-block"></i>
+                    <p class="mb-0">No notifications yet</p>
                   </div>
-                </a>
-              </li>
-            @empty
-              <li class="notification-item">
-                <div class="dropdown-item py-4 text-center text-muted">
-                  <i class="bi bi-bell fs-1 mb-3 d-block"></i>
-                  <p class="mb-0">No notifications yet</p>
-                </div>
-              </li>
-            @endforelse
+                </li>
+              @endforelse
+            </div>
             
             <li><hr class="dropdown-divider m-0"></li>
             <li class="notification-footer">
@@ -735,8 +737,9 @@
 
     .notification-dropdown {
       width: 350px !important;
-      max-height: none;
-      overflow: visible;
+      max-height: 400px;
+      overflow-y: auto;
+      overflow-x: hidden;
       border: none;
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -806,22 +809,33 @@
       transform: scale(1.05);
     }
 
+    /* Notification items container */
+    .notification-items-container {
+      max-height: 300px;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
     /* Custom scrollbar for notification dropdown */
-    .notification-dropdown::-webkit-scrollbar {
+    .notification-dropdown::-webkit-scrollbar,
+    .notification-items-container::-webkit-scrollbar {
       width: 6px;
     }
 
-    .notification-dropdown::-webkit-scrollbar-track {
+    .notification-dropdown::-webkit-scrollbar-track,
+    .notification-items-container::-webkit-scrollbar-track {
       background: #f1f1f1;
       border-radius: 3px;
     }
 
-    .notification-dropdown::-webkit-scrollbar-thumb {
+    .notification-dropdown::-webkit-scrollbar-thumb,
+    .notification-items-container::-webkit-scrollbar-thumb {
       background: #c1c1c1;
       border-radius: 3px;
     }
 
-    .notification-dropdown::-webkit-scrollbar-thumb:hover {
+    .notification-dropdown::-webkit-scrollbar-thumb:hover,
+    .notification-items-container::-webkit-scrollbar-thumb:hover {
       background: #a8a8a8;
     }
 
