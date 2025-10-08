@@ -1532,6 +1532,14 @@ class VendorController extends Controller
     }
 
     /**
+     * Show forgot password form
+     */
+    public function showForgotPasswordForm()
+    {
+        return view('VendorPortal.forgot-password');
+    }
+
+    /**
      * Send password reset link to vendor
      */
     public function sendPasswordResetLink(Request $request)
@@ -1546,10 +1554,8 @@ class VendorController extends Controller
             
             if (!$vendor) {
                 // Don't reveal if email exists or not for security
-                return response()->json([
-                    'success' => true,
-                    'message' => 'If your email is registered, you will receive a password reset link shortly.'
-                ]);
+                return redirect()->route('vendor.forgot-password')
+                    ->with('status', 'If your email is registered, you will receive a password reset link shortly.');
             }
 
             // Generate reset token
@@ -1567,18 +1573,14 @@ class VendorController extends Controller
             
             \Log::info("Password reset requested for vendor: {$vendor->email}, token: {$token}");
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Password reset link sent successfully.'
-            ]);
+            return redirect()->route('vendor.forgot-password')
+                ->with('status', 'Password reset link sent successfully! Check your email.');
 
         } catch (\Exception $e) {
             \Log::error('Vendor password reset error: ' . $e->getMessage());
             
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to send reset link. Please try again later.'
-            ], 500);
+            return redirect()->route('vendor.forgot-password')
+                ->with('error', 'Failed to send reset link. Please try again later.');
         }
     }
 

@@ -25,7 +25,8 @@ Route::prefix('vendor')->group(function () {
         Route::post('/register', [VendorController::class, 'register'])->name('vendor.register.submit');
         
         // Password reset routes
-        Route::post('/forgot-password', [VendorController::class, 'sendPasswordResetLink'])->name('vendor.forgot-password');
+        Route::get('/forgot-password', [VendorController::class, 'showForgotPasswordForm'])->name('vendor.forgot-password');
+        Route::post('/forgot-password', [VendorController::class, 'sendPasswordResetLink'])->name('vendor.forgot-password.submit');
         Route::get('/reset-password/{token}', [VendorController::class, 'showResetForm'])->name('vendor.reset-password');
         Route::post('/reset-password', [VendorController::class, 'resetPassword'])->name('vendor.reset-password.submit');
     });
