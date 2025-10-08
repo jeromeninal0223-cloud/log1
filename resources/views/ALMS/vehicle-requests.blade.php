@@ -255,6 +255,7 @@
     <script>
         // CSRF Token Setup
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        console.log('CSRF Token:', csrfToken);
         
         // Elements
         const refreshBtn = document.getElementById('refreshBtn');
@@ -311,7 +312,7 @@
         async function testConnection() {
             showLoading(true);
             try {
-                const response = await fetch('{{ route("alms.vehicle-requests.test") }}', {
+                const response = await fetch('/alms/vehicle-requests/test/connection', {
                     headers: {
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': csrfToken
@@ -355,19 +356,23 @@
 
             if (note !== undefined) {
                 try {
-                    const response = await fetch('{{ route("alms.vehicle-requests.decide") }}', {
+                    console.log('Sending request with CSRF token:', csrfToken);
+                    
+                    const formData = new FormData();
+                    formData.append('request_id', requestId);
+                    formData.append('decision', decision);
+                    formData.append('note', note || '');
+                    formData.append('_token', csrfToken);
+                    
+                    const response = await fetch('/alms/vehicle-requests/decide', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken
+                            'Accept': 'application/json'
                         },
-                        body: JSON.stringify({
-                            request_id: requestId,
-                            decision: decision,
-                            note: note || ''
-                        })
+                        body: formData
                     });
+                    
+                    console.log('Response status:', response.status);
 
                     const data = await response.json();
 

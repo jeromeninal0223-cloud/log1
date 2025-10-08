@@ -23,6 +23,11 @@ Route::prefix('vendor')->group(function () {
         Route::post('/login', [VendorController::class, 'login']);
         Route::get('/register', [VendorController::class, 'showRegisterForm'])->name('vendor.register');
         Route::post('/register', [VendorController::class, 'register'])->name('vendor.register.submit');
+        
+        // Password reset routes
+        Route::post('/forgot-password', [VendorController::class, 'sendPasswordResetLink'])->name('vendor.forgot-password');
+        Route::get('/reset-password/{token}', [VendorController::class, 'showResetForm'])->name('vendor.reset-password');
+        Route::post('/reset-password', [VendorController::class, 'resetPassword'])->name('vendor.reset-password.submit');
     });
 
     // 2FA Challenge route (requires auth but not 2FA verification)

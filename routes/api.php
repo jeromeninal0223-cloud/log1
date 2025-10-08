@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Api\VendorController;
 use App\Http\Controllers\ContractSigningController;
 use Illuminate\Http\Request;

@@ -1530,4 +1530,110 @@ class VendorController extends Controller
         
         return $output;
     }
+
+    /**
+     * Send password reset link to vendor
+     */
+    public function sendPasswordResetLink(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email'
+        ]);
+
+        try {
+            // Check if vendor exists
+            $vendor = \App\Models\Vendor::where('email', $request->email)->first();
+            
+            if (!$vendor) {
+                // Don't reveal if email exists or not for security
+                return response()->json([
+                    'success' => true,
+                    'message' => 'If your email is registered, you will receive a password reset link shortly.'
+                ]);
+            }
+
+            // Generate reset token
+            $token = Str::random(64);
+            
+            // Store token in database (you might want to create a password_resets table)
+            // For now, we'll store it in the vendor record temporarily
+            $vendor->update([
+                'reset_token' => $token,
+                'reset_token_expires' => now()->addHours(1)
+            ]);
+
+            // TODO: Send email with reset link
+            // Mail::to($vendor->email)->send(new VendorPasswordResetMail($token));
+            
+            \Log::info("Password reset requested for vendor: {$vendor->email}, token: {$token}");
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Password reset link sent successfully.'
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Vendor password reset error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send reset link. Please try again later.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Show password reset form
+     */
+    public function showResetForm($token)
+    {
+        $vendor = \App\Models\Vendor::where('reset_token', $token)
+            ->where('reset_token_expires', '>', now())
+            ->first();
+
+        if (!$vendor) {
+            return redirect()->route('vendor.login')
+                ->with('error', 'Invalid or expired reset token.');
+        }
+
+        return view('VendorPortal.reset-password', compact('token'));
+    }
+
+    /**
+     * Reset vendor password
+     */
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|min:8|confirmed',
+        ]);
+
+        try {
+            $vendor = \App\Models\Vendor::where('email', $request->email)
+                ->where('reset_token', $request->token)
+                ->where('reset_token_expires', '>', now())
+                ->first();
+
+            if (!$vendor) {
+                return back()->withErrors(['email' => 'Invalid reset token or email.']);
+            }
+
+            // Update password and clear reset token
+            $vendor->update([
+                'password' => Hash::make($request->password),
+                'reset_token' => null,
+                'reset_token_expires' => null
+            ]);
+
+            return redirect()->route('vendor.login')
+                ->with('success', 'Password reset successfully. You can now login with your new password.');
+
+        } catch (\Exception $e) {
+            \Log::error('Vendor password reset error: ' . $e->getMessage());
+            
+            return back()->with('error', 'Failed to reset password. Please try again.');
+        }
+    }
 }

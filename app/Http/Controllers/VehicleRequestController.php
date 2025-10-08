@@ -36,19 +36,22 @@ class VehicleRequestController extends Controller
                 ]);
             }
             
-            return view('ALMS.vehicle-requests', compact('requests', 'status'));
+            return view('ALMS/vehicle-requests', compact('requests', 'status'));
             
         } catch (\Exception $e) {
             Log::error('Failed to fetch vehicle requests: ' . $e->getMessage());
-            
+            // On failure, still render the page so navigation doesn't bounce back to previous URL
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Failed to fetch requests: ' . $e->getMessage()
                 ], 500);
             }
-            
-            return back()->with('error', 'Failed to fetch vehicle requests: ' . $e->getMessage());
+
+            $requests = [];
+            $error = 'Failed to fetch vehicle requests: ' . $e->getMessage();
+            return view('ALMS/vehicle-requests', compact('requests', 'status'))
+                ->with('error', $error);
         }
     }
 

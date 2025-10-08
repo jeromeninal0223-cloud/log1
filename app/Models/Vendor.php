@@ -40,6 +40,8 @@ class Vendor extends Authenticatable
         'two_factor_secret',
         'two_factor_backup_codes',
         'two_factor_confirmed_at',
+        'reset_token',
+        'reset_token_expires',
     ];
 
     /**
@@ -52,6 +54,7 @@ class Vendor extends Authenticatable
         'remember_token',
         'two_factor_secret',
         'two_factor_backup_codes',
+        'reset_token',
     ];
 
     /**
@@ -74,6 +77,7 @@ class Vendor extends Authenticatable
             'two_factor_enabled' => 'boolean',
             'two_factor_backup_codes' => 'array',
             'two_factor_confirmed_at' => 'datetime',
+            'reset_token_expires' => 'datetime',
         ];
     }
 

@@ -179,7 +179,7 @@
               </a>
             </li>
             <li class="nav-item">
-              <a href="{{ route('alms.vehicle-requests') }}" class="nav-link text-dark small">
+              <a href="{{ url('/alms/vehicle-requests') }}" class="nav-link text-dark small">
                 <i class="bi bi-truck me-2"></i> Vehicle Requests
               </a>
             </li>
