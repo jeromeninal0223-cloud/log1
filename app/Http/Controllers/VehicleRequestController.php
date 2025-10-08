@@ -23,10 +23,38 @@ class VehicleRequestController extends Controller
      */
     public function index(Request $request)
     {
+        // Debug logging
+        Log::info('VehicleRequestController index method called');
+        Log::info('User: ' . auth()->user()->name ?? 'Not authenticated');
+        Log::info('User Role: ' . auth()->user()->role ?? 'No role');
+        
         $status = $request->get('status', 'pending'); // pending, approved, rejected
         
         try {
-            $requests = $this->fetchRequests($status);
+            // For testing, let's use dummy data first
+            $requests = [
+                [
+                    'id' => 1,
+                    'requester_name' => 'John Doe',
+                    'vehicle_type' => 'Van',
+                    'justification' => 'Transport for company event',
+                    'request_date' => '2024-01-15',
+                    'status' => 'pending'
+                ],
+                [
+                    'id' => 2,
+                    'requester_name' => 'Jane Smith',
+                    'vehicle_type' => 'Truck',
+                    'justification' => 'Delivery of equipment',
+                    'request_date' => '2024-01-14',
+                    'status' => 'approved'
+                ]
+            ];
+            
+            // Filter by status
+            $requests = array_filter($requests, function($req) use ($status) {
+                return $req['status'] === $status;
+            });
             
             if ($request->expectsJson()) {
                 return response()->json([
