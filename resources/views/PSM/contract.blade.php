@@ -617,11 +617,11 @@
           <div class="card-body">
             <div class="d-flex align-items-center">
               <div class="stat-icon bg-warning bg-opacity-10 text-warning me-3">
-                <i class="bi bi-clock-history"></i>
+                <i class="bi bi-pen"></i>
               </div>
               <div>
                 <h3 class="fw-bold mb-0">5</h3>
-                <p class="text-muted mb-0 small">Pending Approval</p>
+                <p class="text-muted mb-0 small">Pending Signature</p>
                 <small class="text-warning"><i class="bi bi-arrow-up"></i> +1</small>
               </div>
             </div>
@@ -672,7 +672,7 @@
               <select class="form-select form-select-sm" style="width: auto;">
                 <option value="">All Contracts</option>
                 <option value="active">Active</option>
-                <option value="pending">Pending Approval</option>
+                <option value="pending">Pending Signature</option>
                 <option value="expired">Expired</option>
               </select>
               <button class="btn btn-sm btn-outline-primary">View All</button>
@@ -813,7 +813,7 @@
               <div class="form-check mb-3">
                 <input class="form-check-input" type="checkbox" id="psmAgreeNegotiatedTerms" required>
                 <label class="form-check-label" for="psmAgreeNegotiatedTerms">
-                  I approve the negotiated price and terms on behalf of procurement
+                  I confirm the negotiated price and terms are acceptable for procurement
                 </label>
               </div>
             </div>
@@ -1168,8 +1168,7 @@
             'X-CSRF-TOKEN': csrfToken
           },
           body: JSON.stringify({
-            signature_data: signatureData,
-            final_approval: true
+            signature_data: signatureData
           })
         })
         .then(response => {
@@ -1182,8 +1181,8 @@
           if (data.success) {
             Swal.fire({
               icon: 'success',
-              title: 'Contract Signed!',
-              text: 'The contract has been signed successfully.',
+              title: 'Contract Finalized!',
+              text: 'The contract has been signed and is now active.',
               confirmButtonColor: '#28a745',
               timer: 3000,
               timerProgressBar: true
@@ -1438,7 +1437,7 @@
 
         // Show/hide sign button based on contract status
         const signBtn = document.getElementById('signFromModal');
-        if (contract.status === 'Pending' || contract.workflow_status === 'pending_procurement_signature') {
+        if (contract.status === 'Pending' || contract.workflow_status === 'pending_signature') {
           signBtn.style.display = 'inline-block';
           signBtn.setAttribute('data-contract-id', contract.id);
         } else {

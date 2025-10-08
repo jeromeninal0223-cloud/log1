@@ -158,8 +158,8 @@ class ContractSigningController extends Controller
         // Check if both vendor and procurement have signed
         if ($contract->vendor_signed_at && $contract->procurement_signed_at) {
             $contract->update([
-                'workflow_status' => 'pending_approval',
-                'status' => 'Pending Approval'
+                'workflow_status' => 'fully_signed',
+                'status' => 'Active'
             ]);
         } else {
             $contract->update([
@@ -187,8 +187,8 @@ class ContractSigningController extends Controller
             'signed_at' => $contract->vendor_signed_at
         ]);
 
-        $message = $contract->workflow_status === 'pending_approval' 
-            ? 'Contract signed successfully! Both parties have signed. Contract is now pending approval.'
+        $message = $contract->workflow_status === 'fully_signed' 
+            ? 'Contract signed successfully! Both parties have signed. Contract is now active.'
             : 'Contract signed successfully! Waiting for procurement signature.';
 
         return response()->json([
@@ -218,8 +218,7 @@ class ContractSigningController extends Controller
     {
         try {
             $request->validate([
-                'signature_data' => 'required|string',
-                'final_approval' => 'required|boolean|accepted'
+                'signature_data' => 'required|string'
             ]);
 
             $contract = Contract::findOrFail($contractId);
@@ -246,8 +245,8 @@ class ContractSigningController extends Controller
         // Check if both vendor and procurement have signed
         if ($contract->vendor_signed_at && $contract->procurement_signed_at) {
             $contract->update([
-                'workflow_status' => 'pending_approval',
-                'status' => 'Pending Approval'
+                'workflow_status' => 'fully_signed',
+                'status' => 'Active'
             ]);
         } else {
             $contract->update([
@@ -280,8 +279,8 @@ class ContractSigningController extends Controller
             'workflow_status' => $contract->workflow_status
         ]);
 
-        $message = $contract->workflow_status === 'pending_approval' 
-            ? 'Contract signed successfully! Both parties have signed. Contract is now pending approval.'
+        $message = $contract->workflow_status === 'fully_signed' 
+            ? 'Contract signed successfully! Both parties have signed. Contract is now active.'
             : 'Contract signed successfully! Waiting for vendor signature.';
 
         return response()->json([
