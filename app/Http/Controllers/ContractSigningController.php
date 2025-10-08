@@ -176,10 +176,14 @@ class ContractSigningController extends Controller
             $signatureData = substr($signatureData, strlen('data:image/png;base64,'));
         }
         
-        Storage::disk('private')->put($signaturePath, base64_decode($signatureData));
-
-        // Regenerate contract terms with signature information
-        $contract->generateTerms();
+        try {
+            Storage::disk('private')->put($signaturePath, base64_decode($signatureData));
+        } catch (\Exception $e) {
+            Log::warning('Failed to store vendor signature image', [
+                'contract_id' => $contract->id,
+                'error' => $e->getMessage()
+            ]);
+        }
 
         Log::info('Vendor signed contract', [
             'contract_id' => $contract->id,
@@ -263,14 +267,18 @@ class ContractSigningController extends Controller
             $signatureData = substr($signatureData, strlen('data:image/png;base64,'));
         }
         
-        Storage::disk('private')->put($signaturePath, base64_decode($signatureData));
+        try {
+            Storage::disk('private')->put($signaturePath, base64_decode($signatureData));
+        } catch (\Exception $e) {
+            Log::warning('Failed to store procurement signature image', [
+                'contract_id' => $contract->id,
+                'error' => $e->getMessage()
+            ]);
+        }
 
         // Generate final signed contract document
         // TODO: Re-enable when PDF templates are created
         // $this->generateFinalContractDocument($contract);
-
-        // Regenerate contract terms with signature information
-        $contract->generateTerms();
 
         Log::info('Procurement officer signed contract', [
             'contract_id' => $contract->id,

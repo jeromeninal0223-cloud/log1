@@ -302,6 +302,22 @@ Route::middleware(['auth', 'role:logistics_staff,admin'])->group(function () {
     Route::post('/alms/maintenance/schedules/bulk-reschedule', [App\Http\Controllers\ALMS\MaintenanceController::class, 'bulkReschedule'])->name('alms.maintenance.bulk-reschedule');
     Route::get('/alms/disposalretirement', [App\Http\Controllers\ALMS\DisposalController::class, 'index']);
     Route::post('/alms/disposal-requests', [App\Http\Controllers\ALMS\DisposalController::class, 'store'])->name('alms.disposal.store');
+    
+    // Vehicle Request Management Routes
+    Route::get('/alms/vehicle-requests', [App\Http\Controllers\VehicleRequestController::class, 'index'])->name('alms.vehicle-requests');
+    Route::get('/alms/vehicle-requests/{id}', [App\Http\Controllers\VehicleRequestController::class, 'show'])->name('alms.vehicle-requests.show');
+    Route::post('/alms/vehicle-requests/decide', [App\Http\Controllers\VehicleRequestController::class, 'decide'])->name('alms.vehicle-requests.decide');
+    Route::get('/alms/vehicle-requests/test/connection', [App\Http\Controllers\VehicleRequestController::class, 'testConnection'])->name('alms.vehicle-requests.test');
+    
+    // External Vehicle Approvals Route (Legacy)
+    Route::get('/alms/external-vehicle-approvals', function () {
+        // Since this is a standalone PHP file, we need to include it directly
+        $filePath = resource_path('views/ALMS/external-vehicle-approvals.php');
+        if (file_exists($filePath)) {
+            return response()->file($filePath);
+        }
+        abort(404, 'External vehicle approvals page not found');
+    })->name('alms.external-vehicle-approvals');
 });
 
 // Document Tracking Routes - Accessible by logistics staff and admin only
