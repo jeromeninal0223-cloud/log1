@@ -305,11 +305,6 @@ Route::middleware(['auth', 'role:logistics_staff,admin'])->group(function () {
     
     // Vehicle Request Management Routes
     Route::get('/alms/vehicle-requests', [App\Http\Controllers\VehicleRequestController::class, 'index'])->name('alms.vehicle-requests');
-    
-    // Test route for debugging
-    Route::get('/alms/vehicle-requests-test', function() {
-        return 'Vehicle Requests Test Route Working!';
-    })->name('alms.vehicle-requests.test-simple');
     Route::get('/alms/vehicle-requests/{id}', [App\Http\Controllers\VehicleRequestController::class, 'show'])->name('alms.vehicle-requests.show');
     Route::post('/alms/vehicle-requests/decide', [App\Http\Controllers\VehicleRequestController::class, 'decide'])->name('alms.vehicle-requests.decide');
     Route::get('/alms/vehicle-requests/test/connection', [App\Http\Controllers\VehicleRequestController::class, 'testConnection'])->name('alms.vehicle-requests.test');

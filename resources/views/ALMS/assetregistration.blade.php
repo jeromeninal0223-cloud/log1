@@ -173,7 +173,7 @@
                 <i class="bi bi-arrow-repeat me-2"></i> Maintenance Schedule
               </a>
             </li>
-             <li class="nav-item">
+            <li class="nav-item">
               <a href="{{ url('/alms/disposalretirement') }}" class="nav-link text-dark small">
                 <i class="bi bi-wrench-adjustable me-2"></i> Disposal/Retirement
               </a>
